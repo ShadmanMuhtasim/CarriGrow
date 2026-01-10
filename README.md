@@ -58,7 +58,7 @@ Smart Hospital Solutions is a complete hospital management web application desig
 
 ## UI Design
 - Mock UI is designed using **Figma** to visualize the overall layout and user flow  
-- **Figma Link:** *(Not added yet — update this when available)*  
+- **Figma Link:** *(Not added yet )*  
 
 ---
 
