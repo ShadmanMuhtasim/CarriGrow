@@ -151,8 +151,35 @@ Smart Hospital Solutions is a complete hospital management web application desig
 
 ---
 
-## Monorepo Structure
-```txt
-/smart-hospital-solutions
-  /backend    (Laravel API)
-  /frontend   (React App)
+
+## Milestones
+
+### Milestone 1: Core Foundation & Authentication
+
+* Setup monorepo (Laravel backend + React frontend)
+* Implement JWT-based authentication for all roles
+* Implement email OTP verification
+* Create basic UI layout (Navbar, Sidebar, Role-based dashboards)
+* Implement staff job request system (Pending/Accepted workflow)
+
+### Milestone 2: Hospital Operations & Management
+
+* Departments CRUD
+* Doctor listing under departments
+* Patient doctor filtering + searching
+* Appointment booking + doctor acceptance flow
+* Show bed availability (Normal/VIP/VVIP/ICU/NICU)
+* Admission request feature for patients
+
+### Milestone 3: Content & Finalization
+
+* Medical vlog posting module for doctors
+* OTP-based password reset system
+* Performance optimization
+* Final testing, bug fixing, and deployment
+
+
+
+
+
+
