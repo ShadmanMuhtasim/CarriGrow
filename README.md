@@ -77,8 +77,8 @@ Smart Hospital Solutions is a complete hospital management web application desig
 ### Appointment Management
 - Patients can apply for booking an appointment  
 - Appointment is finalized only after the **doctor accepts** the request  
-- Appointment request workflow *(suggested)*:
-  - Requested → Accepted / Rejected → Completed *(optional)*
+- Appointment request workflow :
+  - Requested → Accepted / Rejected → Completed
 
 ### Department & Doctor Discovery
 - Hospital has multiple departments  
