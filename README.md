@@ -1,4 +1,4 @@
-Project Title : Smart Hospital Solutions – Hospital Management System
+Project Title : Smart Hospital Solutions – A Hospital Management System
 
 ---
 
