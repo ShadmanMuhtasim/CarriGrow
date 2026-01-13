@@ -1,4 +1,4 @@
-Project Title : Carrigrow – A Job Portal with Mentorship & Skill Development
+Project Title : CarriGrow – A Job Portal with Mentorship & Skill Development
 
 ---
 
