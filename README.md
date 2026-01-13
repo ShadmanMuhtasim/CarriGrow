@@ -1,4 +1,4 @@
-Project Title : Smart Hospital Solutions – A Hospital Management System
+Project Title : Carrigrow – A Job Portal with Mentorship & Skill Development
 
 ---
 
@@ -15,9 +15,9 @@ Project Title : Smart Hospital Solutions – A Hospital Management System
    - ID: 20230104110  
 
 3. Ahbab Hassan 
-   - **Role:** Front-end Developer  
-   - **Email:** hasan100.official@gmail.com  
-   - **ID:** 20230104119  
+   - Role: Front-end Developer  
+   - Email: hasan100.official@gmail.com  
+   - ID: 20230104119  
 
 4. Eastiak Ahmed
    - Role: Front-end Developer  
@@ -29,13 +29,13 @@ Project Title : Smart Hospital Solutions – A Hospital Management System
 ## Project Overview
 
 ### Objective
-Smart Hospital Solutions is a complete hospital management web application designed to digitalize core hospital services such as user role management, staff onboarding, appointment booking, department-based doctor browsing, hospital bed availability tracking, and admission requests. The system ensures a smooth workflow between patients and hospital staff with role-based dashboards and approval-based employee onboarding.
+Carrigrow is a web-based job portal designed to help job seekers find opportunities while also supporting career growth through community-driven mentorship and skill development. The platform connects job seekers with employers for job applications and allows experienced professionals to guide users through mentorship discussions and career advice. It also includes basic skill matching between job requirements and user skills, along with role-based dashboards for a smooth user experience.
 
 ### Target Audience
-- Hospital patients  
-- Doctors, nurses, and hospital employees  
-- Hospital administrative staff  
-- Hospital IT staff / system operators  
+- Job seekers (students, fresh graduates, professionals)  
+- Employers / recruiters  
+- Mentors (industry professionals)  
+- Platform admin / moderators  
 
 ---
 
@@ -58,58 +58,69 @@ Smart Hospital Solutions is a complete hospital management web application desig
 
 ## UI Design
 - Mock UI is designed using **Figma** to visualize the overall layout and user flow  
-- **Figma Link:** *(Not added yet )*  
+- **Figma Link:** https://www.figma.com/design/EwX7w0HBjSka7mZpk0IIcZ/Carrigrow?node-id=1647-26119&p=f&t=zicFKz6xB1k8OGfI-0  
 
 ---
 
 ## Project Features
 
 ### Core Features
-- Multi-role authentication system (**Patient, Doctor, Nurse, IT Staff, Admin**)  
+- Multi-role authentication system (**Job Seeker, Employer, Mentor, Admin**)  
 - JWT-based login & registration  
-- Email verification using OTP  
-- Password reset using OTP (sent to email)  
-- Staff onboarding workflow:
-  - Doctor/Nurse/IT can register but their job status stays **Pending**
-  - Admin reviews and approves job requests
-  - After approval, status becomes **Accepted** and they become employees
+- User profile management with skill tagging  
+- Job listings and application system  
+- Mentorship forum for guidance, Q&A, and discussions  
+- Basic skill-matching between job requirements and user skills  
+- Role-based dashboards for different users  
 
-### Appointment Management
-- Patients can apply for booking an appointment  
-- Appointment is finalized only after the **doctor accepts** the request  
-- Appointment request workflow :
-  - Requested → Accepted / Rejected → Completed
+### Job Listings & Applications
+- Employers can create and manage job posts  
+- Job seekers can browse jobs, view details, and apply  
+- Application workflow:
+  - Applied → Reviewed → Shortlisted / Rejected *(basic workflow)*  
 
-### Department & Doctor Discovery
-- Hospital has multiple departments  
-- Doctors are listed under departments  
-- Patients can:
-  - Filter doctors by department  
-  - Search doctors by name  
+### User Profile & Skill Tagging
+- Job seekers can maintain profiles (education, experience, skills)  
+- Skills are stored as tags for matching and filtering  
+- Profile supports portfolio links (optional)  
 
-### Bed Availability & Admission Booking
-- System displays available beds in real-time by category:
-  - Normal  
-  - VIP  
-  - VVIP  
-  - ICU  
-  - NICU  
-- Patients can request admission/booking based on available bed types  
+### Mentorship Forum
+- Job seekers can post questions and request guidance  
+- Mentors can answer, comment, and share resources  
+- Forum supports discussion threads for community learning  
 
-### Medical Vlogs
-- Doctors can post medical vlogs for patient awareness and education  
-- Patients can browse/view medical vlogs *(as per implementation)*  
+### Skill Matching System
+- Job posts include required skills  
+- User profiles contain skill tags  
+- System shows:
+  - Match score (e.g., 60% matched)  
+  - Missing skills list (to guide improvement)  
+
+### Dashboards (Role-Based)
+- Job Seeker Dashboard:
+  - Profile completion
+  - Job applications tracking
+  - Saved posts / mentorship activity *(optional)*  
+- Employer Dashboard:
+  - Posted jobs management
+  - Applicant list viewing
+- Mentor Dashboard:
+  - Forum contributions
+  - Mentorship activity overview
+- Admin Dashboard:
+  - User management
+  - Content moderation *(optional)*  
 
 ---
 
 ## CRUD Operations
-- Users (Patients + Staff + Admin)  
-- Departments  
-- Doctor Profiles (under departments)  
-- Appointments  
-- Beds / Ward Types (Normal, VIP, VVIP, ICU, NICU)  
-- Admission Requests  
-- Medical Vlogs  
+- Users (Job Seekers, Employers, Mentors, Admin)  
+- User Profiles  
+- Skills (tags)  
+- Job Posts  
+- Job Applications  
+- Mentorship Forum Posts  
+- Replies / Comments  
 
 ---
 
@@ -118,36 +129,37 @@ Smart Hospital Solutions is a complete hospital management web application desig
 ### Auth
 - `POST /auth/register`  
 - `POST /auth/login`  
-- `POST /auth/verify-email` *(OTP verification)*  
-- `POST /auth/request-password-reset` *(send OTP)*  
-- `POST /auth/reset-password` *(verify OTP + reset)*  
+- `GET /auth/me`  
+- `POST /auth/logout`  
 
-### Staff Job Requests (Admin Approval)
-- `POST /staff/register` *(Doctor/Nurse/IT → Pending)*  
-- `GET /admin/staff/pending`  
-- `PUT /admin/staff/{id}/approve`  
-- `PUT /admin/staff/{id}/reject`  
+### Users & Profiles
+- `GET /users/{id}`  
+- `PUT /users/{id}`  
+- `GET /skills`  
+- `POST /users/{id}/skills`  
 
-### Departments & Doctors
-- `GET /departments`  
-- `GET /doctors` *(filter by department, search by name)*  
-- `GET /doctors/{id}`  
+### Jobs
+- `POST /jobs` *(employer creates job)*  
+- `GET /jobs` *(browse jobs + filters)*  
+- `GET /jobs/{id}`  
+- `PUT /jobs/{id}` *(update job)*  
+- `DELETE /jobs/{id}` *(delete job)*  
 
-### Appointments
-- `POST /appointments` *(patient applies)*  
-- `GET /appointments` *(role-based list)*  
-- `PUT /appointments/{id}/accept` *(doctor accepts)*  
-- `PUT /appointments/{id}/reject` *(doctor rejects)*  
+### Applications
+- `POST /jobs/{id}/apply` *(job seeker applies)*  
+- `GET /applications` *(role-based list)*  
+- `GET /jobs/{id}/applications` *(employer views applicants)*  
+- `PUT /applications/{id}/status` *(update status)*  
 
-### Beds & Admissions
-- `GET /beds/availability`  
-- `POST /admissions` *(patient requests admission)*  
+### Mentorship Forum
+- `GET /forum/posts`  
+- `POST /forum/posts`  
+- `GET /forum/posts/{id}`  
+- `POST /forum/posts/{id}/replies`  
+- `DELETE /forum/posts/{id}` *(admin/mod)*  
 
-### Medical Vlogs
-- `GET /vlogs`  
-- `POST /vlogs` *(doctor creates)*  
-- `PUT /vlogs/{id}`  
-- `DELETE /vlogs/{id}`  
+### Skill Matching
+- `GET /jobs/{id}/match-score`  
 
 ---
 
@@ -155,31 +167,22 @@ Smart Hospital Solutions is a complete hospital management web application desig
 ## Milestones
 
 ### Milestone 1: Core Foundation & Authentication
-
 * Setup monorepo (Laravel backend + React frontend)
+* Configure MySQL database
 * Implement JWT-based authentication for all roles
-* Implement email OTP verification
 * Create basic UI layout (Navbar, Sidebar, Role-based dashboards)
-* Implement staff job request system (Pending/Accepted workflow)
+* Implement user profile + skill tagging system
 
-### Milestone 2: Hospital Operations & Management
+### Milestone 2: Job Portal Core
+* Employer job posting CRUD
+* Job browsing + filtering + search
+* Job application system
+* Employer applicant management dashboard
+* Application status tracking
 
-* Departments CRUD
-* Doctor listing under departments
-* Patient doctor filtering + searching
-* Appointment booking + doctor acceptance flow
-* Show bed availability (Normal/VIP/VVIP/ICU/NICU)
-* Admission request feature for patients
-
-### Milestone 3: Content & Finalization
-
-* Medical vlog posting module for doctors
-* OTP-based password reset system
+### Milestone 3: Mentorship + Matching + Finalization
+* Mentorship forum (posts + replies)
+* Basic skill matching score + missing skills suggestion
+* Admin moderation features *(optional)*
 * Performance optimization
 * Final testing, bug fixing, and deployment
-
-
-
-
-
-
