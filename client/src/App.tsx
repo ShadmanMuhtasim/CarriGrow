@@ -1,36 +1,42 @@
-import { Outlet, Route, Routes } from 'react-router';
-import BaseLayout from './views/BaseLayout';
-import Home from './views/Home';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './index.css';
-import { Toaster } from 'react-hot-toast';
-import Sessions from './views/Sessions';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import PublicLayout from "./layouts/PublicLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
+
+export default function App() {
   return (
-    <>
+    <BrowserRouter>
       <Routes>
+        {/* Public */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
+
+        {/* Protected */}
         <Route
+          path="/dashboard"
           element={
-            <BaseLayout>
-              <Outlet />
-            </BaseLayout>
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
           }
         >
-          <Route path={'/'} element={<Home />} />
-          <Route path={'/sessions'} element={<Sessions />} />
+          <Route index element={<Dashboard />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
+
+        <Route path="/home" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          error: {
-            duration: 5000,
-          },
-        }}
-      />
-    </>
+    </BrowserRouter>
   );
 }
-
-export default App;
