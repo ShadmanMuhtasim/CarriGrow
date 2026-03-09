@@ -1,72 +1,49 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { logout } from "../services/auth";
-import { getToken } from "../utils/token";
+import { getMe } from "../services/user";
+import { getToken, removeToken } from "../utils/token";
+import JobSeekerLayout from "./JobSeekerLayout";
+import EmployerLayout from "./EmployerLayout";
+import MentorLayout from "./MentorLayout";
+import AdminLayout from "./AdminLayout";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
-  const token = getToken();
+  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
 
   const onLogout = async () => {
+    const token = getToken();
     try {
       if (token) await logout();
     } finally {
+      removeToken();
       navigate("/login");
     }
   };
 
-  return (
-    <div className="min-vh-100 bg-light">
-      <div className="container-fluid">
-        <div className="row">
-          {/* Sidebar */}
-          <aside className="col-12 col-lg-3 col-xl-2 p-0">
-            <div className="dashboard-sidebar">
-              <div className="p-3 border-bottom">
-                <div className="d-flex align-items-center gap-2">
-                  <div className="brand-badge">
-                    <i className="bi bi-briefcase"></i>
-                  </div>
-                  <div>
-                    <div className="fw-bold">CarriGrow</div>
-                    <div className="text-muted small">Dashboard</div>
-                  </div>
-                </div>
-              </div>
+  useEffect(() => {
+    (async () => {
+      try {
+        const me = await getMe();
+        setRole(me?.user?.role ?? "job_seeker");
+      } catch {
+        removeToken();
+        navigate("/login", { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [navigate]);
 
-              <nav className="p-2">
-                <NavLink to="/dashboard" end className="dash-link">
-                  <i className="bi bi-speedometer2 me-2" />
-                  Overview
-                </NavLink>
+  if (loading) {
+    return <div className="p-4 text-muted">Loading dashboard...</div>;
+  }
 
-                <NavLink to="/dashboard/profile" className="dash-link">
-                  <i className="bi bi-person-badge me-2" />
-                  Profile
-                </NavLink>
+  if (role === "employer") return <EmployerLayout onLogout={onLogout} />;
+  if (role === "mentor") return <MentorLayout onLogout={onLogout} />;
+  if (role === "admin") return <AdminLayout onLogout={onLogout} />;
 
-                <button className="dash-link btn btn-link text-start w-100" onClick={onLogout}>
-                  <i className="bi bi-box-arrow-right me-2" />
-                  Logout
-                </button>
-              </nav>
-            </div>
-          </aside>
-
-          {/* Content */}
-          <main className="col-12 col-lg-9 col-xl-10 p-0">
-            <div className="dashboard-topbar border-bottom bg-white">
-              <div className="container-fluid py-3 d-flex align-items-center justify-content-between">
-                <div className="fw-semibold">Welcome</div>
-               
-              </div>
-            </div>
-
-            <div className="container-fluid py-4">
-              <Outlet />
-            </div>
-          </main>
-        </div>
-      </div>
-    </div>
-  );
+  return <JobSeekerLayout onLogout={onLogout} />;
 }
