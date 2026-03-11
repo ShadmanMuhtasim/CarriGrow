@@ -6,8 +6,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import DashboardSection from "./pages/DashboardSection";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -19,6 +22,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
         {/* Protected */}
@@ -32,6 +37,7 @@ export default function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
+          <Route path=":section" element={<DashboardSection />} />
         </Route>
 
         <Route path="/home" element={<Navigate to="/" replace />} />

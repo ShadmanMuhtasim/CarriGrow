@@ -1,14 +1,17 @@
 <?php
 
 namespace App\Models;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
+    use SoftDeletes;
    
     public const ROLE_JOB_SEEKER = 'job_seeker';
     public const ROLE_EMPLOYER   = 'employer';
@@ -31,6 +34,11 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
+
     public function jobSeekerProfile()
     {
         return $this->hasOne(JobSeekerProfile::class);
@@ -49,7 +57,7 @@ class User extends Authenticatable implements JWTSubject
     public function skills()
     {
         return $this->belongsToMany(Skill::class)
-            ->withPivot('level')
+            ->withPivot('proficiency_level')
             ->withTimestamps();
     }
 
@@ -79,13 +87,13 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function getJWTIdentifier()
-{
-    return $this->getKey();
-}
+    {
+        return $this->getKey();
+    }
 
-public function getJWTCustomClaims()
-{
-    return [];
-}
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 
 }

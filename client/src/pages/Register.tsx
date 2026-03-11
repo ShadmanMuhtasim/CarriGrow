@@ -1,34 +1,79 @@
 import { useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
-import { register } from "../services/auth";
-import { setToken } from "../utils/token";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { NavLink, useNavigate } from "react-router-dom";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import Select from "../components/form/Select";
+import CheckboxRadio from "../components/form/CheckboxRadio";
+import { useAuth } from "../hooks/useAuth";
+import { toastUI } from "../components/ui/Toast";
+import { getPostAuthRedirectPath } from "../utils/authRedirect";
+import { getApiErrorMessage } from "../utils/apiError";
+
+const schema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Enter a valid email"),
+    role: z.enum(["job_seeker", "employer", "mentor"]),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .regex(/[A-Z]/, "Password needs at least one uppercase letter")
+      .regex(/[a-z]/, "Password needs at least one lowercase letter")
+      .regex(/[0-9]/, "Password needs at least one number"),
+    password_confirmation: z.string(),
+    terms_accepted: z.boolean().refine((value) => value === true, {
+      message: "You must accept terms and conditions",
+    }),
+  })
+  .refine((values) => values.password === values.password_confirmation, {
+    path: ["password_confirmation"],
+    message: "Password confirmation does not match",
+  });
+
+type FormValues = z.infer<typeof schema>;
 
 export default function Register() {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
 
-  const [name, setName] = useState("New User");
-  const [email, setEmail] = useState(`newuser${Date.now()}@gmail.com`);
-  const [password, setPassword] = useState("password");
-  const [role, setRole] = useState("job_seeker");
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+  const [err, setErr] = useState("");
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErr(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      role: "job_seeker",
+      password: "",
+      password_confirmation: "",
+      terms_accepted: false,
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    setErr("");
     setLoading(true);
     try {
-      const res = await register({
-        name,
-        email,
-        password,
-        password_confirmation: password,
-        role,
+      const signedUpUser = await signUp({
+        name: values.name,
+        email: values.email,
+        role: values.role,
+        password: values.password,
+        password_confirmation: values.password_confirmation,
       });
-      setToken(res.access_token);
-      navigate("/dashboard");
-    } catch (error: any) {
-      setErr(error?.response?.data?.message ?? "Register failed");
+      toastUI.success("Account created successfully");
+      navigate(getPostAuthRedirectPath(signedUpUser), { replace: true });
+    } catch (error: unknown) {
+      console.error(error);
+      setErr(getApiErrorMessage(error, "Registration failed"));
     } finally {
       setLoading(false);
     }
@@ -46,42 +91,54 @@ export default function Register() {
 
                 {err && <div className="alert alert-danger">{err}</div>}
 
-                <form onSubmit={onSubmit} className="row g-3">
+                <form onSubmit={handleSubmit(onSubmit)} className="row g-3">
                   <div className="col-12">
-                    <label className="form-label">Name</label>
-                    <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} />
+                    <Input label="Name" error={errors.name?.message} {...register("name")} />
                   </div>
 
                   <div className="col-12">
-                    <label className="form-label">Email</label>
-                    <input className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Input label="Email" type="email" error={errors.email?.message} {...register("email")} />
                   </div>
 
                   <div className="col-12 col-md-6">
-                    <label className="form-label">Role</label>
-                    <select className="form-select" value={role} onChange={(e) => setRole(e.target.value)}>
-                      <option value="job_seeker">Job Seeker</option>
-                      <option value="employer">Employer</option>
-                      <option value="mentor">Mentor</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                    <div className="form-text">Admin is limited to max 4.</div>
+                    <Select
+                      label="Role"
+                      error={errors.role?.message}
+                      options={[
+                        { value: "job_seeker", label: "Job Seeker" },
+                        { value: "employer", label: "Employer" },
+                        { value: "mentor", label: "Mentor" },
+                      ]}
+                      {...register("role")}
+                    />
                   </div>
 
                   <div className="col-12 col-md-6">
-                    <label className="form-label">Password</label>
-                    <input
-                      className="form-control"
+                    <Input label="Password" type="password" error={errors.password?.message} {...register("password")} />
+                  </div>
+
+                  <div className="col-12">
+                    <Input
+                      label="Confirm Password"
                       type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      error={errors.password_confirmation?.message}
+                      {...register("password_confirmation")}
                     />
                   </div>
 
                   <div className="col-12">
-                    <button disabled={loading} className="btn btn-primary w-100" type="submit">
-                      {loading ? "Creating..." : "Create Account"}
-                    </button>
+                    <CheckboxRadio
+                      label="I agree to the terms and conditions."
+                      type="checkbox"
+                      error={errors.terms_accepted?.message}
+                      {...register("terms_accepted")}
+                    />
+                  </div>
+
+                  <div className="col-12">
+                    <Button loading={loading} className="w-100" type="submit">
+                      Create Account
+                    </Button>
                   </div>
                 </form>
 

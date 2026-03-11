@@ -6,7 +6,7 @@ export default function Footer() {
           <div className="col-12 col-lg-4">
             <div className="d-flex align-items-center gap-2 mb-3">
               <span className="brand-badge">
-                <i className="bi bi-briefcase"></i>
+                <i className="bi bi-briefcase" />
               </span>
               <span className="fw-bold fs-5">Carrigrow</span>
             </div>
@@ -59,7 +59,7 @@ export default function Footer() {
         <hr className="footer-hr my-4" />
 
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-          <div className="text-muted small">© 2026 Carrigrow — Job Portal. All rights reserved.</div>
+          <div className="text-muted small">(c) 2026 Carrigrow - Job Portal. All rights reserved.</div>
 
           <div className="d-flex gap-3 fs-5">
             <a className="footer-social" href="#facebook" aria-label="Facebook"><i className="bi bi-facebook" /></a>

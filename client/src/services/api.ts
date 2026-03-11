@@ -1,8 +1,9 @@
 import axios from "axios";
 import { getToken } from "../utils/token";
+import { secrets } from "../secrets";
 
 export const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: secrets.apiBaseUrl,
   headers: { Accept: "application/json" },
 });
 

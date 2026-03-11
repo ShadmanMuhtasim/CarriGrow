@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { getToken } from "../utils/token";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Home() {
   const navigate = useNavigate();
-  const isLoggedIn = Boolean(getToken());
+  const { isAuthenticated } = useAuth();
 
   return (
     <div>
@@ -55,7 +55,7 @@ export default function Home() {
               </div>
 
               <div className="mt-3 d-flex gap-2 flex-wrap">
-                {!isLoggedIn ? (
+                {!isAuthenticated ? (
                   <>
                     <button className="btn btn-outline-primary" onClick={() => navigate("/login")}>Sign In</button>
                     <button className="btn btn-primary" onClick={() => navigate("/register")}>Create Account</button>

@@ -1,25 +1,53 @@
 import { useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
-import { login } from "../services/auth";
-import { setToken } from "../utils/token";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { NavLink, useNavigate } from "react-router-dom";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import CheckboxRadio from "../components/form/CheckboxRadio";
+import { useAuth } from "../hooks/useAuth";
+import { toastUI } from "../components/ui/Toast";
+import { getPostAuthRedirectPath } from "../utils/authRedirect";
+import { getApiErrorMessage } from "../utils/apiError";
+
+const schema = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  remember_me: z.boolean().optional(),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("testuser3@gmail.com");
-  const [password, setPassword] = useState("password");
+  const { signIn } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+  const [err, setErr] = useState("");
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErr(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      email: "",
+      password: "",
+      remember_me: false,
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    setErr("");
     setLoading(true);
     try {
-      const res = await login({ email, password });
-      setToken(res.access_token);
-      navigate("/dashboard");
-    } catch (error: any) {
-      setErr(error?.response?.data?.message ?? "Login failed");
+      const signedInUser = await signIn({ email: values.email, password: values.password });
+      toastUI.success("Signed in successfully");
+      navigate(getPostAuthRedirectPath(signedInUser), { replace: true });
+    } catch (error: unknown) {
+      console.error(error);
+      setErr(getApiErrorMessage(error, "Invalid email or password"));
     } finally {
       setLoading(false);
     }
@@ -37,25 +65,20 @@ export default function Login() {
 
                 {err && <div className="alert alert-danger">{err}</div>}
 
-                <form onSubmit={onSubmit} className="vstack gap-3">
-                  <div>
-                    <label className="form-label">Email</label>
-                    <input className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <form onSubmit={handleSubmit(onSubmit)} className="vstack gap-3">
+                  <Input label="Email" type="email" error={errors.email?.message} {...register("email")} />
+                  <Input label="Password" type="password" error={errors.password?.message} {...register("password")} />
+
+                  <div className="d-flex align-items-center justify-content-between">
+                    <CheckboxRadio label="Remember me" type="checkbox" {...register("remember_me")} />
+                    <NavLink to="/forgot-password" className="btn btn-link p-0 text-decoration-none">
+                      Forgot Password?
+                    </NavLink>
                   </div>
 
-                  <div>
-                    <label className="form-label">Password</label>
-                    <input
-                      className="form-control"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-
-                  <button disabled={loading} className="btn btn-primary w-100" type="submit">
-                    {loading ? "Signing in..." : "Sign In"}
-                  </button>
+                  <Button loading={loading} className="w-100" type="submit">
+                    Sign In
+                  </Button>
                 </form>
 
                 <div className="text-center mt-3">

@@ -1167,10 +1167,11 @@ composer install
 cp .env.example .env
 # Update database credentials in .env
 
-# Generate key and run migrations
+# Generate key and import SQL baseline
 php artisan key:generate
-php artisan migrate
-php artisan db:seed
+php artisan jwt:secret
+# Import database/docker/init/00-schema.sql
+# Import database/docker/init/10-reference-data.sql
 
 # Start server
 php artisan serve

@@ -1,13 +1,13 @@
 const KEY = "carrigrow_token";
 
 export function getToken(): string | null {
-  return localStorage.getItem(KEY);
+  return sessionStorage.getItem(KEY);
 }
 
 export function setToken(token: string) {
-  localStorage.setItem(KEY, token);
+  sessionStorage.setItem(KEY, token);
 }
 
 export function removeToken() {
-  localStorage.removeItem(KEY);
+  sessionStorage.removeItem(KEY);
 }

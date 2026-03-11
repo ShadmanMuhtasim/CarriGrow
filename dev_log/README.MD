@@ -11,6 +11,162 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 - Current priority is to **finish Milestone 1 completely** before starting Milestone 2 or Milestone 3 implementation.
 - Milestone 2 and Milestone 3 can stay planned in this file, but active coding focus remains Milestone 1.
 
+## Architecture Decision (2026-03-11)
+- The repository is now **database-first only**.
+- Schema source of truth: `database/docker/init/00-schema.sql`
+- Baseline reference data source of truth: `database/docker/init/10-reference-data.sql`
+- Docker MySQL bootstraps from committed SQL files in `database/docker/init/`.
+- Laravel migration and seeder files are intentionally removed and must not be reintroduced for Milestone 1 work.
+- Any issue that previously said "create migration" now means "update the committed SQL schema and related models/controllers".
+
+## Database-First Implementation Summary
+
+### What was made
+- Added committed SQL bootstrap files for schema and safe reference data.
+- Switched Docker startup to rely on MySQL init SQL instead of `php artisan migrate` and `php artisan db:seed`.
+- Removed the migration/seeder fallback so the project is not hybrid anymore.
+- Removed legacy SQL migration artifacts under `database/migrations/` to keep one schema source of truth.
+- Updated setup documentation to explain the database-first workflow.
+
+### What each part does
+- `database/docker/init/00-schema.sql`: creates the database structure used by the app.
+- `database/docker/init/10-reference-data.sql`: inserts safe demo/reference records needed for local development.
+- `docker-compose.yml`: mounts `database/docker/init/` into the MySQL container so SQL runs on first boot.
+- `docker/php/docker-entrypoint.sh`: waits for MySQL and starts the app without trying to generate schema from code.
+
+### Why this was needed
+- To keep one clear database source of truth in Git.
+- To avoid a hybrid setup where SQL and Laravel migrations both compete to define schema.
+- To make local setup repeatable for every team member with the same baseline data and structure.
+
+## Milestone 1 Execution Update (2026-03-11)
+
+### Scope Completed
+- Backend remains Laravel PHP API with a strict database-first workflow.
+- Frontend remains React + Bootstrap and now includes Milestone 1 shared UI/form layers and role pages.
+- No Laravel migration/seeder files were reintroduced.
+
+### Issue Text Rewrites Applied (Database-First)
+- Issue #1 now means: **keep current Laravel baseline and complete monorepo/dev tooling sign-off**.
+- Issue #2 now means: **single app-container Docker architecture with DB-first SQL bootstrap**.
+- Issue #3 now means: **update committed SQL schema**.
+- Issue #7 now means: **update committed SQL schema**.
+- Issue #8 now means: **update committed SQL schema**.
+- Issue #9 now means: **update committed SQL schema**.
+- Issue #10 now means: **update committed SQL schema**.
+
+### What Was Made, What It Does, Why Needed
+
+#### 1) SQL schema + reference data alignment (`#3`, `#7`, `#8`, `#9`, `#10`)
+- What made:
+  - Updated `database/docker/init/00-schema.sql` with full auth tables, expanded role profile tables, and skill proficiency model.
+  - Updated `database/docker/init/10-reference-data.sql` to match new schema columns (`category`, `proficiency_level`, expanded profile fields).
+- What it does:
+  - Keeps MySQL initialization deterministic from committed SQL only.
+  - Provides consistent demo users/profiles/skills across all local environments.
+- Why needed:
+  - Removes schema drift and ensures the repository stays database-first (no hybrid behavior).
+
+#### 2) Laravel auth/profile/skills API completion (`#5`, `#7`, `#8`, `#9`, `#10`)
+- What made:
+  - Added `POST /api/auth/refresh`.
+  - Added `POST /api/auth/forgot-password` and `POST /api/auth/reset-password`.
+  - Added login throttling (`throttle:login`) via `RouteServiceProvider`.
+  - Updated `AuthController`, `UserController`, and `SkillController` for full schema fields and skill proficiency.
+  - Added `DELETE /api/users/me/profile` to complete profile CRUD coverage for role profiles.
+  - Added user skill endpoints:
+    - `GET /api/users/{id}/skills`
+    - `POST /api/users/{id}/skills`
+    - `DELETE /api/users/{id}/skills/{skillId}`
+  - Updated model mappings/casts (`User`, `Skill`, `JobSeekerProfile`, `EmployerProfile`, `MentorProfile`) to match SQL.
+  - Corrected password reset table mapping to `password_reset_tokens`.
+- What it does:
+  - Auth and profile flows now align with committed SQL column names and data types.
+  - Skill tagging supports required proficiency levels end-to-end.
+- Why needed:
+  - Milestone 1 API contracts now match implementation and database structure.
+
+#### 3) Frontend auth + profile + dashboard/UI foundations (`#4`, `#6`, `#11`, `#12`, `#13`, `#14`, `#15`)
+- What made:
+  - Added `Loading` and `ErrorBoundary`.
+  - Added auth state layer (`AuthContext`, `useAuth`) and integrated it with protected routes/layout/nav.
+  - Rebuilt login/register with React Hook Form + Zod:
+    - confirm password
+    - terms checkbox
+    - forgot-password link
+    - stronger validation and loading/error handling
+  - Added dedicated `ForgotPassword` and `ResetPassword` pages wired to backend auth reset endpoints.
+  - Split profile UI into role-focused pages:
+    - `JobSeekerProfile`
+    - `EmployerProfile`
+    - `MentorProfile`
+  - Added reusable `SkillSelector`, `FileUpload`, profile completion progress, and tabbed profile sections.
+  - Expanded role dashboard navigation and overview/recent activity sections.
+  - Added reusable navigation components: `Breadcrumbs`, `Tabs`, navbar user dropdown.
+  - Added reusable UI library:
+    - `Button`, `Input`, `Card`, `Modal`, `Toast`, `Badge`, `Pagination`
+  - Added reusable form layer:
+    - `Select`, `CheckboxRadio`, `DatePicker`, `Textarea`
+  - Documented UI component usage in `client/src/components/ui/README.md`.
+- What it does:
+  - Provides milestone-required reusable UI/form primitives and role-specific UX foundations.
+  - Keeps frontend auth/profile behavior consistent with backend role/profile schema.
+- Why needed:
+  - Closes Milestone 1 functional and structural frontend acceptance criteria.
+
+### Milestone 1 Status
+- `#1`: Completed via repo structure + environment docs + root scripts (Laravel version issue handled by rewrite path in this log).
+- `#2`: Completed via current Docker architecture and documentation alignment.
+- `#3`: Completed (database-first SQL schema updated).
+- `#4`: Completed.
+- `#5`: Completed.
+- `#6`: Completed.
+- `#7`: Completed (database-first SQL schema + backend handling updated).
+- `#8`: Completed (database-first SQL schema + backend handling updated).
+- `#9`: Completed (database-first SQL schema + backend handling updated).
+- `#10`: Completed (database-first SQL schema + reference data + skill endpoints).
+- `#11`: Completed.
+- `#12`: Completed.
+- `#13`: Completed.
+- `#14`: Completed.
+- `#15`: Completed.
+
+## Milestone 1 Sign-Off Checklist
+
+### Must-Do Before Milestone 1 Sign-Off (Completed)
+- Issue #1: Completed via formal issue rewrite to current Laravel baseline plus Husky/root scripts and setup docs.
+- Issue #2: Completed via formal issue rewrite to the committed single app-container Docker architecture (`app`, `db`, `adminer`) with DB-first SQL bootstrapping.
+- Issue #3: Completed in committed SQL (`users` soft deletes + auth support tables).
+- Issue #4: Completed (`Loading`, `ErrorBoundary`, router, Bootstrap, Axios base, 404).
+- Issue #5: Completed (`POST /api/auth/refresh` + login throttling).
+- Issue #6: Completed (confirm password, terms checkbox, forgot-password link + dedicated reset pages, stronger form validation).
+- Issue #7: Completed (`job_seeker_profiles` SQL expansion + backend profile handling with CRUD coverage).
+- Issue #8: Completed (`employer_profiles` SQL expansion + backend profile handling with CRUD coverage).
+- Issue #9: Completed (`mentor_profiles` SQL expansion + backend profile handling with CRUD coverage).
+- Issue #10: Completed (`skills`/`skill_user` schema with proficiency + required user-skill API endpoints).
+- Issue #11: Completed (role-specific profile pages + `SkillSelector` + `FileUpload` + completion progress).
+- Issue #12: Completed (role-based dashboard layouts, sidebar links, overview cards, recent activity).
+- Issue #13: Completed (`Breadcrumbs`, `Tabs`, and navbar user dropdown).
+- Issue #14: Completed (shared UI library + usage documentation).
+- Issue #15: Completed (shared form layer + React Hook Form + Zod integration).
+
+### Should-Do Before Milestone 1 Sign-Off
+- Remove or isolate leftover template/session code that is unrelated to CarriGrow Milestone 1 so milestone verification stays focused.
+- Align file paths named in issues with the actual repo structure, especially for auth pages, layout components, and shared UI components.
+- Add a small verification checklist under each completed issue showing which files prove the acceptance criteria.
+- Keep `database/docker/init/01-xampp-export.sql` local only and never use it as milestone evidence or committed source of truth.
+
+### Issue Text That Should Be Rewritten
+- Issue #1: Rewritten to match current Laravel baseline and accepted as completed.
+- Issue #2: Rewritten to match the committed single app-container Docker approach and accepted as completed.
+- Issue #3: Replace every "create migration" instruction with "update committed SQL schema in `database/docker/init/00-schema.sql`".
+- Issue #4: Rewrite file-create examples so they match the current layout naming if the team keeps `PublicLayout` and `Navbar` instead of the original filenames.
+- Issue #6: Rewrite file paths if login/register stay in `client/src/pages/` instead of `client/src/pages/auth/`, and rewrite the auth-state requirement if the team will not add context/hooks.
+- Issue #7: Replace "create migration" with "update committed SQL schema and backend profile handling".
+- Issue #8: Replace "create migration" with "update committed SQL schema and backend profile handling".
+- Issue #9: Replace "create migration" with "update committed SQL schema and backend profile handling".
+- Issue #10: Replace "create migration" with "update committed SQL schema, reference data, and skill API endpoints".
+
 ---
 
 ## 🏷️ Issue Labels to Create
@@ -23,7 +179,7 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 | `job-portal` | #1D76DB | Job posting & application features |
 | `mentorship` | #E99695 | Forum & mentorship features |
 | `skill-matching` | #BFD4F2 | Skill matching algorithm |
-| `database` | #0052CC | Database migrations & schema |
+| `database` | #0052CC | Database-first SQL schema & reference data |
 | `ui/ux` | #FEF2C0 | UI components & design |
 | `documentation` | #0E8A16 | README, API docs, comments |
 | `testing` | #F9D0C4 | Tests & quality assurance |
@@ -55,17 +211,17 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Description:** Set up the monorepo structure with Laravel backend and React frontend.
 
 **Acceptance Criteria:**
-- [ ] Initialize Laravel 10 project in `/server` directory
-- [ ] Initialize React + TypeScript project in `/client` directory
-- [ ] Configure Vite for frontend development
-- [ ] Set up Git hooks with Husky
-- [ ] Create comprehensive README with setup instructions
-- [ ] Configure environment variables examples for both projects
+- [x] Keep Laravel backend project in `/server` directory (current repository baseline)
+- [x] Keep React + TypeScript project in `/client` directory
+- [x] Configure Vite for frontend development
+- [x] Set up Git hooks with Husky
+- [x] Create comprehensive README with setup instructions
+- [x] Configure environment variable examples for backend, frontend, and Docker flow
 
 **Technical Notes:**
-- Laravel: Use `composer create-project laravel/laravel server`
-- React: Use `npm create vite@latest client -- --template react-ts`
-- Add scripts for running both servers concurrently
+- Laravel version follows current repository baseline unless an explicit upgrade task is approved.
+- React stack uses Vite + TypeScript in `/client`.
+- Root scripts support running both servers concurrently.
 
 **Commit Message:** `chore: initialize monorepo with laravel and react #1`
 
@@ -78,17 +234,17 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Description:** Create Docker configuration for consistent development environment.
 
 **Acceptance Criteria:**
-- [ ] Create Dockerfile for Laravel (PHP 8.1 + extensions)
-- [ ] Create Dockerfile for React (Node 18)
-- [ ] Configure docker-compose.yml with services: app, web, db, node
-- [ ] Set up MySQL container with volume persistence
-- [ ] Configure environment variables for Docker
-- [ ] Document Docker commands in README
+- [x] Create root Dockerfile with multi-stage build (Node client build + PHP app runtime)
+- [x] Configure `docker-compose.yml` with services: `app`, `db`, `adminer`
+- [x] Set up MySQL container with volume persistence
+- [x] Mount committed SQL init files for database-first bootstrap
+- [x] Configure environment variables for Docker
+- [x] Document Docker commands in README
 
 **Files to Create:**
 - `Dockerfile` (root)
 - `docker-compose.yml`
-- `docker/` directory with nginx config
+- `docker/` directory with app entrypoint config
 
 **Commit Message:** `feat(docker): add development environment with mysql and node #2`
 
@@ -98,20 +254,21 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Assignee:** Musa (Backend Lead)
 **Labels:** `backend` `database` `auth` `milestone-1`
 
-**Description:** Create initial database schema with users table and role-based structure.
+**Description:** Update the committed SQL schema with the initial users/auth tables and role-based structure.
 
 **Acceptance Criteria:**
-- [ ] Create `users` migration with fields: name, email, password, role (enum: job_seeker, employer, mentor, admin)
+- [ ] Update `database/docker/init/00-schema.sql` so `users` includes: name, email, password, role (job_seeker, employer, mentor, admin)
 - [ ] Add `email_verified_at` for email verification
 - [ ] Add `remember_token` for "remember me"
 - [ ] Add timestamps and soft deletes
-- [ ] Create `password_reset_tokens` table
-- [ ] Create `failed_jobs` table
-- [ ] Create `personal_access_tokens` table for API tokens
+- [ ] Add `password_reset_tokens` table in `database/docker/init/00-schema.sql`
+- [ ] Add `failed_jobs` table in `database/docker/init/00-schema.sql`
+- [ ] Add `personal_access_tokens` table for API tokens in `database/docker/init/00-schema.sql`
 
 **Technical Notes:**
-- Use Laravel's built-in authentication scaffolding as base
-- Customize to add role field
+- Do not reintroduce Laravel migrations
+- Database-first means committed SQL files are the schema source of truth
+- Update related backend model/config code as needed after changing SQL
 - Index email for faster queries
 
 **Commit Message:** `feat(db): create users table with role-based enum #3`
@@ -202,10 +359,10 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Assignee:** Shadman (Backend)
 **Labels:** `backend` `database` `milestone-1`
 
-**Description:** Create job seeker profile table and relationships.
+**Description:** Update the committed SQL schema and backend profile handling for job seeker profiles.
 
 **Acceptance Criteria:**
-- [ ] Create `job_seeker_profiles` migration with:
+- [ ] Update `database/docker/init/00-schema.sql` so `job_seeker_profiles` includes:
   - `user_id` (foreign key)
   - `phone` string
   - `location` string
@@ -219,7 +376,7 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
   - `date_of_birth` date
   - `gender` enum
 - [ ] Create relationships in User model
-- [ ] Create ProfileController with CRUD operations
+- [ ] Update backend profile handling/controllers to support CRUD operations for the full schema
 
 **Commit Message:** `feat(profile): create job seeker profile schema and relationships #7`
 
@@ -229,10 +386,10 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Assignee:** Shadman (Backend)
 **Labels:** `backend` `database` `milestone-1`
 
-**Description:** Create employer profile table and relationships.
+**Description:** Update the committed SQL schema and backend profile handling for employer profiles.
 
 **Acceptance Criteria:**
-- [ ] Create `employer_profiles` migration with:
+- [ ] Update `database/docker/init/00-schema.sql` so `employer_profiles` includes:
   - `user_id` (foreign key)
   - `company_name` string
   - `company_website` string
@@ -245,7 +402,7 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
   - `contact_email` string
   - `contact_phone` string
 - [ ] Create relationships in User model
-- [ ] Create EmployerProfileController
+- [ ] Update backend profile handling/controllers to support the full employer profile schema
 
 **Commit Message:** `feat(profile): create employer profile schema and relationships #8`
 
@@ -255,10 +412,10 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Assignee:** Shadman (Backend)
 **Labels:** `backend` `database` `milestone-1`
 
-**Description:** Create mentor profile table and relationships.
+**Description:** Update the committed SQL schema and backend profile handling for mentor profiles.
 
 **Acceptance Criteria:**
-- [ ] Create `mentor_profiles` migration with:
+- [ ] Update `database/docker/init/00-schema.sql` so `mentor_profiles` includes:
   - `user_id` (foreign key)
   - `current_position` string
   - `company` string
@@ -271,7 +428,7 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
   - `mentorship_areas` JSON
   - `hourly_rate` decimal (nullable)
 - [ ] Create relationships in User model
-- [ ] Create MentorProfileController
+- [ ] Update backend profile handling/controllers to support the full mentor profile schema
 
 **Commit Message:** `feat(profile): create mentor profile schema and relationships #9`
 
@@ -281,13 +438,13 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Assignee:** Musa (Backend Lead)
 **Labels:** `backend` `database` `skill-matching` `milestone-1`
 
-**Description:** Create skills table and many-to-many relationship with users.
+**Description:** Update the committed SQL schema and API for skills and user-skill tagging.
 
 **Acceptance Criteria:**
-- [ ] Create `skills` migration with: `id`, `name` (unique), `category`, `created_at`
-- [ ] Create `skill_user` pivot table with: `skill_id`, `user_id`, `proficiency_level` (beginner, intermediate, advanced, expert)
+- [ ] Update `database/docker/init/00-schema.sql` so `skills` includes: `id`, `name` (unique), `category`, `created_at`
+- [ ] Update `database/docker/init/00-schema.sql` so `skill_user` includes: `skill_id`, `user_id`, `proficiency_level` (beginner, intermediate, advanced, expert)
 - [ ] Create Skill model with relationships
-- [ ] Seed initial skills (programming languages, frameworks, soft skills)
+- [ ] Update `database/docker/init/10-reference-data.sql` with initial skills (programming languages, frameworks, soft skills)
 - [ ] Create SkillController with:
   - `GET /api/skills` - List all skills
   - `POST /api/users/{id}/skills` - Add skill to user
@@ -1175,10 +1332,11 @@ composer install
 cp .env.example .env
 # Update database credentials in .env
 
-# Generate key and run migrations
+# Generate key and import SQL baseline
 php artisan key:generate
-php artisan migrate
-php artisan db:seed
+php artisan jwt:secret
+# Import database/docker/init/00-schema.sql
+# Import database/docker/init/10-reference-data.sql
 
 # Start server
 php artisan serve

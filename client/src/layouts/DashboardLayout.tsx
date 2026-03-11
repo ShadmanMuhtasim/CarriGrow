@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../services/auth";
-import { getMe } from "../services/user";
-import { getToken, removeToken } from "../utils/token";
+import { useAuth } from "../hooks/useAuth";
+import Loading from "../components/Loading";
 import JobSeekerLayout from "./JobSeekerLayout";
 import EmployerLayout from "./EmployerLayout";
 import MentorLayout from "./MentorLayout";
@@ -10,40 +8,23 @@ import AdminLayout from "./AdminLayout";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<string | null>(null);
+  const { user, isLoading, signOut } = useAuth();
 
   const onLogout = async () => {
-    const token = getToken();
     try {
-      if (token) await logout();
+      await signOut();
     } finally {
-      removeToken();
       navigate("/login");
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const me = await getMe();
-        setRole(me?.user?.role ?? "job_seeker");
-      } catch {
-        removeToken();
-        navigate("/login", { replace: true });
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [navigate]);
-
-  if (loading) {
-    return <div className="p-4 text-muted">Loading dashboard...</div>;
+  if (isLoading || !user) {
+    return <Loading label="Loading dashboard..." fullPage />;
   }
 
-  if (role === "employer") return <EmployerLayout onLogout={onLogout} />;
-  if (role === "mentor") return <MentorLayout onLogout={onLogout} />;
-  if (role === "admin") return <AdminLayout onLogout={onLogout} />;
+  if (user.role === "employer") return <EmployerLayout onLogout={onLogout} />;
+  if (user.role === "mentor") return <MentorLayout onLogout={onLogout} />;
+  if (user.role === "admin") return <AdminLayout onLogout={onLogout} />;
 
   return <JobSeekerLayout onLogout={onLogout} />;
 }
