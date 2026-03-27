@@ -18,6 +18,8 @@ import JobPostSuccess from "./pages/employer/JobPostSuccess";
 import ManageJobs from "./pages/employer/ManageJobs";
 import JobAnalytics from "./pages/employer/JobAnalytics";
 import JobApplicants from "./pages/employer/JobApplicants";
+import ApplicantsList from "./pages/employer/ApplicantsList";
+import ApplicantDetail from "./pages/employer/ApplicantDetail";
 
 export default function App() {
   return (
@@ -49,6 +51,8 @@ export default function App() {
           <Route path="manage-jobs/:jobId/edit" element={<EditJob />} />
           <Route path="manage-jobs/:jobId/analytics" element={<JobAnalytics />} />
           <Route path="manage-jobs/:jobId/applicants" element={<JobApplicants />} />
+          <Route path="manage-jobs/:jobId/applicants/list" element={<ApplicantsList />} />
+          <Route path="manage-jobs/:jobId/applicants/:applicantId" element={<ApplicantDetail />} />
           <Route path=":section" element={<DashboardSection />} />
         </Route>
 
