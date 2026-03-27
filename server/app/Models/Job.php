@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Job extends Model
 {
@@ -69,5 +71,20 @@ class Job extends Model
     public function applications()
     {
         return $this->hasMany(JobApplication::class);
+    }
+
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_PUBLISHED);
+    }
+
+    public static function publicCacheVersion(): int
+    {
+        return (int) Cache::get('jobs_public_cache_version', 1);
+    }
+
+    public static function bumpPublicCacheVersion(): void
+    {
+        Cache::forever('jobs_public_cache_version', self::publicCacheVersion() + 1);
     }
 }
