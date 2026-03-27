@@ -23,6 +23,11 @@ export async function listEmployerJobs() {
   return data as { jobs: Job[] };
 }
 
+export async function listPublicJobs() {
+  const { data } = await api.get("/jobs");
+  return data as { jobs: Job[] };
+}
+
 export async function getEmployerJob(jobId: number) {
   const { data } = await api.get(`/employer/jobs/${jobId}`);
   return data as { job: Job };

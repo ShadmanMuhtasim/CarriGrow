@@ -1733,3 +1733,20 @@ perf/39-performance-optimization
   - `client/src/pages/employer/JobApplicants.tsx`
   - `client/src/App.tsx`
   - `dev_log/README.MD`
+
+## Issue 27 Execution Note (2026-03-27)
+
+- Assignee working: Ahbab
+- Scope started: Issue `#27` Match Display Frontend
+- Base code added so contributors can later connect backend recommendation scoring and richer skill-gap analytics without replacing the frontend structure.
+- New files created for Issue 27:
+  - `client/src/components/matching/matchUtils.ts`
+  - `client/src/components/matching/MatchBadge.tsx`
+  - `client/src/components/matching/SkillGapChart.tsx`
+  - `client/src/components/matching/MatchDetails.tsx`
+  - `client/src/pages/jobseeker/RecommendedJobs.tsx`
+- Existing files updated for Issue 27:
+  - `client/src/services/jobs.ts`
+  - `client/src/App.tsx`
+  - `client/src/pages/Dashboard.tsx`
+  - `dev_log/README.MD`
