@@ -2,25 +2,72 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Job extends Model
 {
-    public const STATUS_OPEN   = 'open';
+    use HasFactory;
+    use SoftDeletes;
+
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_PUBLISHED = 'published';
     public const STATUS_CLOSED = 'closed';
+    public const STATUS_FILLED = 'filled';
 
     public const TYPE_FULL_TIME = 'full_time';
     public const TYPE_PART_TIME = 'part_time';
-    public const TYPE_INTERN    = 'intern';
-    public const TYPE_REMOTE    = 'remote';
+    public const TYPE_CONTRACT = 'contract';
+    public const TYPE_INTERNSHIP = 'internship';
+
+    public const LEVEL_ENTRY = 'entry';
+    public const LEVEL_MID = 'mid';
+    public const LEVEL_SENIOR = 'senior';
+    public const LEVEL_LEAD = 'lead';
 
     protected $fillable = [
-        'employer_id','title','description','location','job_type','salary_range','deadline','status'
+        'employer_id',
+        'title',
+        'description',
+        'requirements',
+        'responsibilities',
+        'location',
+        'salary_min',
+        'salary_max',
+        'salary_currency',
+        'employment_type',
+        'experience_level',
+        'education_required',
+        'skills_required',
+        'application_deadline',
+        'status',
+        'views_count',
+        'applications_count',
     ];
 
-    public function employer() { return $this->belongsTo(User::class, 'employer_id'); }
+    protected $casts = [
+        'salary_min' => 'decimal:2',
+        'salary_max' => 'decimal:2',
+        'skills_required' => 'array',
+        'application_deadline' => 'date',
+        'views_count' => 'integer',
+        'applications_count' => 'integer',
+        'deleted_at' => 'datetime',
+    ];
 
-    public function skills() { return $this->belongsToMany(Skill::class, 'job_skill')->withPivot('importance')->withTimestamps(); }
+    public function employer()
+    {
+        return $this->belongsTo(User::class, 'employer_id');
+    }
 
-    public function applications() { return $this->hasMany(JobApplication::class); }
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'job_skill')->withPivot('importance')->withTimestamps();
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(JobApplication::class);
+    }
 }
