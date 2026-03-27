@@ -1,6 +1,9 @@
 export type UserRole = "job_seeker" | "employer" | "mentor" | "admin";
 
 export type ProficiencyLevel = "beginner" | "intermediate" | "advanced" | "expert";
+export type JobStatus = "draft" | "published" | "closed" | "filled";
+export type JobEmploymentType = "full_time" | "part_time" | "contract" | "internship";
+export type JobExperienceLevel = "entry" | "mid" | "senior" | "lead";
 
 export interface Skill {
   id: number;
@@ -64,4 +67,28 @@ export interface User {
   jobSeekerProfile?: JobSeekerProfile | null;
   employerProfile?: EmployerProfile | null;
   mentorProfile?: MentorProfile | null;
+}
+
+export interface Job {
+  id: number;
+  employer_id: number;
+  title: string;
+  description: string;
+  requirements?: string | null;
+  responsibilities?: string | null;
+  location?: string | null;
+  salary_min?: number | string | null;
+  salary_max?: number | string | null;
+  salary_currency?: string | null;
+  employment_type: JobEmploymentType;
+  experience_level?: JobExperienceLevel | null;
+  education_required?: string | null;
+  skills_required?: string[] | null;
+  application_deadline?: string | null;
+  status: JobStatus;
+  views_count?: number;
+  applications_count?: number;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
 }
