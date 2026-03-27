@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\JobBrowseController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SkillController;
@@ -8,6 +9,9 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/skills', [SkillController::class, 'index']);
+Route::get('/jobs', [JobBrowseController::class, 'index']);
+Route::get('/jobs/featured', [JobBrowseController::class, 'featured']);
+Route::get('/jobs/{job}', [JobBrowseController::class, 'show']);
 
 // ---- JWT Auth routes ----
 Route::post('/auth/register', [AuthController::class, 'register']);

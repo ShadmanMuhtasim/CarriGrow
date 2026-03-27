@@ -195,9 +195,16 @@ CREATE TABLE `jobs` (
   PRIMARY KEY (`id`),
   KEY `jobs_employer_id_index` (`employer_id`),
   KEY `jobs_status_index` (`status`),
+  KEY `jobs_status_created_at_index` (`status`,`created_at`),
+  KEY `jobs_status_location_index` (`status`,`location`),
   KEY `jobs_employment_type_index` (`employment_type`),
+  KEY `jobs_status_employment_type_index` (`status`,`employment_type`),
   KEY `jobs_experience_level_index` (`experience_level`),
+  KEY `jobs_status_experience_level_index` (`status`,`experience_level`),
   KEY `jobs_application_deadline_index` (`application_deadline`),
+  KEY `jobs_salary_min_index` (`salary_min`),
+  KEY `jobs_salary_max_index` (`salary_max`),
+  KEY `jobs_views_count_index` (`views_count`),
   KEY `jobs_deleted_at_index` (`deleted_at`),
   CONSTRAINT `jobs_employer_id_foreign` FOREIGN KEY (`employer_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

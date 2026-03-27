@@ -51,6 +51,7 @@ class JobController extends Controller
         $job = new Job($this->validatedPayload($validator->validated()));
         $job->employer_id = $user->id;
         $job->save();
+        Job::bumpPublicCacheVersion();
 
         return response()->json([
             'message' => 'Job created successfully',
@@ -92,6 +93,7 @@ class JobController extends Controller
 
         $job->fill($this->validatedPayload($validator->validated()));
         $job->save();
+        Job::bumpPublicCacheVersion();
 
         return response()->json([
             'message' => 'Job updated successfully',
@@ -109,6 +111,7 @@ class JobController extends Controller
         }
 
         $job->delete();
+        Job::bumpPublicCacheVersion();
 
         return response()->json([
             'message' => 'Job deleted successfully',

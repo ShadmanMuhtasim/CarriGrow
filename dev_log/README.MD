@@ -659,7 +659,7 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 ---
 
 ### Issue #18: Job Listing & Filtering Backend
-**Assignee:** Shadman (Backend)
+**Assignee:** musa (Backend)
 **Labels:** `backend` `job-portal` `milestone-2`
 
 **Description:** Create job listing API with filtering and search.
@@ -1625,9 +1625,9 @@ perf/39-performance-optimization
 | 14 | UI Component Library | Ishtiak |
 | 15 | Form Components & Validation | Ahbab & Ishtiak |
 | **Milestone 2: Job Portal Core** | | |
-| 16 | Jobs Schema & CRUD Backend | Shadman |
+| 16 | Jobs Schema & CRUD Backend | musa |
 | 17 | Job Posting Form Frontend | Ahbab |
-| 18 | Job Listing & Filtering Backend | Shadman |
+| 18 | Job Listing & Filtering Backend | musa |
 | 19 | Job Browser & Search Frontend | Ishtiak |
 | 20 | Job Management for Employers | Ahbab & Ishtiak |
 | 21 | Applications Schema & Apply Backend | Shadman |
@@ -1665,5 +1665,19 @@ perf/39-performance-optimization
 - Existing files updated for Issue 16:
   - `database/docker/init/00-schema.sql`
   - `server/app/Models/Job.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
+
+## Issue 18 Execution Note (2026-03-27)
+
+- Assignee working: Musa
+- Scope started: Issue `#18` Job Listing & Filtering Backend
+- Base code added before frontend issue `#17` is complete so contributors can wire UI later.
+- New file created for Issue 18:
+  - `server/app/Http/Controllers/JobBrowseController.php`
+- Existing files updated for Issue 18:
+  - `database/docker/init/00-schema.sql`
+  - `server/app/Models/Job.php`
+  - `server/app/Http/Controllers/JobController.php`
   - `server/routes/api.php`
   - `dev_log/README.MD`
