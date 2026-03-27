@@ -1681,3 +1681,23 @@ perf/39-performance-optimization
   - `server/app/Http/Controllers/JobController.php`
   - `server/routes/api.php`
   - `dev_log/README.MD`
+
+## Issue 17 Execution Note (2026-03-27)
+
+- Assignee working: Ahbab
+- Scope started: Issue `#17` Job Posting Form Frontend
+- Base code added so later contributors can refine employer job creation UX and backend alignment.
+- New files created for Issue 17:
+  - `client/src/components/jobs/jobFormSchema.ts`
+  - `client/src/components/jobs/JobFormStep1.tsx`
+  - `client/src/components/jobs/JobFormStep2.tsx`
+  - `client/src/components/jobs/JobFormStep3.tsx`
+  - `client/src/components/jobs/JobPreview.tsx`
+  - `client/src/pages/employer/PostJob.tsx`
+  - `client/src/pages/employer/EditJob.tsx`
+  - `client/src/pages/employer/JobPostSuccess.tsx`
+  - `client/src/services/jobs.ts`
+- Existing files updated for Issue 17:
+  - `client/src/App.tsx`
+  - `client/src/types/models.ts`
+  - `dev_log/README.MD`

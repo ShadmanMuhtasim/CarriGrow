@@ -12,6 +12,9 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import DashboardSection from "./pages/DashboardSection";
 import NotFound from "./pages/NotFound";
+import PostJob from "./pages/employer/PostJob";
+import EditJob from "./pages/employer/EditJob";
+import JobPostSuccess from "./pages/employer/JobPostSuccess";
 
 export default function App() {
   return (
@@ -37,6 +40,9 @@ export default function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="post-job" element={<PostJob />} />
+          <Route path="post-job/success" element={<JobPostSuccess />} />
+          <Route path="manage-jobs/:jobId/edit" element={<EditJob />} />
           <Route path=":section" element={<DashboardSection />} />
         </Route>
 
