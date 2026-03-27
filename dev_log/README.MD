@@ -1717,3 +1717,19 @@ perf/39-performance-optimization
   - `client/src/App.tsx`
   - `client/src/services/jobs.ts`
   - `dev_log/README.MD`
+
+## Issue 23 Execution Note (2026-03-27)
+
+- Assignee working: Ahbab
+- Scope started: Issue `#23` Applicant Management for Employers
+- Base code added so contributors can later connect real application records, employer notes persistence, resume rendering, and messaging APIs.
+- New files created for Issue 23:
+  - `client/src/components/applications/StatusBadge.tsx`
+  - `client/src/components/applications/StatusUpdater.tsx`
+  - `client/src/pages/employer/applicantData.ts`
+  - `client/src/pages/employer/ApplicantsList.tsx`
+  - `client/src/pages/employer/ApplicantDetail.tsx`
+- Existing files updated for Issue 23:
+  - `client/src/pages/employer/JobApplicants.tsx`
+  - `client/src/App.tsx`
+  - `dev_log/README.MD`
