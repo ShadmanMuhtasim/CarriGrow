@@ -15,6 +15,9 @@ import NotFound from "./pages/NotFound";
 import PostJob from "./pages/employer/PostJob";
 import EditJob from "./pages/employer/EditJob";
 import JobPostSuccess from "./pages/employer/JobPostSuccess";
+import ManageJobs from "./pages/employer/ManageJobs";
+import JobAnalytics from "./pages/employer/JobAnalytics";
+import JobApplicants from "./pages/employer/JobApplicants";
 
 export default function App() {
   return (
@@ -42,7 +45,10 @@ export default function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="post-job" element={<PostJob />} />
           <Route path="post-job/success" element={<JobPostSuccess />} />
+          <Route path="manage-jobs" element={<ManageJobs />} />
           <Route path="manage-jobs/:jobId/edit" element={<EditJob />} />
+          <Route path="manage-jobs/:jobId/analytics" element={<JobAnalytics />} />
+          <Route path="manage-jobs/:jobId/applicants" element={<JobApplicants />} />
           <Route path=":section" element={<DashboardSection />} />
         </Route>
 

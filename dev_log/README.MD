@@ -1701,3 +1701,19 @@ perf/39-performance-optimization
   - `client/src/App.tsx`
   - `client/src/types/models.ts`
   - `dev_log/README.MD`
+
+## Issue 20 Execution Note (2026-03-27)
+
+- Assignee working: Ahbab
+- Scope started: Issue `#20` Job Management for Employers
+- Base code added so contributors can extend employer-side job operations, analytics, and applicant management on top of the existing Issue `#17` flow.
+- New files created for Issue 20:
+  - `client/src/components/jobs/JobStatusBadge.tsx`
+  - `client/src/components/jobs/JobAnalyticsChart.tsx`
+  - `client/src/pages/employer/ManageJobs.tsx`
+  - `client/src/pages/employer/JobAnalytics.tsx`
+  - `client/src/pages/employer/JobApplicants.tsx`
+- Existing files updated for Issue 20:
+  - `client/src/App.tsx`
+  - `client/src/services/jobs.ts`
+  - `dev_log/README.MD`

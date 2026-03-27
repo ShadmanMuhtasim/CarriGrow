@@ -37,3 +37,8 @@ export async function updateEmployerJob(jobId: number, payload: Partial<JobPaylo
   const { data } = await api.patch(`/employer/jobs/${jobId}`, payload);
   return data as { message: string; job: Job };
 }
+
+export async function deleteEmployerJob(jobId: number) {
+  const { data } = await api.delete(`/employer/jobs/${jobId}`);
+  return data as { message: string };
+}
