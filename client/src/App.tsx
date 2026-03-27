@@ -20,6 +20,7 @@ import JobAnalytics from "./pages/employer/JobAnalytics";
 import JobApplicants from "./pages/employer/JobApplicants";
 import ApplicantsList from "./pages/employer/ApplicantsList";
 import ApplicantDetail from "./pages/employer/ApplicantDetail";
+import RecommendedJobs from "./pages/jobseeker/RecommendedJobs";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="jobs" element={<RecommendedJobs />} />
           <Route path="post-job" element={<PostJob />} />
           <Route path="post-job/success" element={<JobPostSuccess />} />
           <Route path="manage-jobs" element={<ManageJobs />} />

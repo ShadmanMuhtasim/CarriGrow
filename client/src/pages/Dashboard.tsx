@@ -4,6 +4,45 @@ import Badge from "../components/ui/Badge";
 import Card from "../components/ui/Card";
 import { useAuth } from "../hooks/useAuth";
 import Loading from "../components/Loading";
+import MatchBadge from "../components/matching/MatchBadge";
+import { calculateJobMatch } from "../components/matching/matchUtils";
+import { Link } from "react-router-dom";
+
+const recommendedJobsSeed = [
+  {
+    id: 101,
+    employer_id: 1,
+    title: "Frontend Developer",
+    description: "Build responsive product flows with React and TypeScript.",
+    location: "Remote",
+    employment_type: "full_time",
+    experience_level: "mid",
+    skills_required: ["React", "TypeScript", "Bootstrap", "Communication"],
+    status: "published",
+  },
+  {
+    id: 102,
+    employer_id: 2,
+    title: "Laravel Engineer",
+    description: "Work on API delivery, auth flows, and MySQL-backed features.",
+    location: "Dhaka",
+    employment_type: "full_time",
+    experience_level: "mid",
+    skills_required: ["Laravel", "MySQL", "REST API", "Testing"],
+    status: "published",
+  },
+  {
+    id: 103,
+    employer_id: 3,
+    title: "Product Designer",
+    description: "Design flows, prototypes, and user-facing improvements across the platform.",
+    location: "Hybrid",
+    employment_type: "contract",
+    experience_level: "entry",
+    skills_required: ["Figma", "UI Design", "Research", "Communication"],
+    status: "published",
+  },
+] as const;
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
@@ -54,7 +93,18 @@ export default function Dashboard() {
         ? ["Posted Backend Developer role", "Reviewed 12 new applicants", "Shortlisted 3 candidates"]
         : user.role === "mentor"
           ? ["Answered forum question on interview prep", "Updated mentorship availability", "Accepted new mentee request"]
-          : ["Reviewed reported forum post", "Changed user role to mentor", "Exported platform summary report"];
+        : ["Reviewed reported forum post", "Changed user role to mentor", "Exported platform summary report"];
+
+  const recommendedJobs =
+    user.role === "job_seeker"
+      ? recommendedJobsSeed
+          .map((job) => ({
+            ...job,
+            match: calculateJobMatch(job, user.skills),
+          }))
+          .sort((left, right) => right.match.percentage - left.match.percentage)
+          .slice(0, 3)
+      : [];
 
   return (
     <div className="vstack gap-3">
@@ -99,6 +149,42 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {user.role === "job_seeker" ? (
+          <>
+            <hr />
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <div className="fw-semibold">Recommended jobs</div>
+                <div className="text-muted small">Base match display section for Issue #27.</div>
+              </div>
+              <Link to="/dashboard/jobs" className="btn btn-outline-primary btn-sm">
+                View all
+              </Link>
+            </div>
+            <div className="row g-3">
+              {recommendedJobs.map((job) => (
+                <div key={job.id} className="col-12 col-lg-4">
+                  <div className="p-3 border rounded-3 h-100">
+                    <div className="d-flex justify-content-between gap-2 mb-2">
+                      <div className="fw-semibold">{job.title}</div>
+                      <MatchBadge percentage={job.match.percentage} />
+                    </div>
+                    <div className="text-muted small mb-2">
+                      {job.location} • {job.employment_type.replace("_", " ")}
+                    </div>
+                    <div className="small mb-3">
+                      Missing skills: {job.match.missingSkills.length > 0 ? job.match.missingSkills.join(", ") : "None"}
+                    </div>
+                    <Link to="/dashboard/jobs" className="btn btn-sm btn-outline-primary">
+                      View match
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
       </Card>
     </div>
   );
