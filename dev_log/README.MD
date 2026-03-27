@@ -595,7 +595,7 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 ## 💼 Job Postings (Issues #16-20)
 
 ### Issue #16: Jobs Schema & CRUD Backend
-**Assignee:** Shadman (Backend)
+**Assignee:** Musa (Backend)
 **Labels:** `backend` `database` `job-portal` `milestone-2`
 
 **Description:** Create jobs table and CRUD operations for employers.
@@ -1606,11 +1606,64 @@ perf/39-performance-optimization
 
 ---
 
-This chart provides:
-- ✅ **Clear mapping** between issues and commits
-- ✅ **Balanced workload** across all 4 team members
-- ✅ **Proper commit message format** with issue references
-- ✅ **Easy tracking** for project progress
-- ✅ **Ready-to-use** for GitHub project board
+| # | Issue Title | Assignee(s) |
+|---|-------------|-------------|
+| **Milestone 1: Core Foundation & Authentication** | | |
+| 1 | Project Monorepo Setup | Musa |
+| 2 | Docker Development Environment | Musa |
+| 3 | Database Schema – Users & Roles | Musa |
+| 4 | React Frontend Boilerplate | Ahbab & Ishtiak |
+| 5 | JWT Authentication Backend | Musa |
+| 6 | Registration & Login Frontend | Ahbab & Ishtiak |
+| 7 | Profile Schema – Job Seeker | Shadman |
+| 8 | Profile Schema – Employer | Shadman |
+| 9 | Profile Schema – Mentor | Shadman |
+| 10 | Skills Schema & Tagging | Musa |
+| 11 | Profile Pages Frontend | Ahbab & Ishtiak |
+| 12 | Role‑Based Dashboard Layouts | Ahbab & Ishtiak |
+| 13 | Navigation Components | Ahbab |
+| 14 | UI Component Library | Ishtiak |
+| 15 | Form Components & Validation | Ahbab & Ishtiak |
+| **Milestone 2: Job Portal Core** | | |
+| 16 | Jobs Schema & CRUD Backend | Shadman |
+| 17 | Job Posting Form Frontend | Ahbab |
+| 18 | Job Listing & Filtering Backend | Shadman |
+| 19 | Job Browser & Search Frontend | Ishtiak |
+| 20 | Job Management for Employers | Ahbab & Ishtiak |
+| 21 | Applications Schema & Apply Backend | Shadman |
+| 22 | Job Application Form Frontend | Ishtiak |
+| 23 | Applicant Management for Employers | Ahbab |
+| 24 | Application Tracking for Job Seekers | Ishtiak |
+| 25 | Job‑Skill Relationship Backend | Shadman |
+| 26 | Skill Match Algorithm | Musa |
+| 27 | Match Display Frontend | Ahbab |
+| 28 | Job Recommendations Backend | Shadman |
+| **Milestone 3: Mentorship & Finalization** | | |
+| 29 | Forum Schema Backend | Musa |
+| 30 | Forum API Endpoints | Musa |
+| 31 | Forum UI – List & Detail | Ahbab |
+| 32 | Mentor Dashboard – Forum Management | Ishtiak |
+| 33 | Notification System | Musa & Shadman |
+| 34 | Admin Dashboard Backend | Musa |
+| 35 | Admin Dashboard Frontend | Ahbab |
+| 36 | Testing – Backend Unit Tests | Shadman |
+| 37 | Testing – Frontend Component Tests | Ishtiak |
+| 38 | API Documentation | Musa |
+| 39 | Performance Optimization | Shadman & Ahbab |
+| 40 | Deployment & Final Polish | All Team Members |
 
-**Ready to create these issues in your repository!** 🚀
+
+
+## Issue 16 Execution Note (2026-03-27)
+
+- Assignee working: Musa
+- Scope started: Issue `#16` Jobs Schema & CRUD Backend
+- Database-first rewrite applied for this issue:
+  - "Create jobs migration" now means "update committed SQL schema in `database/docker/init/00-schema.sql` and align Laravel backend code".
+- New file created for Issue 16:
+  - `server/app/Http/Controllers/JobController.php`
+- Existing files updated for Issue 16:
+  - `database/docker/init/00-schema.sql`
+  - `server/app/Models/Job.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
