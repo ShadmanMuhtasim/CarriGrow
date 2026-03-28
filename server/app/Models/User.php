@@ -68,7 +68,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function applications()
     {
-        return $this->hasMany(JobApplication::class, 'job_seeker_id');
+        return $this->hasMany(JobApplication::class, 'user_id');
+    }
+
+    public function reviewedApplications()
+    {
+        return $this->hasMany(JobApplication::class, 'reviewed_by');
     }
 
     public function forumPosts()
