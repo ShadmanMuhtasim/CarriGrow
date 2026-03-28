@@ -254,6 +254,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | JWT Cookie Settings
+    |--------------------------------------------------------------------------
+    |
+    | CarriGrow uses an HttpOnly cookie for JWT transport to avoid exposing
+    | the token to client-side JavaScript. The frontend stores only safe
+    | user/session metadata in localStorage.
+    |
+    */
+    'cookie_name' => env('JWT_COOKIE_NAME', 'carrigrow_token'),
+    'cookie_path' => env('JWT_COOKIE_PATH', '/'),
+    'cookie_domain' => env('JWT_COOKIE_DOMAIN'),
+    'cookie_secure' => env('JWT_COOKIE_SECURE', env('SESSION_SECURE_COOKIE', false)),
+    'cookie_same_site' => env('JWT_COOKIE_SAME_SITE', 'lax'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Providers
     |--------------------------------------------------------------------------
     |

@@ -9,6 +9,9 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class Handler extends ExceptionHandler
 {
@@ -58,6 +61,27 @@ class Handler extends ExceptionHandler
             return parent::render($request, $exception);
         }
 
+        if ($exception instanceof TokenExpiredException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Session expired. Please sign in again.',
+            ], 401)->withCookie($this->forgetAuthCookie());
+        }
+
+        if ($exception instanceof TokenInvalidException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token. Please sign in again.',
+            ], 401)->withCookie($this->forgetAuthCookie());
+        }
+
+        if ($exception instanceof JWTException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid token. Please sign in again.',
+            ], 401)->withCookie($this->forgetAuthCookie());
+        }
+
         if ($exception instanceof ValidationException) {
             return response()->json([
                 'success' => false,
@@ -69,8 +93,8 @@ class Handler extends ExceptionHandler
         if ($exception instanceof AuthenticationException) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthenticated.',
-            ], 401);
+                'message' => 'Session expired. Please sign in again.',
+            ], 401)->withCookie($this->forgetAuthCookie());
         }
 
         if ($exception instanceof AuthorizationException) {
@@ -99,5 +123,14 @@ class Handler extends ExceptionHandler
             'success' => false,
             'message' => $message,
         ], $status);
+    }
+
+    private function forgetAuthCookie()
+    {
+        $cookieName = (string) config('jwt.cookie_name', 'carrigrow_token');
+        $path = (string) config('jwt.cookie_path', '/');
+        $domain = config('jwt.cookie_domain') ?: null;
+
+        return cookie()->forget($cookieName, $path, $domain);
     }
 }
