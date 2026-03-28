@@ -1718,6 +1718,35 @@ perf/39-performance-optimization
   - `client/src/services/jobs.ts`
   - `dev_log/README.MD`
 
+## Issue 21 Execution Note (2026-03-28)
+
+- Assignee working: Shadman
+- Scope completed: Issue `#21` Applications Schema & Apply Backend
+- Database-first rewrite applied for this issue:
+  - "Create job_applications migration" means "update committed SQL schema in `database/docker/init/00-schema.sql` and align Laravel backend code".
+- Backend implementation added for Issue 21:
+  - Added `POST /api/jobs/{job}/apply` with:
+    - job seeker role guard
+    - published-job check
+    - validation for `cover_letter`, `resume_url`, `additional_documents`
+    - duplicate-application prevention (pre-check + unique-key conflict handling)
+    - `jobs.applications_count` increment on successful apply
+  - Added `GET /api/applications` for job seekers (filterable by status, paginated)
+  - Added `GET /api/jobs/{job}/applications` for employers (owner-only, filterable by status, paginated)
+- Schema/model alignment completed:
+  - `job_applications` now uses `user_id` (instead of `job_seeker_id`)
+  - Added fields: `resume_url`, `additional_documents`, `employer_notes`, `reviewed_at`, `reviewed_by`
+  - Updated status flow to enum: `applied`, `under_review`, `shortlisted`, `rejected`, `hired`
+  - Added unique key on (`job_id`, `user_id`) and review foreign key (`reviewed_by -> users.id`)
+- New file created for Issue 21:
+  - `server/app/Http/Controllers/JobApplicationController.php`
+- Existing files updated for Issue 21:
+  - `database/docker/init/00-schema.sql`
+  - `server/app/Models/JobApplication.php`
+  - `server/app/Models/User.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
+
 ## Issue 23 Execution Note (2026-03-27)
 
 - Assignee working: Ahbab

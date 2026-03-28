@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobBrowseController;
+use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SkillController;
@@ -40,6 +41,10 @@ Route::middleware('auth:api')->group(function () {
         Route::match(['put', 'patch'], '/{job}', [JobController::class, 'update']);
         Route::delete('/{job}', [JobController::class, 'destroy']);
     });
+
+    Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'apply']);
+    Route::get('/applications', [JobApplicationController::class, 'indexForJobSeeker']);
+    Route::get('/jobs/{job}/applications', [JobApplicationController::class, 'indexForEmployer']);
 });
 
 // ---- (Optional) old template routes ----

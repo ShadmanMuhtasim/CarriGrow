@@ -226,19 +226,25 @@ DROP TABLE IF EXISTS `job_applications`;
 CREATE TABLE `job_applications` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `job_id` bigint(20) unsigned NOT NULL,
-  `job_seeker_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
   `cover_letter` text DEFAULT NULL,
-  `cv_url` varchar(255) DEFAULT NULL,
-  `status` varchar(255) NOT NULL DEFAULT 'applied',
+  `resume_url` varchar(255) DEFAULT NULL,
+  `additional_documents` json DEFAULT NULL,
+  `status` enum('applied','under_review','shortlisted','rejected','hired') NOT NULL DEFAULT 'applied',
+  `employer_notes` text DEFAULT NULL,
   `applied_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `reviewed_at` timestamp NULL DEFAULT NULL,
+  `reviewed_by` bigint(20) unsigned DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `job_applications_job_id_job_seeker_id_unique` (`job_id`,`job_seeker_id`),
-  KEY `job_applications_job_seeker_id_foreign` (`job_seeker_id`),
+  UNIQUE KEY `job_applications_job_id_user_id_unique` (`job_id`,`user_id`),
+  KEY `job_applications_user_id_index` (`user_id`),
   KEY `job_applications_status_index` (`status`),
+  KEY `job_applications_reviewed_by_index` (`reviewed_by`),
   CONSTRAINT `job_applications_job_id_foreign` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `job_applications_job_seeker_id_foreign` FOREIGN KEY (`job_seeker_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  CONSTRAINT `job_applications_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `job_applications_reviewed_by_foreign` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `forum_posts`;
