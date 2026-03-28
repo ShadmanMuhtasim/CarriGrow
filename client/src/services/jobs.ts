@@ -18,14 +18,106 @@ export type JobPayload = {
   status: Job["status"];
 };
 
+type JobExperienceFilter = Exclude<Job["experience_level"], null | undefined>;
+
+export type JobBrowseParams = {
+  page?: number;
+  per_page?: 10 | 25 | 50;
+  search?: string;
+  location?: string;
+  employment_type?: Job["employment_type"];
+  experience_level?: JobExperienceFilter;
+  salary_min?: number;
+  salary_max?: number;
+  skill_ids?: number[];
+  posted_within_days?: number;
+  sort?: "newest" | "salary" | "relevance";
+};
+
+export type JobBrowseResponse = {
+  jobs: Job[];
+  page: number;
+  totalPages: number;
+  perPage: number;
+  total: number;
+};
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function toNumber(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return fallback;
+}
+
+function normalizeJobsListPayload(payload: unknown): JobBrowseResponse {
+  if (isObject(payload) && Array.isArray(payload.data)) {
+    return {
+      jobs: payload.data as Job[],
+      page: Math.max(1, toNumber(payload.current_page, 1)),
+      totalPages: Math.max(1, toNumber(payload.last_page, 1)),
+      perPage: Math.max(1, toNumber(payload.per_page, payload.data.length || 10)),
+      total: Math.max(0, toNumber(payload.total, payload.data.length)),
+    };
+  }
+
+  if (isObject(payload) && Array.isArray(payload.jobs)) {
+    const jobs = payload.jobs as Job[];
+    return {
+      jobs,
+      page: 1,
+      totalPages: 1,
+      perPage: jobs.length || 10,
+      total: jobs.length,
+    };
+  }
+
+  return {
+    jobs: [],
+    page: 1,
+    totalPages: 1,
+    perPage: 10,
+    total: 0,
+  };
+}
+
+function normalizeJobDetailPayload(payload: unknown): Job {
+  if (isObject(payload) && "job" in payload && isObject(payload.job)) {
+    return payload.job as Job;
+  }
+
+  throw new Error("Invalid job detail response.");
+}
+
+export async function browsePublicJobs(params: JobBrowseParams = {}) {
+  const { data } = await api.get("/jobs", { params });
+  return normalizeJobsListPayload(data);
+}
+
 export async function listEmployerJobs() {
   const { data } = await api.get("/employer/jobs");
   return data as { jobs: Job[] };
 }
 
 export async function listPublicJobs() {
-  const { data } = await api.get("/jobs");
-  return data as { jobs: Job[] };
+  const response = await browsePublicJobs({ per_page: 50 });
+  return { jobs: response.jobs };
+}
+
+export async function getPublicJob(jobId: number) {
+  const { data } = await api.get(`/jobs/${jobId}`);
+  return { job: normalizeJobDetailPayload(data) };
 }
 
 export async function getEmployerJob(jobId: number) {
