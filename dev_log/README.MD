@@ -1795,3 +1795,21 @@ perf/39-performance-optimization
   - `client/src/App.tsx`
   - `client/src/services/jobs.ts`
   - `dev_log/README.MD`
+
+## Issue 25 Execution Note (2026-03-28)
+
+- Assignee working: Shadman
+- Scope started: Issue `#25` Job-Skill Relationship Backend
+- Database-first rewrite applied for this issue:
+  - "Create `job_skill` migration" now means "update committed SQL schema in `database/docker/init/00-schema.sql` and align Laravel backend code".
+- Backend foundation added for Issue 25:
+  - Added `GET /api/jobs/{job}/skills` endpoint to fetch a job's skill mappings
+  - Added `POST /api/jobs/{job}/skills` endpoint for employer-owned jobs
+  - Added base match-percentage algorithm foundation in `Job` model using weighted skill importance (`required`, `preferred`, `bonus`)
+- New file created for Issue 25:
+  - `server/app/Http/Controllers/JobSkillController.php`
+- Existing files updated for Issue 25:
+  - `database/docker/init/00-schema.sql`
+  - `server/app/Models/Job.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`

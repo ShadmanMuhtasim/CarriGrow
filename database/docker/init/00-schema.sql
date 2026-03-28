@@ -213,7 +213,7 @@ DROP TABLE IF EXISTS `job_skill`;
 CREATE TABLE `job_skill` (
   `job_id` bigint(20) unsigned NOT NULL,
   `skill_id` bigint(20) unsigned NOT NULL,
-  `importance` tinyint(3) unsigned DEFAULT NULL,
+  `importance` enum('required','preferred','bonus') NOT NULL DEFAULT 'required',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`job_id`,`skill_id`),
@@ -313,3 +313,4 @@ CREATE TABLE `admin_actions` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
