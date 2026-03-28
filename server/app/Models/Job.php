@@ -28,6 +28,10 @@ class Job extends Model
     public const LEVEL_SENIOR = 'senior';
     public const LEVEL_LEAD = 'lead';
 
+    public const SKILL_IMPORTANCE_REQUIRED = 'required';
+    public const SKILL_IMPORTANCE_PREFERRED = 'preferred';
+    public const SKILL_IMPORTANCE_BONUS = 'bonus';
+
     protected $fillable = [
         'employer_id',
         'title',
@@ -66,6 +70,58 @@ class Job extends Model
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'job_skill')->withPivot('importance')->withTimestamps();
+    }
+
+    public function calculateSkillMatch(array $userSkillIds): array
+    {
+        $normalizedUserSkillIds = array_values(array_unique(array_map('intval', $userSkillIds)));
+        $jobSkills = $this->skills()->get();
+
+        if ($jobSkills->isEmpty()) {
+            return [
+                'percentage' => 0,
+                'matched_skill_ids' => [],
+                'missing_skill_ids' => [],
+                'total_weight' => 0,
+                'matched_weight' => 0,
+            ];
+        }
+
+        $weights = [
+            self::SKILL_IMPORTANCE_REQUIRED => 3,
+            self::SKILL_IMPORTANCE_PREFERRED => 2,
+            self::SKILL_IMPORTANCE_BONUS => 1,
+        ];
+
+        $totalWeight = 0;
+        $matchedWeight = 0;
+        $matchedSkillIds = [];
+        $missingSkillIds = [];
+
+        foreach ($jobSkills as $skill) {
+            $importance = (string) ($skill->pivot->importance ?? self::SKILL_IMPORTANCE_REQUIRED);
+            $weight = $weights[$importance] ?? 1;
+            $skillId = (int) $skill->id;
+
+            $totalWeight += $weight;
+
+            if (in_array($skillId, $normalizedUserSkillIds, true)) {
+                $matchedWeight += $weight;
+                $matchedSkillIds[] = $skillId;
+            } else {
+                $missingSkillIds[] = $skillId;
+            }
+        }
+
+        $percentage = $totalWeight > 0 ? (int) round(($matchedWeight / $totalWeight) * 100) : 0;
+
+        return [
+            'percentage' => $percentage,
+            'matched_skill_ids' => $matchedSkillIds,
+            'missing_skill_ids' => $missingSkillIds,
+            'total_weight' => $totalWeight,
+            'matched_weight' => $matchedWeight,
+        ];
     }
 
     public function applications()

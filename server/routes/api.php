@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobBrowseController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\JobSkillController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\UserController;
@@ -13,6 +14,7 @@ Route::get('/skills', [SkillController::class, 'index']);
 Route::get('/jobs', [JobBrowseController::class, 'index']);
 Route::get('/jobs/featured', [JobBrowseController::class, 'featured']);
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show']);
+Route::get('/jobs/{job}/skills', [JobSkillController::class, 'index']);
 
 // ---- JWT Auth routes ----
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -43,6 +45,7 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'apply']);
+    Route::post('/jobs/{job}/skills', [JobSkillController::class, 'store']);
     Route::get('/applications', [JobApplicationController::class, 'indexForJobSeeker']);
     Route::get('/jobs/{job}/applications', [JobApplicationController::class, 'indexForEmployer']);
 });
@@ -56,3 +59,4 @@ Route::prefix('/legacy')->group(function () {
     Route::post('/sessions', [SessionController::class, 'viewSessions'])->middleware('check.admin');
     Route::post('/attendance', [SessionController::class, 'submitAttendance']);
 });
+
