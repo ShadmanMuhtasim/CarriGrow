@@ -1813,3 +1813,24 @@ perf/39-performance-optimization
   - `server/app/Models/Job.php`
   - `server/routes/api.php`
   - `dev_log/README.MD`
+
+## Issue 28 Execution Note (2026-03-28)
+
+- Assignee working: Shadman
+- Scope started: Issue `#28` Job Recommendations Backend
+- Backend foundation added for Issue 28:
+  - Added `GET /api/recommendations/jobs` endpoint (auth-protected, job-seeker only)
+  - Added recommendation ranking base logic with signals:
+    - skill match signal
+    - job freshness boost (recently posted jobs rank higher)
+    - personalization boost from user application history (preferred employment type/location)
+  - Added exclusion of already-applied jobs from recommendation results
+  - Added pagination support (`per_page`: 10/25/50 + `page`)
+  - Added simple A/B algorithm framework:
+    - `ab_variant=auto|a|b` input support
+    - deterministic fallback assignment by user id bucket
+- New file created for Issue 28:
+  - `server/app/Http/Controllers/JobRecommendationController.php`
+- Existing files updated for Issue 28:
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
