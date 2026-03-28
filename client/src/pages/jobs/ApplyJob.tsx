@@ -64,13 +64,14 @@ export default function ApplyJob() {
       setLoading(false);
       return;
     }
+    const targetJobId: number = parsedJobId;
 
     let cancelled = false;
 
     async function loadJob() {
       setLoading(true);
       try {
-        const response = await getPublicJob(parsedJobId);
+        const response = await getPublicJob(targetJobId);
         if (!cancelled) {
           setJob(response.job);
         }

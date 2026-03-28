@@ -7,8 +7,9 @@ import Loading from "../components/Loading";
 import MatchBadge from "../components/matching/MatchBadge";
 import { calculateJobMatch } from "../components/matching/matchUtils";
 import { Link } from "react-router-dom";
+import type { Job } from "../types/models";
 
-const recommendedJobsSeed = [
+const recommendedJobsSeed: Job[] = [
   {
     id: 101,
     employer_id: 1,
@@ -42,7 +43,7 @@ const recommendedJobsSeed = [
     skills_required: ["Figma", "UI Design", "Research", "Communication"],
     status: "published",
   },
-] as const;
+];
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
