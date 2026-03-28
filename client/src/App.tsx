@@ -23,6 +23,8 @@ import ApplicantDetail from "./pages/employer/ApplicantDetail";
 import RecommendedJobs from "./pages/jobseeker/RecommendedJobs";
 import JobsList from "./pages/jobs/JobsList";
 import JobDetail from "./pages/jobs/JobDetail";
+import ApplyJob from "./pages/jobs/ApplyJob";
+import ApplicationSuccess from "./components/applications/ApplicationSuccess";
 
 export default function App() {
   return (
@@ -37,6 +39,8 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/jobs" element={<JobsList />} />
           <Route path="/jobs/:jobId" element={<JobDetail />} />
+          <Route path="/jobs/:jobId/apply" element={<ApplyJob />} />
+          <Route path="/jobs/:jobId/apply/success" element={<ApplicationSuccess />} />
         </Route>
 
         {/* Protected */}
