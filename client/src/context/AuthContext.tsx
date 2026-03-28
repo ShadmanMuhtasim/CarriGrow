@@ -1,7 +1,13 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { login, logout, me, refreshToken, register, type AuthPayload } from "../services/auth";
-import { getToken, removeToken, setToken } from "../utils/token";
+import {
+  clearLegacyTokenStorage,
+  clearSafeAuthSession,
+  persistSafeAuthSession,
+  readSafeAuthSession,
+} from "../utils/authSession";
 import type { User } from "../types/models";
+import { toastUI } from "../components/ui/Toast";
 
 type LoginInput = {
   email: string;
@@ -10,7 +16,6 @@ type LoginInput = {
 
 type AuthContextValue = {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   signIn: (payload: LoginInput) => Promise<User>;
@@ -22,117 +27,164 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function toUserFromSnapshot(): User | null {
+  const snapshot = readSafeAuthSession();
+  if (!snapshot) {
+    return null;
+  }
+
+  return {
+    id: snapshot.user_id,
+    name: snapshot.name,
+    email: snapshot.email,
+    role: snapshot.role,
+    status: snapshot.status,
+    skills: [],
+    job_seeker_profile: null,
+    employer_profile: null,
+    mentor_profile: null,
+    jobSeekerProfile: null,
+    employerProfile: null,
+    mentorProfile: null,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(getToken());
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(() => toUserFromSnapshot());
   const [isLoading, setIsLoading] = useState(true);
 
+  const clearAuthState = useCallback(() => {
+    clearSafeAuthSession();
+    clearLegacyTokenStorage();
+    setUserState(null);
+  }, []);
+
+  const updateUserState = useCallback((nextUser: User | null) => {
+    setUserState(nextUser);
+    if (nextUser) {
+      persistSafeAuthSession(nextUser);
+    } else {
+      clearSafeAuthSession();
+    }
+  }, []);
+
+  const bootstrapSession = useCallback(async () => {
+    setIsLoading(true);
+    clearLegacyTokenStorage();
+
+    try {
+      const response = await me();
+      updateUserState(response.user);
+    } catch {
+      clearAuthState();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [clearAuthState, updateUserState]);
+
   useEffect(() => {
-    let cancelled = false;
+    void bootstrapSession();
+  }, [bootstrapSession]);
 
-    async function bootstrap() {
-      if (!token) {
-        if (!cancelled) {
-          setUser(null);
-          setIsLoading(false);
-        }
-        return;
-      }
+  useEffect(() => {
+    function handleInvalidSession(event: Event) {
+      const customEvent = event as CustomEvent<{ message?: string }>;
+      const message =
+        typeof customEvent.detail?.message === "string" && customEvent.detail.message.trim() !== ""
+          ? customEvent.detail.message
+          : "Session expired. Please sign in again.";
 
-      // Fresh login/register already sets user in-memory.
-      // Only hydrate from /auth/me when app bootstraps from a stored token.
-      if (user) {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-        return;
-      }
+      clearAuthState();
+      setIsLoading(false);
+      toastUI.error(message);
 
-      if (!cancelled) {
-        setIsLoading(true);
-      }
-
-      try {
-        const response = await me();
-        if (!cancelled) {
-          setUser(response.user);
-        }
-      } catch {
-        removeToken();
-        if (!cancelled) {
-          setTokenState(null);
-          setUser(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+      if (window.location.pathname !== "/login") {
+        window.location.replace("/login");
       }
     }
 
-    bootstrap();
+    window.addEventListener("carrigrow:auth-invalid", handleInvalidSession as EventListener);
+    return () => {
+      window.removeEventListener("carrigrow:auth-invalid", handleInvalidSession as EventListener);
+    };
+  }, [clearAuthState]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function validateSession() {
+      try {
+        const response = await me();
+        if (!cancelled) {
+          updateUserState(response.user);
+        }
+      } catch {
+        // 401/invalid token is handled centrally by the API response interceptor.
+      }
+    }
+
+    function onFocusOrVisible() {
+      if (document.visibilityState === "visible") {
+        void validateSession();
+      }
+    }
+
+    window.addEventListener("focus", onFocusOrVisible);
+    document.addEventListener("visibilitychange", onFocusOrVisible);
+
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", onFocusOrVisible);
+      document.removeEventListener("visibilitychange", onFocusOrVisible);
     };
-  }, [token, user]);
+  }, [user, updateUserState]);
 
   async function signIn(payload: LoginInput) {
-    // Always clear stale session before a fresh login attempt.
-    removeToken();
-    setTokenState(null);
-    setUser(null);
-
+    clearAuthState();
     const response = await login(payload);
-    setUser(response.user);
-    setToken(response.access_token);
-    setTokenState(response.access_token);
+    updateUserState(response.user);
     return response.user;
   }
 
   async function signUp(payload: AuthPayload) {
-    // Ensure registration creates a fresh JWT session.
-    removeToken();
-    setTokenState(null);
-    setUser(null);
-
+    clearAuthState();
     const response = await register(payload);
-    setUser(response.user);
-    setToken(response.access_token);
-    setTokenState(response.access_token);
+    updateUserState(response.user);
     return response.user;
   }
 
   async function signOut() {
-    await logout();
-    removeToken();
-    setTokenState(null);
-    setUser(null);
+    try {
+      await logout();
+    } finally {
+      clearAuthState();
+    }
   }
 
   async function refreshSession() {
     const response = await refreshToken();
-    setToken(response.access_token);
-    setTokenState(response.access_token);
-    setUser(response.user);
+    updateUserState(response.user);
   }
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated: Boolean(token),
-        isLoading,
-        signIn,
-        signUp,
-        signOut,
-        refreshSession,
-        setUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      isAuthenticated: Boolean(user),
+      isLoading,
+      signIn,
+      signUp,
+      signOut,
+      refreshSession,
+      setUser: updateUserState,
+    }),
+    [isLoading, user, updateUserState]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -142,3 +194,4 @@ export function useAuth() {
   }
   return context;
 }
+
