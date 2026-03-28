@@ -6,6 +6,7 @@ use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JobRecommendationController;
 use App\Http\Controllers\JobSkillController;
+use App\Http\Controllers\SkillMatchController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\UserController;
@@ -47,7 +48,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'apply']);
     Route::post('/jobs/{job}/skills', [JobSkillController::class, 'store']);
+    Route::get('/jobs/{job}/match-score', [SkillMatchController::class, 'matchScore']);
     Route::get('/recommendations/jobs', [JobRecommendationController::class, 'index']);
+    Route::get('/users/{user}/recommended-jobs', [SkillMatchController::class, 'recommendedJobs']);
     Route::get('/applications', [JobApplicationController::class, 'indexForJobSeeker']);
     Route::get('/jobs/{job}/applications', [JobApplicationController::class, 'indexForEmployer']);
 });
