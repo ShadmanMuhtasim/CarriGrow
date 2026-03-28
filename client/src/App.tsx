@@ -21,6 +21,8 @@ import JobApplicants from "./pages/employer/JobApplicants";
 import ApplicantsList from "./pages/employer/ApplicantsList";
 import ApplicantDetail from "./pages/employer/ApplicantDetail";
 import RecommendedJobs from "./pages/jobseeker/RecommendedJobs";
+import MyApplications from "./pages/jobseeker/MyApplications";
+import SavedJobs from "./pages/jobseeker/SavedJobs";
 import JobsList from "./pages/jobs/JobsList";
 import JobDetail from "./pages/jobs/JobDetail";
 import ApplyJob from "./pages/jobs/ApplyJob";
@@ -55,6 +57,8 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="jobs" element={<RecommendedJobs />} />
+          <Route path="my-applications" element={<MyApplications />} />
+          <Route path="saved-jobs" element={<SavedJobs />} />
           <Route path="post-job" element={<PostJob />} />
           <Route path="post-job/success" element={<JobPostSuccess />} />
           <Route path="manage-jobs" element={<ManageJobs />} />
