@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -61,7 +63,7 @@ class AuthController extends Controller
         // Create token immediately after register (optional but useful)
         $token = auth('api')->login($user);
 
-        return response()->json($this->tokenResponse($token, 'Registered successfully'), 201);
+        return $this->tokenResponse($token, 'Registered successfully', 201);
     }
 
     public function login(Request $request)
@@ -96,7 +98,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        return response()->json($this->tokenResponse($token, 'Login successful'));
+        return $this->tokenResponse($token, 'Login successful');
     }
 
     public function me()
@@ -109,20 +111,26 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout()
+    public function logout(): JsonResponse
     {
-        auth('api')->logout();
+        try {
+            if (auth('api')->check()) {
+                auth('api')->logout();
+            }
+        } catch (Throwable $exception) {
+            // Intentionally ignored: on invalid/expired tokens we still clear cookie.
+        }
 
         return response()->json([
             'message' => 'Logged out successfully'
-        ]);
+        ])->withCookie($this->forgetAuthCookie());
     }
 
     public function refresh()
     {
         $token = auth('api')->refresh();
 
-        return response()->json($this->tokenResponse($token, 'Token refreshed'));
+        return $this->tokenResponse($token, 'Token refreshed');
     }
 
     public function forgotPassword(Request $request)
@@ -188,18 +196,51 @@ class AuthController extends Controller
         ]);
     }
 
-    private function tokenResponse(string $token, string $message): array
+    private function tokenResponse(string $token, string $message, int $statusCode = 200): JsonResponse
     {
         $user = auth('api')->setToken($token)->user();
         $user?->load(['jobSeekerProfile', 'employerProfile', 'mentorProfile', 'skills']);
 
-        return [
+        return response()->json([
             'message' => $message,
             'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60,
-        ];
+        ], $statusCode)->withCookie($this->authCookie($token));
+    }
+
+    private function authCookie(string $token)
+    {
+        $minutes = (int) auth('api')->factory()->getTTL();
+        $cookieName = (string) config('jwt.cookie_name', 'carrigrow_token');
+        $path = (string) config('jwt.cookie_path', '/');
+        $domain = config('jwt.cookie_domain') ?: null;
+        $secure = (bool) config('jwt.cookie_secure', false);
+        $sameSite = strtolower((string) config('jwt.cookie_same_site', 'lax'));
+
+        if (!in_array($sameSite, ['lax', 'strict', 'none'], true)) {
+            $sameSite = 'lax';
+        }
+
+        return cookie(
+            $cookieName,
+            $token,
+            $minutes,
+            $path,
+            $domain,
+            $secure,
+            true,
+            false,
+            $sameSite
+        );
+    }
+
+    private function forgetAuthCookie()
+    {
+        $cookieName = (string) config('jwt.cookie_name', 'carrigrow_token');
+        $path = (string) config('jwt.cookie_path', '/');
+        $domain = config('jwt.cookie_domain') ?: null;
+
+        return cookie()->forget($cookieName, $path, $domain);
     }
 
     private function createRoleProfile(User $user): void

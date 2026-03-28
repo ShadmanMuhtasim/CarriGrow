@@ -1,5 +1,4 @@
 import { api } from "./api";
-import { removeToken } from "../utils/token";
 import type { User } from "../types/models";
 
 export type AuthPayload = {
@@ -13,8 +12,6 @@ export type AuthPayload = {
 export type AuthResponse = {
   message: string;
   user: User;
-  access_token: string;
-  token_type: string;
   expires_in: number;
 };
 
@@ -56,9 +53,5 @@ export async function resetPassword(payload: ResetPasswordPayload): Promise<{ me
 }
 
 export async function logout() {
-  try {
-    await api.post("/auth/logout");
-  } finally {
-    removeToken();
-  }
+  await api.post("/auth/logout");
 }

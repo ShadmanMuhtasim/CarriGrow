@@ -43,11 +43,11 @@ export const jobFormSchema = z
     education_required: z.string().min(2, "Education requirement is required"),
     application_deadline: z.string().min(1, "Application deadline is required"),
   })
-  .refine((values: JobFormValues) => Number(values.salary_min) >= 0, {
+  .refine((values) => Number(values.salary_min) >= 0, {
     message: "Minimum salary must be 0 or more",
     path: ["salary_min"],
   })
-  .refine((values: JobFormValues) => Number(values.salary_max) >= Number(values.salary_min), {
+  .refine((values) => Number(values.salary_max) >= Number(values.salary_min), {
     message: "Maximum salary must be greater than or equal to minimum salary",
     path: ["salary_max"],
   });

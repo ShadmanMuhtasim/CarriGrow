@@ -130,7 +130,7 @@ function normalizeJobsListPayload(payload: unknown): JobBrowseResponse {
 
 function normalizeJobDetailPayload(payload: unknown): Job {
   if (isObject(payload) && "job" in payload && isObject(payload.job)) {
-    return payload.job as Job;
+    return payload.job as unknown as Job;
   }
 
   throw new Error("Invalid job detail response.");
