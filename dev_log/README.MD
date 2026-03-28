@@ -1862,3 +1862,17 @@ perf/39-performance-optimization
   - `client/src/pages/jobs/JobDetail.tsx`
   - `client/src/services/jobs.ts`
   - `dev_log/README.MD`
+
+## Issue 24 Execution Note (2026-03-28)
+
+- Assignee working: EASTEAK
+- Scope started: Issue `#24` Application Tracking for Job Seekers
+- Base code added so contributors can later connect withdraw APIs, persistent notification delivery, and richer tracking analytics without replacing the frontend structure.
+- New files created for Issue 24:
+  - `client/src/pages/jobseeker/MyApplications.tsx`
+  - `client/src/pages/jobseeker/SavedJobs.tsx`
+  - `client/src/components/applications/ApplicationCard.tsx`
+  - `client/src/components/applications/StatusTimeline.tsx`
+- Existing files updated for Issue 24:
+  - `client/src/App.tsx`
+  - `dev_log/README.MD`
