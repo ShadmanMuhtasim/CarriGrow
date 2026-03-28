@@ -42,6 +42,42 @@ export type JobBrowseResponse = {
   total: number;
 };
 
+export type JobApplicationStatus = "applied" | "under_review" | "shortlisted" | "rejected" | "hired";
+
+export type JobApplyPayload = {
+  cover_letter?: string;
+  resume_url: string;
+  additional_documents?: string[];
+};
+
+export type JobApplication = {
+  id: number;
+  job_id: number;
+  user_id: number;
+  cover_letter?: string | null;
+  resume_url: string;
+  additional_documents?: string[] | null;
+  status: JobApplicationStatus;
+  employer_notes?: string | null;
+  applied_at?: string | null;
+  reviewed_at?: string | null;
+  reviewed_by?: number | null;
+  job?: Job;
+};
+
+export type JobApplicationListParams = {
+  status?: JobApplicationStatus;
+  per_page?: 10 | 25 | 50;
+};
+
+export type JobApplicationsResponse = {
+  applications: JobApplication[];
+  page: number;
+  totalPages: number;
+  perPage: number;
+  total: number;
+};
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -100,6 +136,36 @@ function normalizeJobDetailPayload(payload: unknown): Job {
   throw new Error("Invalid job detail response.");
 }
 
+function normalizeApplicationsListPayload(payload: unknown): JobApplicationsResponse {
+  if (isObject(payload) && Array.isArray(payload.data)) {
+    return {
+      applications: payload.data as JobApplication[],
+      page: Math.max(1, toNumber(payload.current_page, 1)),
+      totalPages: Math.max(1, toNumber(payload.last_page, 1)),
+      perPage: Math.max(1, toNumber(payload.per_page, payload.data.length || 10)),
+      total: Math.max(0, toNumber(payload.total, payload.data.length)),
+    };
+  }
+
+  if (isObject(payload) && "applications" in payload && isObject(payload.applications) && Array.isArray(payload.applications.data)) {
+    return {
+      applications: payload.applications.data as JobApplication[],
+      page: Math.max(1, toNumber(payload.applications.current_page, 1)),
+      totalPages: Math.max(1, toNumber(payload.applications.last_page, 1)),
+      perPage: Math.max(1, toNumber(payload.applications.per_page, payload.applications.data.length || 10)),
+      total: Math.max(0, toNumber(payload.applications.total, payload.applications.data.length)),
+    };
+  }
+
+  return {
+    applications: [],
+    page: 1,
+    totalPages: 1,
+    perPage: 10,
+    total: 0,
+  };
+}
+
 export async function browsePublicJobs(params: JobBrowseParams = {}) {
   const { data } = await api.get("/jobs", { params });
   return normalizeJobsListPayload(data);
@@ -138,4 +204,14 @@ export async function updateEmployerJob(jobId: number, payload: Partial<JobPaylo
 export async function deleteEmployerJob(jobId: number) {
   const { data } = await api.delete(`/employer/jobs/${jobId}`);
   return data as { message: string };
+}
+
+export async function applyToJob(jobId: number, payload: JobApplyPayload) {
+  const { data } = await api.post(`/jobs/${jobId}/apply`, payload);
+  return data as { message: string; application: JobApplication };
+}
+
+export async function listMyApplications(params: JobApplicationListParams = {}) {
+  const { data } = await api.get("/applications", { params });
+  return normalizeApplicationsListPayload(data);
 }

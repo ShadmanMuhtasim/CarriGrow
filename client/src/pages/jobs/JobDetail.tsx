@@ -187,6 +187,11 @@ export default function JobDetail() {
                   Back
                 </Button>
               </Link>
+              <Link to={`/jobs/${job.id}/apply`}>
+                <Button type="button" variant="primary">
+                  Apply Now
+                </Button>
+              </Link>
               <Button type="button" variant={isSaved ? "secondary" : "outline"} onClick={toggleSavedJob}>
                 {isSaved ? "Saved" : "Save Job"}
               </Button>
