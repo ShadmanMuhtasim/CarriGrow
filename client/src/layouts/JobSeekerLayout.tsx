@@ -13,7 +13,7 @@ export default function JobSeekerLayout({ onLogout }: Props) {
       links={[
         { to: "/dashboard", label: "Overview", icon: "bi-speedometer2", end: true },
         { to: "/dashboard/jobs", label: "Jobs", icon: "bi-briefcase" },
-        { to: "/dashboard/applications", label: "Applications", icon: "bi-send-check" },
+        { to: "/dashboard/my-applications", label: "Applications", icon: "bi-send-check" },
         { to: "/dashboard/mentorship", label: "Mentorship", icon: "bi-people" },
         { to: "/dashboard/profile", label: "Profile", icon: "bi-person-badge" },
       ]}

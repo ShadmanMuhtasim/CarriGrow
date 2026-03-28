@@ -47,7 +47,7 @@ class JobBrowseController extends Controller
 
         $filters = $validator->validated();
         $perPage = (int) ($filters['per_page'] ?? 10);
-        $page = max((int) $request->integer('page', 1), 1);
+        $page = $this->sanitizePage($request->query('page', 1));
         $cacheKey = sprintf(
             'jobs.public.index.v%d.%s.page.%d.per.%d',
             Job::publicCacheVersion(),
@@ -192,5 +192,17 @@ class JobBrowseController extends Controller
         }
 
         $query->orderByDesc('created_at');
+    }
+
+    private function sanitizePage(mixed $rawPage): int
+    {
+        $page = filter_var($rawPage, FILTER_VALIDATE_INT, [
+            'options' => [
+                'default' => 1,
+                'min_range' => 1,
+            ],
+        ]);
+
+        return is_int($page) && $page > 0 ? $page : 1;
     }
 }

@@ -37,7 +37,7 @@ class JobRecommendationController extends Controller
 
         $validated = $validator->validated();
         $perPage = (int) ($validated['per_page'] ?? 10);
-        $page = max((int) $request->integer('page', 1), 1);
+        $page = $this->sanitizePage($request->query('page', 1));
         $abVariant = $this->resolveAbVariant($user->id, $validated['ab_variant'] ?? 'auto');
 
         $user->loadMissing('skills');
@@ -300,5 +300,17 @@ class JobRecommendationController extends Controller
         }
 
         return (crc32('recommendation:' . $userId) % 2) === 0 ? 'a' : 'b';
+    }
+
+    private function sanitizePage(mixed $rawPage): int
+    {
+        $page = filter_var($rawPage, FILTER_VALIDATE_INT, [
+            'options' => [
+                'default' => 1,
+                'min_range' => 1,
+            ],
+        ]);
+
+        return is_int($page) && $page > 0 ? $page : 1;
     }
 }
