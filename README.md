@@ -39,7 +39,7 @@ Carrigrow is a web-based job portal designed to help job seekers find opportunit
 ## Tech Stack
 - **Backend:** Laravel (REST API)
 - **Database:** MySQL
-- **Frontend:** React.js, Tailwind CSS / Bootstrap
+- **Frontend:** React.js + Bootstrap
 - **Rendering Method:** Client-Side Rendering (CSR)
 
 ---
@@ -105,14 +105,20 @@ Carrigrow is a web-based job portal designed to help job seekers find opportunit
 ### Auth
 - `POST /auth/register`
 - `POST /auth/login`
+- `POST /auth/refresh`
 - `GET /auth/me`
 - `POST /auth/logout`
+- `POST /auth/forgot-password`
+- `POST /auth/reset-password`
 
 ### Users & Profiles
-- `GET /users/{id}`
-- `PUT /users/{id}`
+- `GET /users/me`
+- `PUT /users/me`
+- `DELETE /users/me/profile`
 - `GET /skills`
+- `GET /users/{id}/skills`
 - `POST /users/{id}/skills`
+- `DELETE /users/{id}/skills/{skillId}`
 
 ### Jobs
 - `POST /jobs` (employer creates job)
@@ -174,23 +180,44 @@ This project follows a full-stack starter template layout with separate `client/
 project-root/
 ├── client/    # Frontend application (React)
 ├── server/    # Backend application (Laravel API)
-└── database/  # Migrations/seeders/SQL scripts (optional)
+└── database/  # Database-first SQL baselines (`database/docker/init/*.sql`)
 ```
 
 ## Prerequisites
-- PHP >= 8.1
-- Composer
-- Node.js >= 18
-- npm or Yarn
-- MySQL (or PostgreSQL / SQLite)
+- Docker Desktop or Docker Engine with the Compose plugin
+- Optional: XAMPP/MySQL only if you need to export your current local database first
 
-## Setup (Quick)
+## Setup (Docker)
+1) Copy `.env.docker.example` to a new root `.env` file.
+2) Generate and paste `APP_KEY` and `JWT_SECRET` into your root `.env` file before first start.
+3) Start the stack with `docker compose up --build`.
+4) Open the app at `http://localhost:8000`.
+5) Open Adminer at `http://localhost:8080` if you want a database UI.
+6) MySQL is exposed at `localhost:3307`.
+
+Notes:
+- This repo is database-first only. `database/docker/init/00-schema.sql` and `database/docker/init/10-reference-data.sql` are the committed source of truth for schema and reference data.
+- Only `00-schema.sql` and `10-reference-data.sql` are mounted into MySQL init and run when the `mysql-data` volume is empty.
+- If you already started the stack once and want to re-run the init SQL, use `docker compose down -v` first.
+- Keep personal XAMPP exports outside the Docker init path; do not mount or run them in this stack.
+- Demo accounts from `10-reference-data.sql` all use the password `password`.
+
+PowerShell helpers for `.env` values:
+- `APP_KEY`: `$bytes = New-Object byte[] 32; [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes); 'base64:' + [Convert]::ToBase64String($bytes)`
+- `JWT_SECRET`: `$bytes = New-Object byte[] 32; [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes); ($bytes | ForEach-Object { $_.ToString('x2') }) -join ''`
+
+Database-first note:
+- Laravel migration and seeder files are intentionally removed from the repo. Any schema or baseline data change should be made in the committed SQL files.
+
+## Setup (Manual SQL)
 1) Backend:
 - `cd server`
 - `composer install`
 - copy `.env.example` to `.env` and set DB credentials
 - `php artisan key:generate`
-- `php artisan migrate`
+- `php artisan jwt:secret`
+- import `database/docker/init/00-schema.sql` into MySQL
+- import `database/docker/init/10-reference-data.sql` if you want the demo accounts and lookup data
 - `php artisan serve`
 
 2) Frontend:

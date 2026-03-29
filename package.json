@@ -1,13 +1,23 @@
 {
-  "name": "attendance_tracker",
+  "name": "carrigrow",
   "version": "1.0.0",
-  "description": "",
+  "description": "CarriGrow monorepo scripts",
+  "private": true,
   "scripts": {
-    "start:client": "cd client && npm run dev",
-    "start:server": "cd server && php artisan serve",
+    "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && php artisan serve",
+    "build": "npm run build:client && npm run build:server-assets",
     "build:client": "cd client && npm run build",
-    "copy:client": "cp -r client/dist/* server/public/",
-    "build:prod": "npm run build:client && npm run copy:client"
+    "build:server-assets": "powershell -NoProfile -Command \"if (Test-Path server/public/assets) { Remove-Item -Recurse -Force server/public/assets }; New-Item -ItemType Directory -Force server/public/assets | Out-Null; Copy-Item -Recurse -Force client/dist/* server/public/\"",
+    "lint:client": "cd client && npm run lint",
+    "docker:up": "docker compose --env-file .env up -d",
+    "docker:down": "docker compose --env-file .env down",
+    "docker:logs:app": "docker compose --env-file .env logs app --tail 120",
+    "docker:logs:db": "docker compose --env-file .env logs db --tail 120"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   },
   "keywords": [],
   "author": "Ali Ahnaf",

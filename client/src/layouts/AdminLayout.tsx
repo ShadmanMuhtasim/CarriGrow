@@ -1,0 +1,23 @@
+import RoleDashboardLayout from "./RoleDashboardLayout";
+
+type Props = {
+  onLogout: () => void;
+};
+
+export default function AdminLayout({ onLogout }: Props) {
+  return (
+    <RoleDashboardLayout
+      subtitle="Admin"
+      heading="Admin Dashboard"
+      onLogout={onLogout}
+      links={[
+        { to: "/dashboard", label: "Overview", icon: "bi-speedometer2", end: true },
+        { to: "/dashboard/users", label: "Users", icon: "bi-people" },
+        { to: "/dashboard/moderation", label: "Moderation", icon: "bi-shield-check" },
+        { to: "/dashboard/system-logs", label: "System Logs", icon: "bi-journal-text" },
+        { to: "/dashboard/profile", label: "Admin Profile", icon: "bi-person-circle" },
+      ]}
+    />
+  );
+}
+

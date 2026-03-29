@@ -7,7 +7,7 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: secrets.backendEndpoint,
+      baseURL: secrets.apiBaseUrl,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -17,7 +17,7 @@ class ApiClient {
   // currently, only fetches 1 session greater than current time
   async getSession() {
     try {
-      const response = await this.client.get('/api/session');
+      const response = await this.client.get('/session');
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -30,7 +30,7 @@ class ApiClient {
         toast.error('Credentials are required');
         return;
       }
-      const response = await this.client.post('/api/session', { name, duration, username, password });
+      const response = await this.client.post('/session', { name, duration, username, password });
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -44,7 +44,7 @@ class ApiClient {
         return;
       }
 
-      const response = await this.client.put('/api/session', { session_id, active, username, password });
+      const response = await this.client.put('/session', { session_id, active, username, password });
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -53,7 +53,7 @@ class ApiClient {
 
   async submitAttendance(roll: number) {
     try {
-      const response = await this.client.post('/api/attendance', { roll });
+      const response = await this.client.post('/attendance', { roll });
       return response.data;
     } catch (error) {
       this.handleError(error);
@@ -66,7 +66,7 @@ class ApiClient {
         toast.error('Credentials are required');
         return;
       }
-      const response = await this.client.post('/api/sessions', { username, password });
+      const response = await this.client.post('/sessions', { username, password });
       return response.data;
     } catch (error) {
       this.handleError(error);

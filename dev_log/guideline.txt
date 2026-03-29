@@ -1,0 +1,1447 @@
+# 📋 CarriGrow - Complete GitHub Issues & Milestones Guide
+
+## 🎯 Overview
+This guide creates **40 well-distributed issues** across 3 milestones, ensuring each team member has **8-10 commits**. Each issue is designed to be atomic (one feature per issue) and properly tagged by contributor responsibility.
+
+---
+
+## 🏷️ Issue Labels to Create
+
+| Label | Color | Description |
+|-------|-------|-------------|
+| `backend` | #5319E7 | Backend-related tasks |
+| `frontend` | #FBCA04 | Frontend-related tasks |
+| `auth` | #006B75 | Authentication & authorization |
+| `job-portal` | #1D76DB | Job posting & application features |
+| `mentorship` | #E99695 | Forum & mentorship features |
+| `skill-matching` | #BFD4F2 | Skill matching algorithm |
+| `database` | #0052CC | Database migrations & schema |
+| `ui/ux` | #FEF2C0 | UI components & design |
+| `documentation` | #0E8A16 | README, API docs, comments |
+| `testing` | #F9D0C4 | Tests & quality assurance |
+| `milestone-1` | #0E8A16 | Core Foundation |
+| `milestone-2` | #1D76DB | Job Portal Core |
+| `milestone-3` | #5319E7 | Mentorship & Finalization |
+
+---
+
+## 🎯 Assignee Responsibilities
+
+| Team Member | Role | Primary Focus |
+|-------------|------|---------------|
+| **Muskikim Musa** | Team Lead / Backend | Auth, Database, API Architecture |
+| **Shadman Muhtasim** | Backend Developer | Job Portal, Applications, Matching |
+| **Ahbab Hassan** | Frontend Developer | UI Components, Pages, Routing |
+| **Eastiak Ahmed** | Frontend Developer | State Management, API Integration, Styling |
+
+---
+
+# 📦 MILESTONE 1: Core Foundation & Authentication (15 Issues)
+
+## 🔧 Setup & Infrastructure (Issues #1-4)
+
+### Issue #1: Project Monorepo Setup
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `documentation` `milestone-1`
+
+**Description:** Set up the monorepo structure with Laravel backend and React frontend.
+
+**Acceptance Criteria:**
+- [ ] Initialize Laravel 10 project in `/server` directory
+- [ ] Initialize React + TypeScript project in `/client` directory
+- [ ] Configure Vite for frontend development
+- [ ] Set up Git hooks with Husky
+- [ ] Create comprehensive README with setup instructions
+- [ ] Configure environment variables examples for both projects
+
+**Technical Notes:**
+- Laravel: Use `composer create-project laravel/laravel server`
+- React: Use `npm create vite@latest client -- --template react-ts`
+- Add scripts for running both servers concurrently
+
+**Commit Message:** `chore: initialize monorepo with laravel and react #1`
+
+---
+
+### Issue #2: Docker Development Environment
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `devops` `milestone-1`
+
+**Description:** Create Docker configuration for consistent development environment.
+
+**Acceptance Criteria:**
+- [ ] Create Dockerfile for Laravel (PHP 8.1 + extensions)
+- [ ] Create Dockerfile for React (Node 18)
+- [ ] Configure docker-compose.yml with services: app, web, db, node
+- [ ] Set up MySQL container with volume persistence
+- [ ] Configure environment variables for Docker
+- [ ] Document Docker commands in README
+
+**Files to Create:**
+- `Dockerfile` (root)
+- `docker-compose.yml`
+- `docker/` directory with nginx config
+
+**Commit Message:** `feat(docker): add development environment with mysql and node #2`
+
+---
+
+### Issue #3: Database Schema - Users & Roles
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `database` `auth` `milestone-1`
+
+**Description:** Create initial database schema with users table and role-based structure.
+
+**Acceptance Criteria:**
+- [ ] Create `users` migration with fields: name, email, password, role (enum: job_seeker, employer, mentor, admin)
+- [ ] Add `email_verified_at` for email verification
+- [ ] Add `remember_token` for "remember me"
+- [ ] Add timestamps and soft deletes
+- [ ] Create `password_reset_tokens` table
+- [ ] Create `failed_jobs` table
+- [ ] Create `personal_access_tokens` table for API tokens
+
+**Technical Notes:**
+- Use Laravel's built-in authentication scaffolding as base
+- Customize to add role field
+- Index email for faster queries
+
+**Commit Message:** `feat(db): create users table with role-based enum #3`
+
+---
+
+### Issue #4: React Frontend Boilerplate
+**Assignee:** Ahbab & Ishtiak (Frontend Team)
+**Labels:** `frontend` `ui/ux` `milestone-1`
+
+**Description:** Set up React frontend with routing, styling, and basic layout components.
+
+**Acceptance Criteria:**
+- [ ] Configure React Router v6 with route structure
+- [ ] Set up Tailwind CSS + basic configuration
+- [ ] Create Layout component with Header and Footer
+- [ ] Create Loading component and Error Boundary
+- [ ] Configure Axios instance with base URL
+- [ ] Set up environment variables for API URL
+- [ ] Create basic 404 page
+
+**Files to Create:**
+- `client/src/components/Layout.tsx`
+- `client/src/components/Header.tsx`
+- `client/src/components/Footer.tsx`
+- `client/src/components/Loading.tsx`
+- `client/src/pages/Home.tsx`
+- `client/src/pages/NotFound.tsx`
+
+**Commit Message:** `feat(frontend): setup react router, tailwind, and layout components #4`
+
+---
+
+## 🔐 Authentication & Profiles (Issues #5-12)
+
+### Issue #5: JWT Authentication Backend
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `auth` `milestone-1`
+
+**Description:** Implement JWT authentication for all user roles.
+
+**Acceptance Criteria:**
+- [ ] Install and configure `tymon/jwt-auth` package
+- [ ] Generate JWT secret key
+- [ ] Update User model with JWT methods
+- [ ] Create AuthController with:
+  - `POST /api/auth/register` - Register with role selection
+  - `POST /api/auth/login` - Login with email/password
+  - `POST /api/auth/logout` - Invalidate token
+  - `POST /api/auth/refresh` - Refresh token
+  - `GET /api/auth/me` - Get authenticated user
+- [ ] Add validation rules for registration
+- [ ] Implement login throttling
+
+**Commit Message:** `feat(auth): implement jwt authentication with multi-role support #5`
+
+---
+
+### Issue #6: Registration & Login Frontend
+**Assignee:** Ahbab & Ishtiak (Frontend Team)
+**Labels:** `frontend` `auth` `ui/ux` `milestone-1`
+
+**Description:** Create registration and login pages with form validation.
+
+**Acceptance Criteria:**
+- [ ] Create Login page with email/password form
+- [ ] Create Registration page with:
+  - Name, email, password, confirm password
+  - Role selection dropdown (Job Seeker, Employer, Mentor)
+  - Terms and conditions checkbox
+- [ ] Implement form validation with error messages
+- [ ] Add loading states for form submission
+- [ ] Store JWT token in localStorage/httpOnly cookie
+- [ ] Redirect to appropriate dashboard after login
+- [ ] Add "Forgot Password" link
+
+**Files to Create:**
+- `client/src/pages/auth/Login.tsx`
+- `client/src/pages/auth/Register.tsx`
+- `client/src/hooks/useAuth.ts`
+- `client/src/context/AuthContext.tsx`
+
+**Commit Message:** `feat(auth): create login and registration pages with validation #6`
+
+---
+
+### Issue #7: Profile Schema - Job Seeker
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `database` `milestone-1`
+
+**Description:** Create job seeker profile table and relationships.
+
+**Acceptance Criteria:**
+- [ ] Create `job_seeker_profiles` migration with:
+  - `user_id` (foreign key)
+  - `phone` string
+  - `location` string
+  - `bio` text
+  - `education` JSON (array of degrees)
+  - `experience` JSON (array of jobs)
+  - `resume_url` string
+  - `portfolio_url` string
+  - `linkedin_url` string
+  - `github_url` string
+  - `date_of_birth` date
+  - `gender` enum
+- [ ] Create relationships in User model
+- [ ] Create ProfileController with CRUD operations
+
+**Commit Message:** `feat(profile): create job seeker profile schema and relationships #7`
+
+---
+
+### Issue #8: Profile Schema - Employer
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `database` `milestone-1`
+
+**Description:** Create employer profile table and relationships.
+
+**Acceptance Criteria:**
+- [ ] Create `employer_profiles` migration with:
+  - `user_id` (foreign key)
+  - `company_name` string
+  - `company_website` string
+  - `company_logo_url` string
+  - `company_description` text
+  - `industry` string
+  - `company_size` enum (1-10, 11-50, 51-200, 201-500, 500+)
+  - `founded_year` integer
+  - `headquarters_location` string
+  - `contact_email` string
+  - `contact_phone` string
+- [ ] Create relationships in User model
+- [ ] Create EmployerProfileController
+
+**Commit Message:** `feat(profile): create employer profile schema and relationships #8`
+
+---
+
+### Issue #9: Profile Schema - Mentor
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `database` `milestone-1`
+
+**Description:** Create mentor profile table and relationships.
+
+**Acceptance Criteria:**
+- [ ] Create `mentor_profiles` migration with:
+  - `user_id` (foreign key)
+  - `current_position` string
+  - `company` string
+  - `years_of_experience` integer
+  - `expertise_areas` JSON (array of fields)
+  - `bio` text
+  - `linkedin_url` string
+  - `calendly_link` string (optional)
+  - `availability` JSON (schedule)
+  - `mentorship_areas` JSON
+  - `hourly_rate` decimal (nullable)
+- [ ] Create relationships in User model
+- [ ] Create MentorProfileController
+
+**Commit Message:** `feat(profile): create mentor profile schema and relationships #9`
+
+---
+
+### Issue #10: Skills Schema & Tagging
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `database` `skill-matching` `milestone-1`
+
+**Description:** Create skills table and many-to-many relationship with users.
+
+**Acceptance Criteria:**
+- [ ] Create `skills` migration with: `id`, `name` (unique), `category`, `created_at`
+- [ ] Create `skill_user` pivot table with: `skill_id`, `user_id`, `proficiency_level` (beginner, intermediate, advanced, expert)
+- [ ] Create Skill model with relationships
+- [ ] Seed initial skills (programming languages, frameworks, soft skills)
+- [ ] Create SkillController with:
+  - `GET /api/skills` - List all skills
+  - `POST /api/users/{id}/skills` - Add skill to user
+  - `DELETE /api/users/{id}/skills/{skillId}` - Remove skill
+  - `GET /api/users/{id}/skills` - Get user's skills
+
+**Commit Message:** `feat(skills): create skills schema and user-skill relationships #10`
+
+---
+
+### Issue #11: Profile Pages Frontend
+**Assignee:** Ahbab & Ishtiak (Frontend Team)
+**Labels:** `frontend` `ui/ux` `milestone-1`
+
+**Description:** Create profile pages for all roles with forms and display.
+
+**Acceptance Criteria:**
+- [ ] Create Job Seeker Profile page:
+  - View profile information
+  - Edit profile form
+  - Skills selection (multi-select)
+  - Resume upload functionality
+- [ ] Create Employer Profile page:
+  - Company information form
+  - Logo upload
+- [ ] Create Mentor Profile page:
+  - Professional background form
+  - Expertise areas selection
+- [ ] Add profile completion progress bar
+- [ ] Implement form validation
+- [ ] Create reusable form components
+
+**Files to Create:**
+- `client/src/pages/profile/JobSeekerProfile.tsx`
+- `client/src/pages/profile/EmployerProfile.tsx`
+- `client/src/pages/profile/MentorProfile.tsx`
+- `client/src/components/SkillSelector.tsx`
+- `client/src/components/FileUpload.tsx`
+
+**Commit Message:** `feat(profile): create role-based profile pages with forms #11`
+
+---
+
+### Issue #12: Role-Based Dashboard Layouts
+**Assignee:** Ahbab & Ishtiak (Frontend Team)
+**Labels:** `frontend` `ui/ux` `milestone-1`
+
+**Description:** Create role-based dashboard layouts with navigation.
+
+**Acceptance Criteria:**
+- [ ] Create Job Seeker Dashboard layout with:
+  - Sidebar navigation (Dashboard, Jobs, Applications, Mentorship, Profile)
+  - Overview cards (applications count, saved jobs, upcoming mentorship)
+  - Recent activity feed
+- [ ] Create Employer Dashboard layout with:
+  - Sidebar (Dashboard, Post Job, Manage Jobs, Applicants, Company Profile)
+  - Stats cards (active jobs, total applicants)
+- [ ] Create Mentor Dashboard layout with:
+  - Sidebar (Dashboard, Forum Posts, Q&A, Mentees, Profile)
+  - Recent questions, activity metrics
+- [ ] Create Admin Dashboard layout (basic structure)
+- [ ] Implement responsive design for mobile/tablet
+
+**Files to Create:**
+- `client/src/layouts/JobSeekerLayout.tsx`
+- `client/src/layouts/EmployerLayout.tsx`
+- `client/src/layouts/MentorLayout.tsx`
+- `client/src/layouts/AdminLayout.tsx`
+- `client/src/components/Sidebar.tsx`
+
+**Commit Message:** `feat(dashboard): create role-based dashboard layouts #12`
+
+---
+
+## 🏗️ Core UI Components (Issues #13-15)
+
+### Issue #13: Navigation Components
+**Assignee:** Ahbab (Frontend)
+**Labels:** `frontend` `ui/ux` `milestone-1`
+
+**Description:** Create reusable navigation components.
+
+**Acceptance Criteria:**
+- [ ] Create Navbar component with:
+  - Logo
+  - Navigation links (conditional based on auth)
+  - User dropdown menu
+  - Mobile responsive menu
+- [ ] Create Footer component with links
+- [ ] Create Breadcrumb component
+- [ ] Create Tab component for profile sections
+- [ ] Ensure consistent styling across all components
+
+**Commit Message:** `feat(ui): create reusable navigation components #13`
+
+---
+
+### Issue #14: UI Component Library
+**Assignee:** Ishtiak (Frontend)
+**Labels:** `frontend` `ui/ux` `milestone-1`
+
+**Description:** Create reusable UI component library.
+
+**Acceptance Criteria:**
+- [ ] Create Button component with variants (primary, secondary, outline, danger)
+- [ ] Create Input component with validation states
+- [ ] Create Card component for content display
+- [ ] Create Modal component
+- [ ] Create Alert/Toast notification system
+- [ ] Create Badge component for skills/status
+- [ ] Create Pagination component
+- [ ] Document component props and usage
+
+**Files to Create:**
+- `client/src/components/ui/Button.tsx`
+- `client/src/components/ui/Input.tsx`
+- `client/src/components/ui/Card.tsx`
+- `client/src/components/ui/Modal.tsx`
+- `client/src/components/ui/Toast.tsx`
+- `client/src/components/ui/Badge.tsx`
+
+**Commit Message:** `feat(ui): create reusable component library #14`
+
+---
+
+### Issue #15: Form Components & Validation
+**Assignee:** Ahbab & Ishtiak (Frontend Team)
+**Labels:** `frontend` `ui/ux` `milestone-1`
+
+**Description:** Create form components with validation integration.
+
+**Acceptance Criteria:**
+- [ ] Create Form component with error handling
+- [ ] Create Select component with options
+- [ ] Create Checkbox/Radio components
+- [ ] Create DatePicker component
+- [ ] Create Textarea component
+- [ ] Implement React Hook Form integration
+- [ ] Add Yup/Zod validation schemas
+- [ ] Create form validation hooks
+
+**Commit Message:** `feat(forms): create form components with validation #15`
+
+---
+
+# 📦 MILESTONE 2: Job Portal Core (13 Issues)
+
+## 💼 Job Postings (Issues #16-20)
+
+### Issue #16: Jobs Schema & CRUD Backend
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `database` `job-portal` `milestone-2`
+
+**Description:** Create jobs table and CRUD operations for employers.
+
+**Acceptance Criteria:**
+- [ ] Create `jobs` migration with:
+  - `employer_id` (foreign key to users)
+  - `title` string
+  - `description` text
+  - `requirements` text
+  - `responsibilities` text
+  - `location` string (remote, hybrid, on-site)
+  - `salary_min` decimal
+  - `salary_max` decimal
+  - `salary_currency` string (default: USD)
+  - `employment_type` enum (full-time, part-time, contract, internship)
+  - `experience_level` enum (entry, mid, senior, lead)
+  - `education_required` string
+  - `skills_required` JSON or relationship
+  - `application_deadline` date
+  - `status` enum (draft, published, closed, filled)
+  - `views_count` integer
+  - `applications_count` integer
+  - `created_at`, `updated_at`, `soft_deletes`
+- [ ] Create Job model with relationships
+- [ ] Create JobController with CRUD endpoints
+- [ ] Add authorization (only employers can create/update/delete)
+
+**Commit Message:** `feat(jobs): create jobs schema and employer crud operations #16`
+
+---
+
+### Issue #17: Job Posting Form Frontend
+**Assignee:** Ahbab (Frontend)
+**Labels:** `frontend` `job-portal` `ui/ux` `milestone-2`
+
+**Description:** Create job posting form for employers.
+
+**Acceptance Criteria:**
+- [ ] Create multi-step job posting form:
+  - Step 1: Basic Info (title, location, employment type)
+  - Step 2: Description & Requirements (rich text editor)
+  - Step 3: Compensation & Benefits (salary range)
+  - Step 4: Skills & Qualifications (skill selector)
+  - Step 5: Review & Publish
+- [ ] Add form validation for each step
+- [ ] Implement draft save functionality
+- [ ] Add preview mode
+- [ ] Create success page after posting
+
+**Files to Create:**
+- `client/src/pages/employer/PostJob.tsx`
+- `client/src/pages/employer/EditJob.tsx`
+- `client/src/components/jobs/JobFormStep1.tsx`
+- `client/src/components/jobs/JobFormStep2.tsx`
+- `client/src/components/jobs/JobFormStep3.tsx`
+- `client/src/components/jobs/JobPreview.tsx`
+
+**Commit Message:** `feat(jobs): create multi-step job posting form #17`
+
+---
+
+### Issue #18: Job Listing & Filtering Backend
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `job-portal` `milestone-2`
+
+**Description:** Create job listing API with filtering and search.
+
+**Acceptance Criteria:**
+- [ ] Create `GET /api/jobs` endpoint with:
+  - Pagination (10, 25, 50 per page)
+  - Search by title, description
+  - Filter by location, employment type, experience level
+  - Filter by salary range
+  - Filter by skills (skill IDs)
+  - Filter by date posted
+  - Sorting options (newest, salary, relevance)
+- [ ] Create `GET /api/jobs/featured` for featured jobs
+- [ ] Create `GET /api/jobs/{id}` with full details
+- [ ] Implement query optimization with indexes
+- [ ] Add caching for frequent queries
+
+**Commit Message:** `feat(jobs): create job listing api with filtering and search #18`
+
+---
+
+### Issue #19: Job Browser & Search Frontend
+**Assignee:** Ishtiak (Frontend)
+**Labels:** `frontend` `job-portal` `ui/ux` `milestone-2`
+
+**Description:** Create job browsing page with filters and search.
+
+**Acceptance Criteria:**
+- [ ] Create Jobs page with:
+  - Search bar (title, keywords)
+  - Filter sidebar with:
+    - Location filter
+    - Job type checkboxes
+    - Experience level
+    - Salary range slider
+    - Skills multi-select
+    - Date posted dropdown
+  - Job cards grid/list view toggle
+  - Pagination or infinite scroll
+- [ ] Save filter state in URL for sharing
+- [ ] Add loading skeletons
+- [ ] Create job detail modal/page
+- [ ] Implement "Save Job" functionality
+
+**Files to Create:**
+- `client/src/pages/jobs/JobsList.tsx`
+- `client/src/pages/jobs/JobDetail.tsx`
+- `client/src/components/jobs/JobCard.tsx`
+- `client/src/components/jobs/JobFilters.tsx`
+- `client/src/components/jobs/SearchBar.tsx`
+
+**Commit Message:** `feat(jobs): create job browser with filters and search #19`
+
+---
+
+### Issue #20: Job Management for Employers
+**Assignee:** Ahbab & Ishtiak (Frontend Team)
+**Labels:** `frontend` `job-portal` `ui/ux` `milestone-2`
+
+**Description:** Create job management dashboard for employers.
+
+**Acceptance Criteria:**
+- [ ] Create "My Jobs" page with:
+  - List of all jobs posted
+  - Status indicators (published, draft, closed)
+  - Quick stats (views, applications)
+  - Actions: edit, duplicate, close, delete
+  - Filter by status
+- [ ] Create job analytics page:
+  - Views over time chart
+  - Applications by day
+  - Applicant demographics
+- [ ] Create "Applicants" page for each job
+- [ ] Add bulk actions for jobs
+
+**Commit Message:** `feat(jobs): create employer job management dashboard #20`
+
+---
+
+## 📝 Job Applications (Issues #21-24)
+
+### Issue #21: Applications Schema & Apply Backend
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `database` `job-portal` `milestone-2`
+
+**Description:** Create job applications schema and apply functionality.
+
+**Acceptance Criteria:**
+- [ ] Create `job_applications` migration with:
+  - `job_id` foreign key
+  - `user_id` foreign key (job seeker)
+  - `cover_letter` text
+  - `resume_url` string
+  - `additional_documents` JSON
+  - `status` enum (applied, under_review, shortlisted, rejected, hired)
+  - `employer_notes` text (private)
+  - `applied_at` timestamp
+  - `reviewed_at` timestamp
+  - `reviewed_by` foreign key
+- [ ] Create Application model with relationships
+- [ ] Create `POST /api/jobs/{id}/apply` endpoint
+- [ ] Add validation (prevent duplicate applications)
+- [ ] Create `GET /api/applications` for job seekers
+- [ ] Create `GET /api/jobs/{id}/applications` for employers
+
+**Commit Message:** `feat(applications): create applications schema and apply endpoint #21`
+
+---
+
+### Issue #22: Job Application Form Frontend
+**Assignee:** Ishtiak (Frontend)
+**Labels:** `frontend` `job-portal` `ui/ux` `milestone-2`
+
+**Description:** Create job application form for job seekers.
+
+**Acceptance Criteria:**
+- [ ] Create application form with:
+  - Resume upload (PDF, DOC)
+  - Cover letter (rich text editor)
+  - Additional questions (if any)
+  - Portfolio links
+- [ ] Auto-fill profile information
+- [ ] Add form validation
+- [ ] Create success confirmation page
+- [ ] Add "Apply with Profile" option
+- [ ] Track application status after submission
+
+**Files to Create:**
+- `client/src/pages/jobs/ApplyJob.tsx`
+- `client/src/components/applications/ApplicationForm.tsx`
+- `client/src/components/applications/ApplicationSuccess.tsx`
+
+**Commit Message:** `feat(applications): create job application form #22`
+
+---
+
+### Issue #23: Applicant Management for Employers
+**Assignee:** Ahbab (Frontend)
+**Labels:** `frontend` `job-portal` `ui/ux` `milestone-2`
+
+**Description:** Create applicant management dashboard for employers.
+
+**Acceptance Criteria:**
+- [ ] Create applicants list view with:
+  - Applicant cards with name, photo, applied date
+  - Status badges
+  - Skills tags
+  - Quick actions (view profile, change status, message)
+- [ ] Create applicant detail page with:
+  - Full profile information
+  - Resume viewer
+  - Cover letter display
+  - Status update form
+  - Notes section
+- [ ] Add filtering by status, skills
+- [ ] Implement bulk status updates
+- [ ] Add export to CSV functionality
+
+**Files to Create:**
+- `client/src/pages/employer/ApplicantsList.tsx`
+- `client/src/pages/employer/ApplicantDetail.tsx`
+- `client/src/components/applications/StatusBadge.tsx`
+- `client/src/components/applications/StatusUpdater.tsx`
+
+**Commit Message:** `feat(applications): create employer applicant management #23`
+
+---
+
+### Issue #24: Application Tracking for Job Seekers
+**Assignee:** Ishtiak (Frontend)
+**Labels:** `frontend` `job-portal` `ui/ux` `milestone-2`
+
+**Description:** Create application tracking dashboard for job seekers.
+
+**Acceptance Criteria:**
+- [ ] Create "My Applications" page with:
+  - List of all applications
+  - Status indicators with timeline
+  - Company and job details
+  - Applied date
+  - Actions: withdraw application
+- [ ] Create status progress tracker
+- [ ] Add notifications for status changes
+- [ ] Create saved jobs page
+- [ ] Add application analytics (success rate, response time)
+
+**Files to Create:**
+- `client/src/pages/jobseeker/MyApplications.tsx`
+- `client/src/pages/jobseeker/SavedJobs.tsx`
+- `client/src/components/applications/ApplicationCard.tsx`
+- `client/src/components/applications/StatusTimeline.tsx`
+
+**Commit Message:** `feat(applications): create job seeker application tracking #24`
+
+---
+
+## 🔍 Skill Matching (Issues #25-28)
+
+### Issue #25: Job-Skill Relationship Backend
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `database` `skill-matching` `milestone-2`
+
+**Description:** Create job-skill relationship and matching algorithm foundation.
+
+**Acceptance Criteria:**
+- [ ] Create `job_skill` pivot table with:
+  - `job_id` foreign key
+  - `skill_id` foreign key
+  - `importance` enum (required, preferred, bonus)
+- [ ] Update Job model with skills relationship
+- [ ] Create `GET /api/jobs/{id}/skills` endpoint
+- [ ] Create `POST /api/jobs/{id}/skills` for employers
+- [ ] Create algorithm to calculate match percentage
+
+**Commit Message:** `feat(matching): create job-skill relationship and matching foundation #25`
+
+---
+
+### Issue #26: Skill Match Algorithm
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `skill-matching` `milestone-2`
+
+**Description:** Implement skill matching algorithm with percentage score.
+
+**Acceptance Criteria:**
+- [ ] Create SkillMatchService class
+- [ ] Implement algorithm that:
+  - Compares job required skills with user skills
+  - Calculates match percentage
+  - Identifies missing skills
+  - Suggests skills to acquire
+- [ ] Create `GET /api/jobs/{id}/match-score` endpoint
+- [ ] Create `GET /api/users/{id}/recommended-jobs` endpoint
+- [ ] Cache results for performance
+- [ ] Add unit tests for algorithm
+
+**Commit Message:** `feat(matching): implement skill matching algorithm with percentage score #26`
+
+---
+
+### Issue #27: Match Display Frontend
+**Assignee:** Ahbab (Frontend)
+**Labels:** `frontend` `skill-matching` `ui/ux` `milestone-2`
+
+**Description:** Display match scores and missing skills in UI.
+
+**Acceptance Criteria:**
+- [ ] Add match percentage badge on job cards
+- [ ] Create match details modal showing:
+  - Overall percentage
+  - Matched skills list
+  - Missing skills list
+  - Suggested skills to learn
+- [ ] Add color coding (green for high match)
+- [ ] Create recommended jobs section on dashboard
+- [ ] Add skill gap analysis chart
+
+**Files to Create:**
+- `client/src/components/matching/MatchBadge.tsx`
+- `client/src/components/matching/MatchDetails.tsx`
+- `client/src/components/matching/SkillGapChart.tsx`
+- `client/src/pages/jobseeker/RecommendedJobs.tsx`
+
+**Commit Message:** `feat(matching): display match scores and missing skills in ui #27`
+
+---
+
+### Issue #28: Job Recommendations Backend
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `skill-matching` `milestone-2`
+
+**Description:** Create job recommendation system based on user skills.
+
+**Acceptance Criteria:**
+- [ ] Create `GET /api/recommendations/jobs` endpoint
+- [ ] Implement recommendation logic:
+  - Find jobs matching user skills
+  - Consider job freshness (recently posted)
+  - Boost jobs with higher match percentage
+  - Exclude already applied jobs
+- [ ] Add pagination for recommendations
+- [ ] Create personalization based on user history
+- [ ] Add A/B testing framework for algorithm
+
+**Commit Message:** `feat(recommendations): create job recommendation system based on skills #28`
+
+---
+
+# 📦 MILESTONE 3: Mentorship & Finalization (12 Issues)
+
+## 💬 Mentorship Forum (Issues #29-33)
+
+### Issue #29: Forum Schema Backend
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `database` `mentorship` `milestone-3`
+
+**Description:** Create forum posts and replies schema.
+
+**Acceptance Criteria:**
+- [ ] Create `forum_posts` migration with:
+  - `user_id` foreign key
+  - `title` string
+  - `content` text (rich text)
+  - `type` enum (question, discussion, resource)
+  - `skill_ids` JSON or relationship
+  - `views_count` integer
+  - `replies_count` integer
+  - `is_pinned` boolean
+  - `is_solved` boolean (for questions)
+  - `status` enum (published, hidden, deleted)
+  - `created_at`, `updated_at`, `soft_deletes`
+- [ ] Create `forum_replies` migration with:
+  - `post_id` foreign key
+  - `user_id` foreign key
+  - `content` text
+  - `is_solution` boolean (mark as answer)
+  - `created_at`, `updated_at`
+- [ ] Create `forum_post_skill` pivot table
+- [ ] Create models with relationships
+
+**Commit Message:** `feat(forum): create forum posts and replies schema #29`
+
+---
+
+### Issue #30: Forum API Endpoints
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `mentorship` `milestone-3`
+
+**Description:** Create CRUD API endpoints for forum.
+
+**Acceptance Criteria:**
+- [ ] Create `GET /api/forum/posts` with:
+  - Pagination
+  - Filter by skill, type, date
+  - Search in title/content
+  - Sort by popularity, recent, unanswered
+- [ ] Create `POST /api/forum/posts` for new posts
+- [ ] Create `GET /api/forum/posts/{id}` with replies
+- [ ] Create `PUT /api/forum/posts/{id}` for edits
+- [ ] Create `DELETE /api/forum/posts/{id}` (soft delete)
+- [ ] Create reply endpoints:
+  - `POST /api/forum/posts/{id}/replies`
+  - `PUT /api/forum/replies/{id}`
+  - `DELETE /api/forum/replies/{id}`
+- [ ] Add `POST /api/forum/replies/{id}/mark-solution`
+
+**Commit Message:** `feat(forum): create crud api endpoints for forum #30`
+
+---
+
+### Issue #31: Forum UI - List & Detail
+**Assignee:** Ahbab (Frontend)
+**Labels:** `frontend` `mentorship` `ui/ux` `milestone-3`
+
+**Description:** Create forum listing and detail pages.
+
+**Acceptance Criteria:**
+- [ ] Create Forum page with:
+  - Post cards with title, author, preview
+  - Skill tags
+  - Stats (views, replies)
+  - "Solved" indicator
+  - Filter sidebar (by skill, by type)
+  - Search bar
+  - New Post button
+- [ ] Create Post Detail page with:
+  - Full post content
+  - Replies thread
+  - Reply form
+  - Mark as solution (for mentors/post author)
+  - Vote/like functionality
+- [ ] Create New Post form with:
+  - Title input
+  - Rich text editor
+  - Skill selector
+  - Post type selection
+
+**Files to Create:**
+- `client/src/pages/forum/ForumList.tsx`
+- `client/src/pages/forum/PostDetail.tsx`
+- `client/src/pages/forum/NewPost.tsx`
+- `client/src/components/forum/PostCard.tsx`
+- `client/src/components/forum/ReplyThread.tsx`
+- `client/src/components/forum/RichTextEditor.tsx`
+
+**Commit Message:** `feat(forum): create forum listing and detail pages #31`
+
+---
+
+### Issue #32: Mentor Dashboard - Forum Management
+**Assignee:** Ishtiak (Frontend)
+**Labels:** `frontend` `mentorship` `ui/ux` `milestone-3`
+
+**Description:** Create mentor dashboard for forum management.
+
+**Acceptance Criteria:**
+- [ ] Create mentor forum overview with:
+  - Recent questions in their expertise
+  - Unanswered questions count
+  - Their recent answers
+  - Engagement metrics
+- [ ] Create "My Answers" page
+- [ ] Create "Questions for Me" page (filtered by skills)
+- [ ] Add notification for new questions in their expertise
+- [ ] Create mentor profile public view
+
+**Files to Create:**
+- `client/src/pages/mentor/ForumOverview.tsx`
+- `client/src/pages/mentor/MyAnswers.tsx`
+- `client/src/pages/mentor/QuestionsForMe.tsx`
+- `client/src/components/mentor/ExpertiseBadge.tsx`
+
+**Commit Message:** `feat(mentor): create mentor forum management dashboard #32`
+
+---
+
+### Issue #33: Notification System
+**Assignee:** Musa & Shadman (Backend Team)
+**Labels:** `backend` `mentorship` `milestone-3`
+
+**Description:** Create notification system for forum interactions.
+
+**Acceptance Criteria:**
+- [ ] Create `notifications` table
+- [ ] Implement notification types:
+  - New reply to your post
+  - Your answer marked as solution
+  - New question in your expertise
+  - @mentions in posts/replies
+- [ ] Create `GET /api/notifications` endpoint
+- [ ] Create `PUT /api/notifications/{id}/read`
+- [ ] Create `PUT /api/notifications/read-all`
+- [ ] Add real-time notifications (optional, with Pusher)
+
+**Commit Message:** `feat(notifications): create notification system for forum interactions #33`
+
+---
+
+## 🎯 Admin & Final Polish (Issues #34-40)
+
+### Issue #34: Admin Dashboard Backend
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `milestone-3`
+
+**Description:** Create admin dashboard backend with analytics.
+
+**Acceptance Criteria:**
+- [ ] Create admin-specific endpoints:
+  - `GET /api/admin/stats` - platform statistics
+  - `GET /api/admin/users` - user management
+  - `PUT /api/admin/users/{id}/role` - change user role
+  - `POST /api/admin/users/{id}/suspend` - suspend user
+  - `GET /api/admin/reports` - reported content
+- [ ] Create user activity logs
+- [ ] Create `admin_actions` table for audit trail
+- [ ] Implement admin middleware
+
+**Commit Message:** `feat(admin): create admin dashboard backend with analytics #34`
+
+---
+
+### Issue #35: Admin Dashboard Frontend
+**Assignee:** Ahbab (Frontend)
+**Labels:** `frontend` `ui/ux` `milestone-3`
+
+**Description:** Create admin dashboard frontend.
+
+**Acceptance Criteria:**
+- [ ] Create admin dashboard with:
+  - Analytics cards (users, jobs, applications, forum posts)
+  - User management table with filters
+  - Role change dropdown
+  - Suspend/activate actions
+  - Content moderation queue
+- [ ] Create user detail view for admin
+- [ ] Create system logs viewer
+- [ ] Add charts for platform growth
+- [ ] Create reports management
+
+**Files to Create:**
+- `client/src/pages/admin/Dashboard.tsx`
+- `client/src/pages/admin/UserManagement.tsx`
+- `client/src/pages/admin/ContentModeration.tsx`
+- `client/src/pages/admin/SystemLogs.tsx`
+
+**Commit Message:** `feat(admin): create admin dashboard frontend #35`
+
+---
+
+### Issue #36: Testing - Backend Unit Tests
+**Assignee:** Shadman (Backend)
+**Labels:** `backend` `testing` `milestone-3`
+
+**Description:** Write comprehensive backend unit tests.
+
+**Acceptance Criteria:**
+- [ ] Write tests for authentication (100% coverage)
+- [ ] Write tests for user profiles
+- [ ] Write tests for job CRUD operations
+- [ ] Write tests for applications
+- [ ] Write tests for forum posts/replies
+- [ ] Write tests for skill matching algorithm
+- [ ] Achieve minimum 80% code coverage
+
+**Files to Create:**
+- `server/tests/Feature/Auth/*`
+- `server/tests/Feature/Job/*`
+- `server/tests/Feature/Application/*`
+- `server/tests/Feature/Forum/*`
+- `server/tests/Unit/SkillMatchTest.php`
+
+**Commit Message:** `test: add comprehensive backend unit tests #36`
+
+---
+
+### Issue #37: Testing - Frontend Component Tests
+**Assignee:** Ishtiak (Frontend)
+**Labels:** `frontend` `testing` `milestone-3`
+
+**Description:** Write frontend component tests.
+
+**Acceptance Criteria:**
+- [ ] Set up Jest and React Testing Library
+- [ ] Test all UI components (Button, Input, Card, etc.)
+- [ ] Test authentication flows
+- [ ] Test job browsing and filtering
+- [ ] Test application forms
+- [ ] Test forum interactions
+- [ ] Achieve minimum 70% code coverage
+
+**Files to Create:**
+- `client/src/components/__tests__/*.test.tsx`
+- `client/src/pages/__tests__/*.test.tsx`
+- `client/src/hooks/__tests__/*.test.ts`
+
+**Commit Message:** `test: add frontend component tests #37`
+
+---
+
+### Issue #38: API Documentation
+**Assignee:** Musa (Backend Lead)
+**Labels:** `backend` `documentation` `milestone-3`
+
+**Description:** Create comprehensive API documentation.
+
+**Acceptance Criteria:**
+- [ ] Install and configure Swagger/OpenAPI
+- [ ] Document all authentication endpoints
+- [ ] Document all user/profile endpoints
+- [ ] Document all job endpoints
+- [ ] Document all application endpoints
+- [ ] Document all forum endpoints
+- [ ] Document all admin endpoints
+- [ ] Create Postman collection for testing
+- [ ] Add examples for each endpoint
+
+**Commit Message:** `docs: create comprehensive api documentation with swagger #38`
+
+---
+
+### Issue #39: Performance Optimization
+**Assignee:** Shadman (Backend) & Ahbab (Frontend)
+**Labels:** `backend` `frontend` `milestone-3`
+
+**Description:** Optimize application performance.
+
+**Acceptance Criteria:**
+
+**Backend:**
+- [ ] Implement Redis caching for frequent queries
+- [ ] Add database indexes for slow queries
+- [ ] Optimize N+1 queries with eager loading
+- [ ] Implement pagination for all list endpoints
+- [ ] Add query logging and analysis
+
+**Frontend:**
+- [ ] Implement code splitting with React.lazy
+- [ ] Add image optimization and lazy loading
+- [ ] Implement virtual scrolling for long lists
+- [ ] Reduce bundle size (analyze with source-map-explorer)
+- [ ] Add service worker for offline capability
+
+**Commit Message:** `perf: optimize application performance backend and frontend #39`
+
+---
+
+### Issue #40: Deployment & Final Polish
+**Assignee:** All Team Members
+**Labels:** `documentation` `milestone-3`
+
+**Description:** Prepare for deployment and final polish.
+
+**Acceptance Criteria:**
+- [ ] Create production environment configuration
+- [ ] Set up CI/CD pipeline (GitHub Actions)
+- [ ] Configure production database
+- [ ] Set up SSL certificates
+- [ ] Create deployment scripts
+- [ ] Update README with live demo link
+- [ ] Create user manual/documentation
+- [ ] Fix all known bugs
+- [ ] Conduct final testing on staging
+- [ ] Deploy to production server
+
+**Commit Message:** `chore: prepare for deployment and final polish #40`
+
+---
+
+# 📊 Issue Distribution Summary
+
+## By Milestone
+
+| Milestone | Issues | Backend | Frontend | Mixed |
+|-----------|--------|---------|----------|-------|
+| Milestone 1 | 15 | 7 | 6 | 2 |
+| Milestone 2 | 13 | 5 | 6 | 2 |
+| Milestone 3 | 12 | 5 | 4 | 3 |
+| **Total** | **40** | **17** | **16** | **7** |
+
+## By Team Member
+
+| Team Member | Issues | Commit Estimate |
+|-------------|--------|-----------------|
+| **Musa** (Backend Lead) | 10-12 | ~10 commits |
+| **Shadman** (Backend) | 8-10 | ~8 commits |
+| **Ahbab** (Frontend) | 8-10 | ~8 commits |
+| **Ishtiak** (Frontend) | 8-10 | ~8 commits |
+
+---
+
+# 📝 GitHub Labels Summary
+
+```
+# Create these labels in your repository:
+
+auth (color: #006B75)
+backend (color: #5319E7)
+bug (color: #d73a4a)
+database (color: #0052CC)
+documentation (color: #0E8A16)
+enhancement (color: #a2eeef)
+frontend (color: #FBCA04)
+good-first-issue (color: #7057ff)
+job-portal (color: #1D76DB)
+mentorship (color: #E99695)
+milestone-1 (color: #0E8A16)
+milestone-2 (color: #1D76DB)
+milestone-3 (color: #5319E7)
+skill-matching (color: #BFD4F2)
+testing (color: #F9D0C4)
+ui/ux (color: #FEF2C0)
+```
+
+---
+
+# 🚀 Getting Started for Team Members
+
+## For Backend Team (Musa & Shadman)
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/CarriGrow.git
+cd CarriGrow/server
+
+# Install dependencies
+composer install
+
+# Set up environment
+cp .env.example .env
+# Update database credentials in .env
+
+# Generate key and import SQL baseline
+php artisan key:generate
+php artisan jwt:secret
+# Import database/docker/init/00-schema.sql
+# Import database/docker/init/10-reference-data.sql
+
+# Start server
+php artisan serve
+```
+
+## For Frontend Team (Ahbab & Ishtiak)
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/CarriGrow.git
+cd CarriGrow/client
+
+# Install dependencies
+npm install
+
+# Set up environment
+cp .env.example .env.local
+# Update API URL in .env.local
+
+# Start development server
+npm run dev
+```
+
+---
+
+# 🔄 Git Workflow for Team
+
+## Branch Naming Convention
+- Feature: `feature/issue-number-feature-name`
+- Bugfix: `fix/issue-number-bug-description`
+- Hotfix: `hotfix/issue-number-description`
+
+## Commit Message Convention
+```
+type(scope): description #issue-number
+
+Types: feat, fix, docs, style, refactor, test, chore
+Scope: auth, jobs, forum, ui, api, db, etc.
+
+Example: feat(auth): implement jwt authentication #5
+```
+
+## Pull Request Process
+1. Create feature branch from `dev`
+2. Implement changes with multiple commits
+3. Push branch and create PR to `dev`
+4. Assign reviewer (team lead)
+5. Address review comments
+6. Merge after approval
+
+---
+
+This guide ensures:
+- ✅ **40 well-distributed issues** across 3 milestones
+- ✅ **8-10 commits per team member**
+- ✅ **Clear responsibilities** (backend/frontend separation)
+- ✅ **Atomic commits** with proper messages
+- ✅ **Comprehensive features** covering all requirements
+- ✅ **Testing and documentation** included
+
+**Ready to create these issues in your GitHub repository!** 🚀
+
+
+
+==========================================================================
+==========================================================================
+==========================================================================
+==========================================================================
+==========================================================================
+==========================================================================
+mapping : 
+# 📊 CarriGrow - Complete Issues & Commits Chart
+
+## 📋 Master Chart: All 40 Issues with Commit Messages
+
+---
+
+## 🏷️ MILESTONE 1: Core Foundation & Authentication (15 Issues)
+
+| # | Issue Title | Assignee | Commit Message |
+|---|-------------|----------|----------------|
+| **1** | Project Monorepo Setup | Musa | `chore: initialize monorepo with laravel and react #1` |
+| **2** | Docker Development Environment | Musa | `feat(docker): add development environment with mysql and node #2` |
+| **3** | Database Schema - Users & Roles | Musa | `feat(db): create users table with role-based enum #3` |
+| **4** | React Frontend Boilerplate | Ahbab & Ishtiak | `feat(frontend): setup react router, tailwind, and layout components #4` |
+| **5** | JWT Authentication Backend | Musa | `feat(auth): implement jwt authentication with multi-role support #5` |
+| **6** | Registration & Login Frontend | Ahbab & Ishtiak | `feat(auth): create login and registration pages with validation #6` |
+| **7** | Profile Schema - Job Seeker | Shadman | `feat(profile): create job seeker profile schema and relationships #7` |
+| **8** | Profile Schema - Employer | Shadman | `feat(profile): create employer profile schema and relationships #8` |
+| **9** | Profile Schema - Mentor | Shadman | `feat(profile): create mentor profile schema and relationships #9` |
+| **10** | Skills Schema & Tagging | Musa | `feat(skills): create skills schema and user-skill relationships #10` |
+| **11** | Profile Pages Frontend | Ahbab & Ishtiak | `feat(profile): create role-based profile pages with forms #11` |
+| **12** | Role-Based Dashboard Layouts | Ahbab & Ishtiak | `feat(dashboard): create role-based dashboard layouts #12` |
+| **13** | Navigation Components | Ahbab | `feat(ui): create reusable navigation components #13` |
+| **14** | UI Component Library | Ishtiak | `feat(ui): create reusable component library #14` |
+| **15** | Form Components & Validation | Ahbab & Ishtiak | `feat(forms): create form components with validation #15` |
+
+---
+
+## 🏷️ MILESTONE 2: Job Portal Core (13 Issues)
+
+| # | Issue Title | Assignee | Commit Message |
+|---|-------------|----------|----------------|
+| **16** | Jobs Schema & CRUD Backend | Shadman | `feat(jobs): create jobs schema and employer crud operations #16` |
+| **17** | Job Posting Form Frontend | Ahbab | `feat(jobs): create multi-step job posting form #17` |
+| **18** | Job Listing & Filtering Backend | Shadman | `feat(jobs): create job listing api with filtering and search #18` |
+| **19** | Job Browser & Search Frontend | Ishtiak | `feat(jobs): create job browser with filters and search #19` |
+| **20** | Job Management for Employers | Ahbab & Ishtiak | `feat(jobs): create employer job management dashboard #20` |
+| **21** | Applications Schema & Apply Backend | Shadman | `feat(applications): create applications schema and apply endpoint #21` |
+| **22** | Job Application Form Frontend | Ishtiak | `feat(applications): create job application form #22` |
+| **23** | Applicant Management for Employers | Ahbab | `feat(applications): create employer applicant management #23` |
+| **24** | Application Tracking for Job Seekers | Ishtiak | `feat(applications): create job seeker application tracking #24` |
+| **25** | Job-Skill Relationship Backend | Shadman | `feat(matching): create job-skill relationship and matching foundation #25` |
+| **26** | Skill Match Algorithm | Musa | `feat(matching): implement skill matching algorithm with percentage score #26` |
+| **27** | Match Display Frontend | Ahbab | `feat(matching): display match scores and missing skills in ui #27` |
+| **28** | Job Recommendations Backend | Shadman | `feat(recommendations): create job recommendation system based on skills #28` |
+
+---
+
+## 🏷️ MILESTONE 3: Mentorship & Finalization (12 Issues)
+
+| # | Issue Title | Assignee | Commit Message |
+|---|-------------|----------|----------------|
+| **29** | Forum Schema Backend | Musa | `feat(forum): create forum posts and replies schema #29` |
+| **30** | Forum API Endpoints | Musa | `feat(forum): create crud api endpoints for forum #30` |
+| **31** | Forum UI - List & Detail | Ahbab | `feat(forum): create forum listing and detail pages #31` |
+| **32** | Mentor Dashboard - Forum Management | Ishtiak | `feat(mentor): create mentor forum management dashboard #32` |
+| **33** | Notification System | Musa & Shadman | `feat(notifications): create notification system for forum interactions #33` |
+| **34** | Admin Dashboard Backend | Musa | `feat(admin): create admin dashboard backend with analytics #34` |
+| **35** | Admin Dashboard Frontend | Ahbab | `feat(admin): create admin dashboard frontend #35` |
+| **36** | Testing - Backend Unit Tests | Shadman | `test: add comprehensive backend unit tests #36` |
+| **37** | Testing - Frontend Component Tests | Ishtiak | `test: add frontend component tests #37` |
+| **38** | API Documentation | Musa | `docs: create comprehensive api documentation with swagger #38` |
+| **39** | Performance Optimization | Shadman & Ahbab | `perf: optimize application performance backend and frontend #39` |
+| **40** | Deployment & Final Polish | All Team Members | `chore: prepare for deployment and final polish #40` |
+
+---
+
+## 👥 Team Member Workload Distribution
+
+### Musa (Team Lead / Backend) - 10 Issues
+
+| # | Issue Title | Commit Message |
+|---|-------------|----------------|
+| 1 | Project Monorepo Setup | `chore: initialize monorepo with laravel and react #1` |
+| 2 | Docker Development Environment | `feat(docker): add development environment with mysql and node #2` |
+| 3 | Database Schema - Users & Roles | `feat(db): create users table with role-based enum #3` |
+| 5 | JWT Authentication Backend | `feat(auth): implement jwt authentication with multi-role support #5` |
+| 10 | Skills Schema & Tagging | `feat(skills): create skills schema and user-skill relationships #10` |
+| 26 | Skill Match Algorithm | `feat(matching): implement skill matching algorithm with percentage score #26` |
+| 29 | Forum Schema Backend | `feat(forum): create forum posts and replies schema #29` |
+| 30 | Forum API Endpoints | `feat(forum): create crud api endpoints for forum #30` |
+| 34 | Admin Dashboard Backend | `feat(admin): create admin dashboard backend with analytics #34` |
+| 38 | API Documentation | `docs: create comprehensive api documentation with swagger #38` |
+
+### Shadman (Backend Developer) - 9 Issues
+
+| # | Issue Title | Commit Message |
+|---|-------------|----------------|
+| 7 | Profile Schema - Job Seeker | `feat(profile): create job seeker profile schema and relationships #7` |
+| 8 | Profile Schema - Employer | `feat(profile): create employer profile schema and relationships #8` |
+| 9 | Profile Schema - Mentor | `feat(profile): create mentor profile schema and relationships #9` |
+| 16 | Jobs Schema & CRUD Backend | `feat(jobs): create jobs schema and employer crud operations #16` |
+| 18 | Job Listing & Filtering Backend | `feat(jobs): create job listing api with filtering and search #18` |
+| 21 | Applications Schema & Apply Backend | `feat(applications): create applications schema and apply endpoint #21` |
+| 25 | Job-Skill Relationship Backend | `feat(matching): create job-skill relationship and matching foundation #25` |
+| 28 | Job Recommendations Backend | `feat(recommendations): create job recommendation system based on skills #28` |
+| 36 | Testing - Backend Unit Tests | `test: add comprehensive backend unit tests #36` |
+
+### Ahbab (Frontend Developer) - 9 Issues
+
+| # | Issue Title | Commit Message |
+|---|-------------|----------------|
+| 4 | React Frontend Boilerplate | `feat(frontend): setup react router, tailwind, and layout components #4` (with Ishtiak) |
+| 6 | Registration & Login Frontend | `feat(auth): create login and registration pages with validation #6` (with Ishtiak) |
+| 11 | Profile Pages Frontend | `feat(profile): create role-based profile pages with forms #11` (with Ishtiak) |
+| 12 | Role-Based Dashboard Layouts | `feat(dashboard): create role-based dashboard layouts #12` (with Ishtiak) |
+| 13 | Navigation Components | `feat(ui): create reusable navigation components #13` |
+| 17 | Job Posting Form Frontend | `feat(jobs): create multi-step job posting form #17` |
+| 20 | Job Management for Employers | `feat(jobs): create employer job management dashboard #20` (with Ishtiak) |
+| 23 | Applicant Management for Employers | `feat(applications): create employer applicant management #23` |
+| 31 | Forum UI - List & Detail | `feat(forum): create forum listing and detail pages #31` |
+
+### Ishtiak (Frontend Developer) - 9 Issues
+
+| # | Issue Title | Commit Message |
+|---|-------------|----------------|
+| 4 | React Frontend Boilerplate | `feat(frontend): setup react router, tailwind, and layout components #4` (with Ahbab) |
+| 6 | Registration & Login Frontend | `feat(auth): create login and registration pages with validation #6` (with Ahbab) |
+| 11 | Profile Pages Frontend | `feat(profile): create role-based profile pages with forms #11` (with Ahbab) |
+| 12 | Role-Based Dashboard Layouts | `feat(dashboard): create role-based dashboard layouts #12` (with Ahbab) |
+| 14 | UI Component Library | `feat(ui): create reusable component library #14` |
+| 15 | Form Components & Validation | `feat(forms): create form components with validation #15` (with Ahbab) |
+| 19 | Job Browser & Search Frontend | `feat(jobs): create job browser with filters and search #19` |
+| 22 | Job Application Form Frontend | `feat(applications): create job application form #22` |
+| 24 | Application Tracking for Job Seekers | `feat(applications): create job seeker application tracking #24` |
+
+### Shared/Collaborative Issues - 3 Issues
+
+| # | Issue Title | Assignees | Commit Message |
+|---|-------------|-----------|----------------|
+| 33 | Notification System | Musa & Shadman | `feat(notifications): create notification system for forum interactions #33` |
+| 39 | Performance Optimization | Shadman & Ahbab | `perf: optimize application performance backend and frontend #39` |
+| 40 | Deployment & Final Polish | All Team Members | `chore: prepare for deployment and final polish #40` |
+
+---
+
+## 📊 Summary Statistics
+
+| Team Member | Solo Issues | Shared Issues | Total Issues | Total Commits |
+|-------------|-------------|---------------|--------------|---------------|
+| **Musa** | 9 | 2 | 11 | ~11 |
+| **Shadman** | 8 | 2 | 10 | ~10 |
+| **Ahbab** | 6 | 4 | 10 | ~10 |
+| **Ishtiak** | 6 | 4 | 10 | ~10 |
+| **Total** | 29 | 12* | 41* | ~41 |
+
+*Note: Shared issues count multiple times in individual totals but once in overall total
+
+---
+
+## 📅 Suggested Sprint Planning
+
+### Sprint 1 (Weeks 1-2): Milestone 1 - Issues #1-10
+- Focus: Setup, Auth, Basic Profiles
+- 10 issues
+
+### Sprint 2 (Weeks 3-4): Milestone 1 - Issues #11-15
+- Focus: Frontend Polish, Components
+- 5 issues
+
+### Sprint 3 (Weeks 5-6): Milestone 2 - Issues #16-22
+- Focus: Jobs Core
+- 7 issues
+
+### Sprint 4 (Weeks 7-8): Milestone 2 - Issues #23-28
+- Focus: Applications & Matching
+- 6 issues
+
+### Sprint 5 (Weeks 9-10): Milestone 3 - Issues #29-35
+- Focus: Forum & Admin
+- 7 issues
+
+### Sprint 6 (Weeks 11-12): Milestone 3 - Issues #36-40
+- Focus: Testing, Docs, Deployment
+- 5 issues
+
+---
+
+## 🏷️ Git Branch Naming Examples
+
+```
+feature/1-monorepo-setup
+feature/5-jwt-authentication
+feature/16-jobs-schema
+feature/21-applications-schema
+feature/29-forum-schema
+fix/6-login-validation
+docs/38-api-documentation
+test/36-backend-tests
+perf/39-performance-optimization
+```
+
+---
+
+This chart provides:
+- ✅ **Clear mapping** between issues and commits
+- ✅ **Balanced workload** across all 4 team members
+- ✅ **Proper commit message format** with issue references
+- ✅ **Easy tracking** for project progress
+- ✅ **Ready-to-use** for GitHub project board
+
+**Ready to create these issues in your repository!** 🚀
