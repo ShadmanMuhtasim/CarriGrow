@@ -4,6 +4,7 @@ export type ProficiencyLevel = "beginner" | "intermediate" | "advanced" | "exper
 export type JobStatus = "draft" | "published" | "closed" | "filled";
 export type JobEmploymentType = "full_time" | "part_time" | "contract" | "internship";
 export type JobExperienceLevel = "entry" | "mid" | "senior" | "lead";
+export type ForumPostType = "question" | "discussion" | "resource";
 
 export interface Skill {
   id: number;
@@ -91,4 +92,36 @@ export interface Job {
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
+}
+
+export interface ForumReply {
+  id: number;
+  post_id: number;
+  user_id: number;
+  content: string;
+  is_solution?: boolean;
+  votes_count?: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+  author_name?: string | null;
+}
+
+export interface ForumPost {
+  id: number;
+  user_id: number;
+  title: string;
+  content: string;
+  post_type?: ForumPostType;
+  status?: string;
+  is_solved?: boolean;
+  is_pinned?: boolean;
+  views_count?: number;
+  replies_count?: number;
+  likes_count?: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+  author_name?: string | null;
+  skill_ids?: number[];
+  skills?: Skill[];
+  replies?: ForumReply[];
 }

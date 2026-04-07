@@ -1876,3 +1876,31 @@ perf/39-performance-optimization
 - Existing files updated for Issue 24:
   - `client/src/App.tsx`
   - `dev_log/README.MD`
+
+## Issue 31 Execution Note (2026-04-07)
+
+- Assignee working: Ahbab
+- Scope started: Issue `#31` Forum UI - List & Detail
+- Implementation approach:
+  - Added forum listing, post detail, and new post pages.
+  - Added forum UI components (`PostCard`, `ReplyThread`, `RichTextEditor`).
+  - Added frontend forum service with API-first calls and local fallback behavior so UI remains usable while backend forum endpoints are incomplete.
+  - Wired forum routes for both public navigation and mentor dashboard path.
+- Milestone 2 carry-over fixes done during this pass:
+  - Updated navbar quick navigation to include real app routes (`/jobs`, `/forum`) and corrected CTA text (`Post a Job`).
+  - Fixed job row separator text rendering in employer job management view.
+- New files created for Issue 31:
+  - `client/src/services/forum.ts`
+  - `client/src/components/forum/PostCard.tsx`
+  - `client/src/components/forum/ReplyThread.tsx`
+  - `client/src/components/forum/RichTextEditor.tsx`
+  - `client/src/pages/forum/ForumList.tsx`
+  - `client/src/pages/forum/PostDetail.tsx`
+  - `client/src/pages/forum/NewPost.tsx`
+- Existing files updated for Issue 31:
+  - `client/src/App.tsx`
+  - `client/src/types/models.ts`
+  - `client/src/index.css`
+  - `client/src/components/Navbar.tsx`
+  - `client/src/pages/employer/ManageJobs.tsx`
+  - `dev_log/README.MD`

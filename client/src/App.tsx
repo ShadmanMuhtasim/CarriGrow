@@ -27,6 +27,9 @@ import JobsList from "./pages/jobs/JobsList";
 import JobDetail from "./pages/jobs/JobDetail";
 import ApplyJob from "./pages/jobs/ApplyJob";
 import ApplicationSuccess from "./components/applications/ApplicationSuccess";
+import ForumList from "./pages/forum/ForumList";
+import PostDetail from "./pages/forum/PostDetail";
+import NewPost from "./pages/forum/NewPost";
 
 export default function App() {
   return (
@@ -43,6 +46,9 @@ export default function App() {
           <Route path="/jobs/:jobId" element={<JobDetail />} />
           <Route path="/jobs/:jobId/apply" element={<ApplyJob />} />
           <Route path="/jobs/:jobId/apply/success" element={<ApplicationSuccess />} />
+          <Route path="/forum" element={<ForumList />} />
+          <Route path="/forum/new" element={<NewPost />} />
+          <Route path="/forum/:postId" element={<PostDetail />} />
         </Route>
 
         {/* Protected */}
@@ -67,6 +73,9 @@ export default function App() {
           <Route path="manage-jobs/:jobId/applicants" element={<JobApplicants />} />
           <Route path="manage-jobs/:jobId/applicants/list" element={<ApplicantsList />} />
           <Route path="manage-jobs/:jobId/applicants/:applicantId" element={<ApplicantDetail />} />
+          <Route path="forum-posts" element={<ForumList />} />
+          <Route path="forum-posts/new" element={<NewPost />} />
+          <Route path="forum-posts/:postId" element={<PostDetail />} />
           <Route path=":section" element={<DashboardSection />} />
         </Route>
 

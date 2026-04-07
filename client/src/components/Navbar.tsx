@@ -61,9 +61,14 @@ export default function Navbar() {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#find-job">
+                <NavLink to="/jobs" className="nav-link">
                   Find Job
-                </a>
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/forum" className="nav-link">
+                  Forum
+                </NavLink>
               </li>
               <li className="nav-item">
                 <a className="nav-link" href="#employers">
@@ -94,7 +99,7 @@ export default function Navbar() {
                     Sign In
                   </NavLink>
                   <button className="btn btn-primary" type="button" onClick={() => navigate("/login")}>
-                    Post A Jobs
+                    Post a Job
                   </button>
                 </>
               ) : (

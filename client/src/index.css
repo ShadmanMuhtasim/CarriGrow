@@ -237,6 +237,11 @@ body {
   z-index: 1050;
 }
 
+.forum-rich-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #6c757d;
+}
+
 /* Footer */
 .footer-dark {
   background: #0b1220;

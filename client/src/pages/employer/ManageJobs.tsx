@@ -300,7 +300,7 @@ export default function ManageJobs() {
                     <td>
                       <div className="fw-semibold">{job.title}</div>
                       <div className="text-muted small">
-                        {job.location ?? "Remote / TBD"} • {job.employment_type.replace("_", " ")}
+                        {job.location ?? "Remote / TBD"} - {job.employment_type.replace("_", " ")}
                       </div>
                     </td>
                     <td>
