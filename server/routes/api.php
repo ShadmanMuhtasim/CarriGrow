@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ForumPostController;
+use App\Http\Controllers\ForumReplyController;
 use App\Http\Controllers\JobBrowseController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
@@ -17,6 +19,8 @@ Route::get('/jobs', [JobBrowseController::class, 'index']);
 Route::get('/jobs/featured', [JobBrowseController::class, 'featured']);
 Route::get('/jobs/{job}', [JobBrowseController::class, 'show']);
 Route::get('/jobs/{job}/skills', [JobSkillController::class, 'index']);
+Route::get('/forum/posts', [ForumPostController::class, 'index']);
+Route::get('/forum/posts/{post}', [ForumPostController::class, 'show']);
 
 // ---- JWT Auth routes ----
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -53,6 +57,13 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/{user}/recommended-jobs', [SkillMatchController::class, 'recommendedJobs']);
     Route::get('/applications', [JobApplicationController::class, 'indexForJobSeeker']);
     Route::get('/jobs/{job}/applications', [JobApplicationController::class, 'indexForEmployer']);
+    Route::post('/forum/posts', [ForumPostController::class, 'store']);
+    Route::match(['put', 'patch'], '/forum/posts/{post}', [ForumPostController::class, 'update']);
+    Route::delete('/forum/posts/{post}', [ForumPostController::class, 'destroy']);
+    Route::post('/forum/posts/{post}/replies', [ForumReplyController::class, 'store']);
+    Route::match(['put', 'patch'], '/forum/replies/{reply}', [ForumReplyController::class, 'update']);
+    Route::delete('/forum/replies/{reply}', [ForumReplyController::class, 'destroy']);
+    Route::post('/forum/replies/{reply}/mark-solution', [ForumReplyController::class, 'markSolution']);
 });
 
 // ---- (Optional) old template routes ----
