@@ -9,6 +9,10 @@ class ForumReply extends Model
 {
     use HasFactory;
 
+    protected $appends = [
+        'author_name',
+    ];
+
     protected $fillable = [
         'post_id',
         'user_id',
@@ -19,6 +23,15 @@ class ForumReply extends Model
     protected $casts = [
         'is_solution' => 'boolean',
     ];
+
+    public function getAuthorNameAttribute(): ?string
+    {
+        if ($this->relationLoaded('user')) {
+            return $this->user?->name;
+        }
+
+        return null;
+    }
 
     public function post()
     {

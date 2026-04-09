@@ -40,12 +40,32 @@ class ForumPost extends Model
     ];
 
     protected $appends = [
+        'author_name',
         'post_type',
+        'skill_ids',
     ];
+
+    public function getAuthorNameAttribute(): ?string
+    {
+        if ($this->relationLoaded('user')) {
+            return $this->user?->name;
+        }
+
+        return null;
+    }
 
     public function getPostTypeAttribute(): ?string
     {
         return $this->attributes['type'] ?? null;
+    }
+
+    public function getSkillIdsAttribute(): array
+    {
+        if ($this->relationLoaded('skills')) {
+            return $this->skills->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
+        }
+
+        return $this->skills()->pluck('skills.id')->map(fn ($id) => (int) $id)->values()->all();
     }
 
     public function user()
