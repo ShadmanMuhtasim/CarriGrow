@@ -41,6 +41,7 @@ COPY --from=client-builder /app/client/dist/ /var/www/html/public/
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
+ && sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh \
  && chown -R www-data:www-data /var/www/html \
  && chmod -R 775 storage bootstrap/cache
 

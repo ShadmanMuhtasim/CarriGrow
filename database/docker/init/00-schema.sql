@@ -253,12 +253,22 @@ CREATE TABLE `forum_posts` (
   `user_id` bigint(20) unsigned NOT NULL,
   `title` varchar(255) NOT NULL,
   `content` longtext NOT NULL,
-  `status` varchar(255) NOT NULL DEFAULT 'active',
+  `type` enum('question','discussion','resource') NOT NULL DEFAULT 'discussion',
+  `views_count` int(10) unsigned NOT NULL DEFAULT 0,
+  `replies_count` int(10) unsigned NOT NULL DEFAULT 0,
+  `is_pinned` tinyint(1) NOT NULL DEFAULT 0,
+  `is_solved` tinyint(1) NOT NULL DEFAULT 0,
+  `status` enum('published','hidden','deleted') NOT NULL DEFAULT 'published',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `forum_posts_user_id_foreign` (`user_id`),
+  KEY `forum_posts_type_index` (`type`),
   KEY `forum_posts_status_index` (`status`),
+  KEY `forum_posts_is_pinned_index` (`is_pinned`),
+  KEY `forum_posts_is_solved_index` (`is_solved`),
+  KEY `forum_posts_deleted_at_index` (`deleted_at`),
   CONSTRAINT `forum_posts_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -268,11 +278,13 @@ CREATE TABLE `forum_replies` (
   `post_id` bigint(20) unsigned NOT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   `content` text NOT NULL,
+  `is_solution` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `forum_replies_post_id_foreign` (`post_id`),
   KEY `forum_replies_user_id_foreign` (`user_id`),
+  KEY `forum_replies_is_solution_index` (`is_solution`),
   CONSTRAINT `forum_replies_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `forum_posts` (`id`) ON DELETE CASCADE,
   CONSTRAINT `forum_replies_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

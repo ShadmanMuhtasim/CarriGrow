@@ -1904,3 +1904,21 @@ perf/39-performance-optimization
   - `client/src/components/Navbar.tsx`
   - `client/src/pages/employer/ManageJobs.tsx`
   - `dev_log/README.MD`
+
+## Issue 29 Execution Note (2026-04-09)
+
+- Assignee working: Musa
+- Scope completed: Issue `#29` Forum Schema Backend
+- Database-first rewrite applied for this issue:
+  - "Create forum migrations" means "update committed SQL schema in `database/docker/init/00-schema.sql` and align Laravel backend models".
+- Forum schema/model alignment completed:
+  - `forum_posts` now includes `type`, `views_count`, `replies_count`, `is_pinned`, `is_solved`, `status`, and `deleted_at`
+  - `forum_replies` now includes `is_solution`
+  - `forum_post_skill` remains the post-skill relationship source of truth
+  - `ForumPost` now uses soft deletes and includes casts/constants for forum metadata
+  - `ForumReply` now casts `is_solution` and supports the answer-marking flag
+- Existing files updated for Issue 29:
+  - `database/docker/init/00-schema.sql`
+  - `server/app/Models/ForumPost.php`
+  - `server/app/Models/ForumReply.php`
+  - `dev_log/README.MD`
