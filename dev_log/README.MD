@@ -1922,3 +1922,30 @@ perf/39-performance-optimization
   - `server/app/Models/ForumPost.php`
   - `server/app/Models/ForumReply.php`
   - `dev_log/README.MD`
+
+## Issue 30 Execution Note (2026-04-09)
+
+- Assignee working: Musa
+- Scope completed: Issue `#30` Forum API Endpoints
+- Backend implementation added for Issue 30:
+  - Added `GET /api/forum/posts` with pagination, search, skill/type/date filters, and `recent` / `popular` / `unanswered` sorting
+  - Added `POST /api/forum/posts`
+  - Added `GET /api/forum/posts/{id}` with replies, solution reply, skills, author names, and view count increment
+  - Added `PUT/PATCH /api/forum/posts/{id}` and `DELETE /api/forum/posts/{id}` with owner/moderator guard and soft delete behavior
+  - Added reply endpoints:
+    - `POST /api/forum/posts/{id}/replies`
+    - `PUT/PATCH /api/forum/replies/{id}`
+    - `DELETE /api/forum/replies/{id}`
+    - `POST /api/forum/replies/{id}/mark-solution`
+- Forum response alignment completed:
+  - `ForumPost` now exposes `author_name` and `skill_ids`
+  - `ForumReply` now exposes `author_name`
+  - Post metadata (`replies_count`, `is_solved`) is kept in sync after reply create/delete/solution mark
+- New files created for Issue 30:
+  - `server/app/Http/Controllers/ForumPostController.php`
+  - `server/app/Http/Controllers/ForumReplyController.php`
+- Existing files updated for Issue 30:
+  - `server/app/Models/ForumPost.php`
+  - `server/app/Models/ForumReply.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
