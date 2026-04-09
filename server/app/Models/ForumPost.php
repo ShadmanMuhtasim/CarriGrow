@@ -85,6 +85,6 @@ class ForumPost extends Model
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 'forum_post_skill')->withTimestamps();
+        return $this->belongsToMany(Skill::class, 'forum_post_skill', 'post_id', 'skill_id')->withTimestamps();
     }
 }

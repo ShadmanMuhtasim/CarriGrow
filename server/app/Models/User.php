@@ -86,6 +86,16 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(ForumReply::class);
     }
 
+    public function receivedNotifications()
+    {
+        return $this->hasMany(UserNotification::class, 'user_id');
+    }
+
+    public function triggeredNotifications()
+    {
+        return $this->hasMany(UserNotification::class, 'actor_id');
+    }
+
     public function adminActions()
     {
         return $this->hasMany(AdminAction::class, 'admin_id');

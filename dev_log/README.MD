@@ -1949,3 +1949,81 @@ perf/39-performance-optimization
   - `server/app/Models/ForumReply.php`
   - `server/routes/api.php`
   - `dev_log/README.MD`
+
+## Issue 33 Execution Note (2026-04-09)
+
+- Assignee working: Shadman
+- Scope completed: Issue `#33` Notification System
+- Database-first rewrite applied for this issue:
+  - "Create notifications migration" means "update committed SQL schema in `database/docker/init/00-schema.sql` and align Laravel backend code".
+- Backend implementation added for Issue 33:
+  - Added `notifications` table with recipient, actor, type, read state, post/reply references, and JSON payload support
+  - Added forum notification types for:
+    - new reply to your post
+    - your answer marked as solution
+    - new question in your expertise
+    - `@mentions` in posts and replies
+  - Added notification endpoints:
+    - `GET /api/notifications`
+    - `PUT /api/notifications/{id}/read`
+    - `PUT /api/notifications/read-all`
+  - Hooked forum post/reply/solution flows into a dedicated notification service
+  - Optional real-time broadcasting was left out for now because it is not required for core acceptance and the repo has no Pusher setup yet
+- New files created for Issue 33:
+  - `server/app/Models/UserNotification.php`
+  - `server/app/Http/Controllers/NotificationController.php`
+  - `server/app/Services/ForumNotificationService.php`
+- Existing files updated for Issue 33:
+  - `database/docker/init/00-schema.sql`
+  - `server/app/Http/Controllers/ForumPostController.php`
+  - `server/app/Http/Controllers/ForumReplyController.php`
+  - `server/app/Models/User.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
+
+## Issue 33 Runtime Activation Note (2026-04-09)
+
+- Live local stack fix completed for Issue `#33` without resetting the whole database.
+- Runtime blockers found and resolved:
+  - existing MySQL volume did not have the `notifications` table
+  - existing `forum_posts` / `forum_replies` tables were older than the current Issue `#29/#30` schema used by the backend
+  - forum skill pivot relation needed explicit key mapping for `forum_post_skill(post_id, skill_id)`
+- Additional existing files updated during runtime fix:
+  - `server/app/Models/ForumPost.php`
+  - `server/app/Models/Skill.php`
+  - `dev_log/README.MD`
+- Live verification completed on local stack:
+  - `new question in your expertise`
+  - `@mention` in post
+  - `new reply to your post`
+  - `your answer marked as solution`
+  - `@mention` in reply
+  - `GET /api/notifications`
+  - `PUT /api/notifications/{id}/read`
+  - `PUT /api/notifications/read-all`
+
+## Issue 33 Real-Time Activation Note (2026-04-10)
+
+- Real-time notification delivery is now active without adding external Pusher infrastructure.
+- Implementation approach:
+  - added auth-protected server-sent events stream endpoint for notifications
+  - added frontend notification state provider with live stream subscription
+  - added live notification bell/dropdown to public navbar and dashboard topbar
+- New files created for Issue 33 real-time activation:
+  - `client/src/services/notifications.ts`
+  - `client/src/context/NotificationContext.tsx`
+  - `client/src/components/NotificationBell.tsx`
+- Existing files updated for Issue 33 real-time activation:
+  - `client/src/main.tsx`
+  - `client/src/components/Navbar.tsx`
+  - `client/src/layouts/RoleDashboardLayout.tsx`
+  - `client/src/index.css`
+  - `client/src/types/models.ts`
+  - `server/app/Http/Controllers/NotificationController.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
+- Live verification completed on local stack:
+  - rebuilt app container successfully with client + server changes
+  - opened `GET /api/notifications/stream?last_id=...` as authenticated mentor
+  - created a new forum question from job seeker account
+  - confirmed immediate `notification.created` SSE event without manual refresh

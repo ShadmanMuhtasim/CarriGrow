@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import Badge from "./ui/Badge";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -103,51 +104,54 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <div className="dropdown">
-                  <button
-                    className="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
-                    type="button"
-                    onClick={() => setMenuOpen((open) => !open)}
-                  >
-                    <i className="bi bi-person-circle" />
-                    <span>{user?.name ?? "User"}</span>
-                  </button>
-                  <ul className={`dropdown-menu dropdown-menu-end ${menuOpen ? "show" : ""}`}>
-                    <li className="px-3 py-2">
-                      <div className="small text-muted">Role</div>
-                      <Badge variant="light">{(user?.role ?? "user").replace("_", " ")}</Badge>
-                    </li>
-                    <li>
-                      <button
-                        className="dropdown-item"
-                        type="button"
-                        onClick={() => {
-                          setMenuOpen(false);
-                          navigate("/dashboard");
-                        }}
-                      >
-                        Dashboard
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className="dropdown-item"
-                        type="button"
-                        onClick={() => {
-                          setMenuOpen(false);
-                          navigate("/dashboard/profile");
-                        }}
-                      >
-                        My Profile
-                      </button>
-                    </li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li>
-                      <button className="dropdown-item text-danger" type="button" onClick={onLogout}>
-                        Logout
-                      </button>
-                    </li>
-                  </ul>
+                <div className="d-flex align-items-center gap-2">
+                  <NotificationBell />
+                  <div className="dropdown">
+                    <button
+                      className="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2"
+                      type="button"
+                      onClick={() => setMenuOpen((open) => !open)}
+                    >
+                      <i className="bi bi-person-circle" />
+                      <span>{user?.name ?? "User"}</span>
+                    </button>
+                    <ul className={`dropdown-menu dropdown-menu-end ${menuOpen ? "show" : ""}`}>
+                      <li className="px-3 py-2">
+                        <div className="small text-muted">Role</div>
+                        <Badge variant="light">{(user?.role ?? "user").replace("_", " ")}</Badge>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          type="button"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            navigate("/dashboard");
+                          }}
+                        >
+                          Dashboard
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item"
+                          type="button"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            navigate("/dashboard/profile");
+                          }}
+                        >
+                          My Profile
+                        </button>
+                      </li>
+                      <li><hr className="dropdown-divider" /></li>
+                      <li>
+                        <button className="dropdown-item text-danger" type="button" onClick={onLogout}>
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ForumPost;
 use App\Models\User;
+use App\Services\ForumNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -96,7 +97,7 @@ class ForumPostController extends Controller
         return response()->json($posts);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, ForumNotificationService $notificationService): JsonResponse
     {
         $user = auth('api')->user();
         $guardResponse = $this->ensureAuthenticatedActiveUser($user);
@@ -141,6 +142,7 @@ class ForumPostController extends Controller
 
         $post->skills()->sync($validated['skill_ids'] ?? []);
         $post->load($this->postRelations());
+        $notificationService->notifyPostCreated($post, $user);
 
         return response()->json([
             'message' => 'Forum post created successfully',

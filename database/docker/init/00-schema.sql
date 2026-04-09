@@ -301,6 +301,35 @@ CREATE TABLE `forum_post_skill` (
   CONSTRAINT `forum_post_skill_skill_id_foreign` FOREIGN KEY (`skill_id`) REFERENCES `skills` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `notifications`;
+CREATE TABLE `notifications` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `actor_id` bigint(20) unsigned DEFAULT NULL,
+  `type` enum('forum_new_reply_to_post','forum_solution_marked','forum_question_in_expertise','forum_mention') NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `data` json DEFAULT NULL,
+  `post_id` bigint(20) unsigned DEFAULT NULL,
+  `reply_id` bigint(20) unsigned DEFAULT NULL,
+  `read_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `notifications_user_id_index` (`user_id`),
+  KEY `notifications_actor_id_index` (`actor_id`),
+  KEY `notifications_type_index` (`type`),
+  KEY `notifications_read_at_index` (`read_at`),
+  KEY `notifications_user_id_read_at_index` (`user_id`,`read_at`),
+  KEY `notifications_post_id_index` (`post_id`),
+  KEY `notifications_reply_id_index` (`reply_id`),
+  KEY `notifications_created_at_index` (`created_at`),
+  CONSTRAINT `notifications_actor_id_foreign` FOREIGN KEY (`actor_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `notifications_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `forum_posts` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `notifications_reply_id_foreign` FOREIGN KEY (`reply_id`) REFERENCES `forum_replies` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `notifications_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 DROP TABLE IF EXISTS `admin_actions`;
 CREATE TABLE `admin_actions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

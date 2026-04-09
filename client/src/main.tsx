@@ -4,6 +4,7 @@ import App from "./App";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ToastViewport } from "./components/ui/Toast";
 import { AuthProvider } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -13,8 +14,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ErrorBoundary>
       <AuthProvider>
-        <App />
-        <ToastViewport />
+        <NotificationProvider>
+          <App />
+          <ToastViewport />
+        </NotificationProvider>
       </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>

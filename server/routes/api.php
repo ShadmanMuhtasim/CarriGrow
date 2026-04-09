@@ -8,6 +8,7 @@ use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\JobRecommendationController;
 use App\Http\Controllers\JobSkillController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SkillMatchController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SkillController;
@@ -32,6 +33,10 @@ Route::post('/auth/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:api')->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/stream', [NotificationController::class, 'stream']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'readAll']);
+    Route::put('/notifications/{notification}/read', [NotificationController::class, 'read']);
 
     Route::get('/users/me', [UserController::class, 'me']);
     Route::put('/users/me', [UserController::class, 'updateMe']);

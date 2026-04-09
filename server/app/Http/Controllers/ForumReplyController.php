@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\ForumPost;
 use App\Models\ForumReply;
 use App\Models\User;
+use App\Services\ForumNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ForumReplyController extends Controller
 {
-    public function store(Request $request, ForumPost $post): JsonResponse
+    public function store(Request $request, ForumPost $post, ForumNotificationService $notificationService): JsonResponse
     {
         $user = auth('api')->user();
         $guardResponse = $this->ensureCanReply($user, $post);
@@ -40,6 +41,7 @@ class ForumReplyController extends Controller
 
         ForumPostController::syncPostMeta($post);
         $reply->load('user:id,name');
+        $notificationService->notifyReplyCreated($reply, $user);
 
         return response()->json([
             'message' => 'Forum reply created successfully',
@@ -98,7 +100,7 @@ class ForumReplyController extends Controller
         ]);
     }
 
-    public function markSolution(ForumReply $reply): JsonResponse
+    public function markSolution(ForumReply $reply, ForumNotificationService $notificationService): JsonResponse
     {
         $user = auth('api')->user();
         $reply->loadMissing('post');
@@ -116,12 +118,22 @@ class ForumReplyController extends Controller
             ], 404);
         }
 
-        $post->replies()->update(['is_solution' => false]);
+        if ($reply->is_solution) {
+            $reply->load('user:id,name');
+
+            return response()->json([
+                'message' => 'Forum reply marked as solution successfully',
+                'reply' => $reply,
+            ]);
+        }
+
+        $post->replies()->where('id', '!=', $reply->id)->update(['is_solution' => false]);
         $reply->is_solution = true;
         $reply->save();
 
         ForumPostController::syncPostMeta($post);
         $reply->load('user:id,name');
+        $notificationService->notifyReplyMarkedAsSolution($reply, $user);
 
         return response()->json([
             'message' => 'Forum reply marked as solution successfully',

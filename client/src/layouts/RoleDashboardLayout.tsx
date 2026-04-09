@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import NotificationBell from "../components/NotificationBell";
 import Sidebar, { type SidebarLink } from "../components/Sidebar";
 
 type RoleDashboardLayoutProps = {
@@ -24,6 +25,7 @@ export default function RoleDashboardLayout({
             <div className="dashboard-topbar border-bottom bg-white">
               <div className="container-fluid py-3 d-flex align-items-center justify-content-between">
                 <div className="fw-semibold">{heading}</div>
+                <NotificationBell />
               </div>
             </div>
 

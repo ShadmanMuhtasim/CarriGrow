@@ -5,6 +5,11 @@ export type JobStatus = "draft" | "published" | "closed" | "filled";
 export type JobEmploymentType = "full_time" | "part_time" | "contract" | "internship";
 export type JobExperienceLevel = "entry" | "mid" | "senior" | "lead";
 export type ForumPostType = "question" | "discussion" | "resource";
+export type UserNotificationType =
+  | "forum_new_reply_to_post"
+  | "forum_solution_marked"
+  | "forum_question_in_expertise"
+  | "forum_mention";
 
 export interface Skill {
   id: number;
@@ -124,4 +129,23 @@ export interface ForumPost {
   skill_ids?: number[];
   skills?: Skill[];
   replies?: ForumReply[];
+}
+
+export interface UserNotification {
+  id: number;
+  user_id: number;
+  actor_id?: number | null;
+  type: UserNotificationType;
+  title: string;
+  message: string;
+  data?: Record<string, unknown> | null;
+  post_id?: number | null;
+  reply_id?: number | null;
+  read_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  is_read?: boolean;
+  actor_name?: string | null;
+  post_title?: string | null;
+  reply_excerpt?: string | null;
 }
