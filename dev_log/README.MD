@@ -1129,16 +1129,16 @@ This guide creates **40 well-distributed issues** across 3 milestones, ensuring 
 **Description:** Create admin dashboard frontend.
 
 **Acceptance Criteria:**
-- [ ] Create admin dashboard with:
+- [x] Create admin dashboard with:
   - Analytics cards (users, jobs, applications, forum posts)
   - User management table with filters
   - Role change dropdown
   - Suspend/activate actions
   - Content moderation queue
-- [ ] Create user detail view for admin
-- [ ] Create system logs viewer
-- [ ] Add charts for platform growth
-- [ ] Create reports management
+- [x] Create user detail view for admin
+- [x] Create system logs viewer
+- [x] Add charts for platform growth
+- [x] Create reports management
 
 **Files to Create:**
 - `client/src/pages/admin/Dashboard.tsx`
@@ -2027,3 +2027,25 @@ perf/39-performance-optimization
   - opened `GET /api/notifications/stream?last_id=...` as authenticated mentor
   - created a new forum question from job seeker account
   - confirmed immediate `notification.created` SSE event without manual refresh
+
+## Issue 35 Execution Note (2026-04-10)
+
+- Assignee working: Ahbab
+- Scope completed: Issue `#35` Admin Dashboard Frontend
+- Implementation summary:
+  - Added dedicated admin frontend pages for analytics dashboard, user management, moderation queue, and system logs.
+  - Added role/status user controls (role change dropdown and suspend/activate actions).
+  - Added user detail view flow under user management (`/dashboard/users/:userId`).
+  - Added platform growth chart and reports management section in admin dashboard.
+  - Added API-first admin service layer with local fallback data so pages stay functional while backend admin endpoints evolve.
+- New files created for Issue 35:
+  - `client/src/services/admin.ts`
+  - `client/src/pages/admin/Dashboard.tsx`
+  - `client/src/pages/admin/UserManagement.tsx`
+  - `client/src/pages/admin/ContentModeration.tsx`
+  - `client/src/pages/admin/SystemLogs.tsx`
+- Existing files updated for Issue 35:
+  - `client/src/App.tsx`
+  - `client/src/layouts/AdminLayout.tsx`
+  - `client/src/utils/authRedirect.ts`
+  - `dev_log/README.MD`
