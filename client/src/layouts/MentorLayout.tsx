@@ -12,10 +12,12 @@ export default function MentorLayout({ onLogout }: Props) {
       onLogout={onLogout}
       links={[
         { to: "/dashboard", label: "Overview", icon: "bi-speedometer2", end: true },
-        { to: "/dashboard/forum-posts", label: "Forum Posts", icon: "bi-chat-left-text" },
-        { to: "/dashboard/questions", label: "Q&A", icon: "bi-question-circle" },
-        { to: "/dashboard/mentees", label: "Mentees", icon: "bi-people" },
-        { to: "/dashboard/profile", label: "Mentor Profile", icon: "bi-person-workspace" },
+        { to: "/dashboard/forum-overview", label: "Forum Management", icon: "bi-grid-1x2" },
+        { to: "/dashboard/questions-for-me", label: "Questions For Me", icon: "bi-patch-question" },
+        { to: "/dashboard/my-answers", label: "My Answers", icon: "bi-chat-square-quote" },
+        { to: "/dashboard/forum-posts", label: "All Forum Posts", icon: "bi-chat-left-text" },
+        { to: "/mentors/me", label: "Public Profile", icon: "bi-box-arrow-up-right" },
+        { to: "/dashboard/profile", label: "Edit Profile", icon: "bi-person-workspace" },
       ]}
     />
   );
