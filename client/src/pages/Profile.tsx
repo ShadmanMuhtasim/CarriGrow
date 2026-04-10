@@ -21,7 +21,7 @@ export default function Profile() {
       {user.role === "employer" ? <EmployerProfile /> : null}
       {user.role === "mentor" ? <MentorProfile /> : null}
       {user.role === "admin" ? (
-        <Card title="Admin Profile" subtitle="Admin profile editing is intentionally minimal in Milestone 1.">
+        <Card title="Admin Profile" subtitle="Manage your admin account and platform access details.">
           <p className="mb-0 text-muted">Use the dashboard controls to manage platform-level actions.</p>
         </Card>
       ) : null}

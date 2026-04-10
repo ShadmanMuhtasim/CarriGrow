@@ -116,6 +116,7 @@ export default function ForumOverview() {
       return;
     }
 
+    const mentorUserId = user.id;
     let cancelled = false;
 
     async function loadOverview() {
@@ -162,7 +163,7 @@ export default function ForumOverview() {
           }
 
           for (const reply of post.replies ?? []) {
-            if (reply.user_id === user.id) {
+            if (reply.user_id === mentorUserId) {
               myAnswers.push({ post, reply });
             }
           }

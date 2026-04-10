@@ -109,7 +109,7 @@ export default function NewPost() {
       <div className="vstack gap-3">
         <Breadcrumbs items={[{ label: "Home", to: "/" }, { label: "Forum", to: "/forum" }, { label: "New Post" }]} />
 
-        <Card title="Create New Post" subtitle="Issue #31 form: title, rich text editor, skill selector, and post type.">
+        <Card title="Create New Post" subtitle="Share your question, discussion, or resource with the community.">
           {!user ? (
             <div className="alert alert-warning d-flex align-items-center justify-content-between mb-0">
               <span>Please sign in to create a forum post.</span>

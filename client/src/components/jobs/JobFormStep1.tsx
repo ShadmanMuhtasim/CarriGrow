@@ -26,10 +26,9 @@ export default function JobFormStep1({ register, errors }: JobFormStep1Props) {
       </div>
       <div className="col-12 col-md-6">
         <div className="border rounded-3 p-3 bg-light h-100">
-          <div className="fw-semibold mb-2">Step 1 intent</div>
+          <div className="fw-semibold mb-2">Step 1 overview</div>
           <p className="text-muted mb-0">
-            Capture the core listing metadata first so later contributors can plug filters, previews, and analytics into
-            stable job basics.
+            Start with the core job details so candidates can quickly understand the role.
           </p>
         </div>
       </div>

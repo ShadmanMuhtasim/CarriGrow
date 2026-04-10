@@ -113,7 +113,7 @@ export default function Dashboard() {
 
       <Card
         title={roleTitle}
-        subtitle="Milestone 1 role-based dashboard structure"
+        subtitle="Overview of your account activity and key metrics."
         actions={<Badge variant="primary">{user.role.replace("_", " ")}</Badge>}
       >
         <div className="row g-3">
@@ -157,7 +157,7 @@ export default function Dashboard() {
             <div className="d-flex justify-content-between align-items-center mb-3">
               <div>
                 <div className="fw-semibold">Recommended jobs</div>
-                <div className="text-muted small">Base match display section for Issue #27.</div>
+                <div className="text-muted small">Matches based on your listed skills.</div>
               </div>
               <Link to="/dashboard/jobs" className="btn btn-outline-primary btn-sm">
                 View all

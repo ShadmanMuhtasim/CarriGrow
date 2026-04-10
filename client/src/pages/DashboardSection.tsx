@@ -19,9 +19,9 @@ export default function DashboardSection() {
     <div className="vstack gap-3">
       <Breadcrumbs items={[{ label: "Dashboard", to: "/dashboard" }, { label: title }]} />
 
-      <Card title={title} subtitle="Milestone 1 structural page for role-based navigation.">
+      <Card title={title} subtitle="This section is available from your dashboard navigation.">
         <p className="mb-0 text-muted">
-          This section is wired for navigation and will be functionally expanded in Milestone 2/3.
+          Content for this section will appear here.
         </p>
       </Card>
     </div>

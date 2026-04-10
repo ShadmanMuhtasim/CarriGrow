@@ -183,7 +183,7 @@ export default function ApplyJob() {
 
         <Card
           title={`Apply for ${job.title}`}
-          subtitle="Issue #22 base implementation: resume upload, rich-text cover letter, additional questions, portfolio links, and profile-assisted apply."
+          subtitle="Submit your application with your resume, cover letter, and supporting details."
         >
           <ApplicationForm profileDefaults={collectProfileDefaults(user)} submitting={submitting} onSubmit={handleSubmit} />
         </Card>

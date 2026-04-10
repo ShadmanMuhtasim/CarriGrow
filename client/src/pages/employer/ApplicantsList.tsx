@@ -135,7 +135,7 @@ export default function ApplicantsList() {
   if (!job) {
     return (
       <Card title="Applicants unavailable">
-        <p className="mb-0 text-muted">The applicants list base page is wired, but the job could not be loaded.</p>
+        <p className="mb-0 text-muted">The job could not be loaded.</p>
       </Card>
     );
   }
@@ -152,7 +152,7 @@ export default function ApplicantsList() {
 
       <Card
         title={`Applicants for ${job.title}`}
-        subtitle="Issue #23 base implementation with filters, bulk status updates, quick actions, and CSV export."
+        subtitle="Review applicants, update statuses, and export candidate data."
         actions={
           <div className="d-flex flex-wrap gap-2">
             <Link to={`/dashboard/manage-jobs/${job.id}/analytics`}>
@@ -235,7 +235,7 @@ export default function ApplicantsList() {
                       >
                         {applicant.status === "shortlisted" ? "Move to interview" : "Shortlist"}
                       </Button>
-                      <Button type="button" variant="outline" onClick={() => toastUI.info("Messaging flow can be connected later.")}>
+                      <Button type="button" variant="outline" onClick={() => toastUI.info("Messaging is not available yet.")}>
                         Message
                       </Button>
                     </div>

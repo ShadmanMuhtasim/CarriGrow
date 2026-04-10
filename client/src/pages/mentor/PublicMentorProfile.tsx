@@ -143,6 +143,7 @@ export default function PublicMentorProfile() {
       return;
     }
 
+    const mentorId = resolvedMentorId;
     let cancelled = false;
 
     async function loadMentorProfile() {
@@ -160,7 +161,7 @@ export default function PublicMentorProfile() {
           return;
         }
 
-        const authoredPosts = postsResponse.posts.filter((post) => post.user_id === resolvedMentorId);
+        const authoredPosts = postsResponse.posts.filter((post) => post.user_id === mentorId);
         const candidatesForReplies = postsResponse.posts.filter((post) => (post.replies_count ?? 0) > 0).slice(0, 30);
 
         const detailedPosts = await Promise.all(
@@ -186,7 +187,7 @@ export default function PublicMentorProfile() {
           }
 
           for (const reply of post.replies ?? []) {
-            if (reply.user_id === resolvedMentorId) {
+            if (reply.user_id === mentorId) {
               mentorAnswers.push({ post, reply });
             }
           }
@@ -195,7 +196,7 @@ export default function PublicMentorProfile() {
         let explicitSkills: Skill[] = [];
         if (user) {
           try {
-            const response = await getUserSkills(resolvedMentorId);
+            const response = await getUserSkills(mentorId);
             explicitSkills = response.skills ?? [];
           } catch {
             explicitSkills = [];
@@ -214,12 +215,12 @@ export default function PublicMentorProfile() {
 
         const expertiseSkills = uniqueSkills(skillCandidates);
 
-        const ownProfile = user?.id === resolvedMentorId ? user.mentor_profile ?? user.mentorProfile ?? null : null;
+        const ownProfile = user?.id === mentorId ? user.mentor_profile ?? user.mentorProfile ?? null : null;
         const derivedName =
-          (user?.id === resolvedMentorId ? user.name : null) ??
+          (user?.id === mentorId ? user.name : null) ??
           authoredPosts[0]?.author_name ??
           mentorAnswers[0]?.reply.author_name ??
-          `Mentor #${resolvedMentorId}`;
+          `Mentor #${mentorId}`;
 
         const contributions = buildContributions(authoredPosts, mentorAnswers);
 
@@ -232,7 +233,7 @@ export default function PublicMentorProfile() {
         const answerVotes = mentorAnswers.reduce((sum, entry) => sum + (entry.reply.votes_count ?? 0), 0);
 
         setProfile({
-          id: resolvedMentorId,
+          id: mentorId,
           name: derivedName,
           headline:
             ownProfile?.current_position && ownProfile.company

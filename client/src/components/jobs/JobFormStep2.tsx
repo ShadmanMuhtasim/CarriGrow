@@ -23,7 +23,7 @@ export default function JobFormStep2({ register, errors }: JobFormStep2Props) {
         <Textarea
           label="Requirements"
           rows={6}
-          placeholder="List the must-have qualifications. Rich text editor can be added later."
+          placeholder="List the must-have qualifications."
           error={errors.requirements?.message}
           {...register("requirements")}
         />

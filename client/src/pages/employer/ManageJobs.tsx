@@ -184,7 +184,7 @@ export default function ManageJobs() {
       setSelectedIds([]);
       setBulkAction("");
     } catch {
-      toastUI.error("Bulk action failed. Backend support can be refined later.");
+      toastUI.error("Bulk action failed. Please try again.");
     } finally {
       setBulkApplying(false);
     }
@@ -223,7 +223,7 @@ export default function ManageJobs() {
 
       <Card
         title="My Jobs"
-        subtitle="Issue #20 base implementation with status filtering, quick stats, row actions, and bulk actions."
+        subtitle="Track and manage your job postings from one place."
         actions={
           <Link to="/dashboard/post-job">
             <Button icon={<i className="bi bi-plus-lg" />}>New job</Button>
@@ -361,7 +361,7 @@ export default function ManageJobs() {
         }
       >
         <p className="mb-0">
-          Delete <strong>{deleteTarget?.title}</strong>? This is wired as a real delete action against the employer jobs API.
+          Delete <strong>{deleteTarget?.title}</strong>? This action cannot be undone.
         </p>
       </Modal>
     </div>

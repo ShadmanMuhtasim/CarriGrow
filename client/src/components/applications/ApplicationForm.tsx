@@ -268,7 +268,7 @@ export default function ApplicationForm({ profileDefaults, submitting = false, o
         <div className="col-12 col-lg-6">
           <FileUpload
             label="Resume Upload (PDF, DOC, DOCX)"
-            helpText="Base upload field for Issue #22. Real file storage wiring can be added later."
+            helpText="Upload your resume or provide a resume URL."
             acceptedTypes=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             existingUrl={form.resume_url}
             onFileSelected={(file) => {

@@ -62,7 +62,7 @@ export default function RecommendedJobs() {
 
       <Card
         title="Recommended jobs"
-        subtitle="Issue #27 base implementation for match scores, missing skills, and skill-gap visibility."
+        subtitle="See jobs matched to your skills and experience."
       >
         <div className="row g-3">
           {scoredJobs.length > 0 ? (
@@ -93,7 +93,7 @@ export default function RecommendedJobs() {
                     <Button type="button" variant="outline" onClick={() => setSelectedJob(job)}>
                       Match details
                     </Button>
-                    <Button type="button" variant="secondary" onClick={() => toastUI.info("Apply flow can be connected after Issue #22/#24.")}>
+                    <Button type="button" variant="secondary" onClick={() => toastUI.info("Open the job details page to apply.")}>
                       Save / Apply
                     </Button>
                   </div>

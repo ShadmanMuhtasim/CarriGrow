@@ -148,7 +148,7 @@ export default function SavedJobs() {
     <div className="vstack gap-3">
       <Breadcrumbs items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Saved Jobs" }]} />
 
-      <Card title="Saved Jobs" subtitle="Issue #24 base saved jobs page for bookmarked job tracking and quick apply.">
+      <Card title="Saved Jobs" subtitle="Keep track of jobs you want to revisit and apply to later.">
         <div className="row g-3 mb-4">
           <div className="col-12 col-md-4">
             <div className="border rounded-3 p-3 h-100">
