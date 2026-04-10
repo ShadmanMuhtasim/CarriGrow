@@ -2135,3 +2135,11 @@ perf/39-performance-optimization
 - Local verification note:
   - attempted frontend build command `npm --prefix client run build`
   - local environment is missing client dev dependencies (`typescript`/`tsc` not installed), so compile verification could not be completed in this workspace session
+
+## UI Text Cleanup Update (2026-04-10)
+- Removed leaked issue-tracker and milestone implementation copy from user-facing UI pages across dashboard, employer, job seeker, forum, admin, jobs, and shared application components.
+- Replaced internal/planning subtitles and helper text with production-ready copy while keeping behavior and layout unchanged.
+- Cleaned seeded applicant cover-letter mock content to remove internal placeholder wording at the source (client/src/pages/employer/applicantData.ts).
+- Verified with repo-wide search that Issue #... and milestone reminder strings no longer appear in user-facing source paths (excluding docs/readmes).
+- Validation run: client lint reports pre-existing unrelated lint errors; client build fails in this environment with Vite/esbuild spawn EPERM.
+

@@ -112,7 +112,7 @@ export default function ApplicationSuccess() {
 
         <Card
           title="Application submitted"
-          subtitle="Issue #22 base success view with status tracking after submission."
+          subtitle="Your application was submitted successfully."
           actions={
             <span className={`badge ${statusClassMap[status]} rounded-pill px-3 py-2`}>
               Status: {formatStatus(status)}

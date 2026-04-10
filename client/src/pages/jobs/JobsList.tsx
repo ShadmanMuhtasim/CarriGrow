@@ -387,7 +387,7 @@ export default function JobsList() {
 
         <Card
           title="Job Browser"
-          subtitle="Issue #19 base implementation: search, filters, list/grid view, pagination, and save-job state."
+          subtitle="Search, filter, and save jobs that match your goals."
           actions={
             <div className="d-flex align-items-center gap-2">
               <span className="badge text-bg-light border">Saved: {savedJobs.length}</span>

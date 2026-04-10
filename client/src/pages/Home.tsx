@@ -175,13 +175,13 @@ export default function Home() {
             <div className="how-step">
               <div className="how-icon"><i className="bi bi-search" /></div>
               <div className="fw-semibold">Find suitable job</div>
-              <div className="text-muted small">Browse jobs (Milestone 2).</div>
+              <div className="text-muted small">Browse jobs that match your interests and skills.</div>
             </div>
 
             <div className="how-step">
               <div className="how-icon"><i className="bi bi-send-check" /></div>
               <div className="fw-semibold">Apply job</div>
-              <div className="text-muted small">Apply and track (Milestone 2).</div>
+              <div className="text-muted small">Apply and track your applications in one place.</div>
             </div>
           </div>
         </div>

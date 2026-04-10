@@ -133,7 +133,7 @@ export default function ForumList() {
 
         <Card
           title="Community Forum"
-          subtitle="Issue #31 implementation: listing, filtering, search, solved indicators, and post detail linking."
+          subtitle="Browse discussions, ask questions, and share knowledge with the community."
           actions={
             <div className="d-flex gap-2">
               {user ? (

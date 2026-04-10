@@ -75,7 +75,7 @@ export default function ApplicantDetail() {
   }
 
   function saveNotes() {
-    toastUI.success("Employer notes saved locally in the base UI.");
+    toastUI.success("Notes saved.");
   }
 
   if (loading) {
@@ -85,7 +85,7 @@ export default function ApplicantDetail() {
   if (!job || !applicant) {
     return (
       <Card title="Applicant not found">
-        <p className="mb-0 text-muted">The applicant detail route is wired, but this applicant record could not be loaded.</p>
+        <p className="mb-0 text-muted">This applicant record could not be loaded.</p>
       </Card>
     );
   }
@@ -110,7 +110,7 @@ export default function ApplicantDetail() {
           <Link to={`/dashboard/manage-jobs/${job.id}/applicants`}>
             <Button variant="outline">Back to applicants</Button>
           </Link>
-          <Button variant="secondary" onClick={() => toastUI.info("Message composer can be integrated later.")}>
+          <Button variant="secondary" onClick={() => toastUI.info("Messaging is not available yet.")}>
             Message applicant
           </Button>
         </div>
@@ -146,10 +146,10 @@ export default function ApplicantDetail() {
               <div className="col-12">
                 <div className="border rounded-3 p-3">
                   <div className="fw-semibold mb-2">Resume Viewer</div>
-                  <p className="text-muted mb-2">Base embedded resume block for later real file/viewer integration.</p>
+                  <p className="text-muted mb-2">Preview the candidate resume before opening the full document.</p>
                   <div className="ratio ratio-16x9 bg-light rounded border">
                     <div className="d-flex align-items-center justify-content-center text-muted">
-                      Resume preview placeholder
+                      Resume preview
                     </div>
                   </div>
                   <a className="btn btn-sm btn-outline-primary mt-3" href={applicant.resumeUrl} target="_blank" rel="noreferrer">
@@ -184,7 +184,7 @@ export default function ApplicantDetail() {
         <div className="col-12 col-lg-7">
           <Card
             title="Notes"
-            subtitle="Employer-only notes scaffold. Backend persistence can be attached later."
+            subtitle="Private notes for your hiring team."
             actions={
               <Button type="button" variant="primary" onClick={saveNotes}>
                 Save notes

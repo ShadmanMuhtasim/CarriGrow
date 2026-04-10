@@ -121,7 +121,7 @@ export default function AdminDashboard() {
 
       <Card
         title="Admin Dashboard"
-        subtitle="Issue #35 admin frontend: analytics, growth charts, moderation visibility, and report management."
+        subtitle="Monitor platform activity, growth, and reporting."
         actions={
           <div className="d-flex gap-2">
             <Link to="/dashboard/users">

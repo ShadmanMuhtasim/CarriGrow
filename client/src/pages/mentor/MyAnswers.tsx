@@ -69,6 +69,7 @@ export default function MyAnswers() {
       return;
     }
 
+    const mentorUserId = user.id;
     let cancelled = false;
 
     async function loadAnswers() {
@@ -111,7 +112,7 @@ export default function MyAnswers() {
           }
 
           for (const reply of post.replies ?? []) {
-            if (reply.user_id === user.id) {
+            if (reply.user_id === mentorUserId) {
               myAnswers.push({ post, reply });
             }
           }

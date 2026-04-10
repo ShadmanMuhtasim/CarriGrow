@@ -58,7 +58,7 @@ export function buildApplicantsForJob(job: Job): ApplicantRecord[] {
       match: Math.max(58, 92 - index * 5),
       email: `applicant${index + 1}@example.com`,
       phone: `+880 1700 000${index + 1}`,
-      coverLetter: `I am applying for ${job.title} because my background aligns with the required stack and team needs. This placeholder text can be replaced with the real application payload later.`,
+      coverLetter: `I am applying for ${job.title} because my background aligns with the required stack and team needs.`,
       resumeUrl: "https://example.com/resume.pdf",
       notes: index === 0 ? "Strong portfolio and clear communication." : "Follow up after profile review.",
       experienceSummary: `${2 + index} years across frontend delivery, collaboration, and product iteration.`,

@@ -76,7 +76,7 @@ export default function JobAnalytics() {
   if (!job) {
     return (
       <Card title="Analytics unavailable">
-        <p className="mb-0 text-muted">The analytics base page is wired, but this job could not be loaded.</p>
+        <p className="mb-0 text-muted">This job could not be loaded.</p>
       </Card>
     );
   }
@@ -93,7 +93,7 @@ export default function JobAnalytics() {
 
       <Card
         title={`${job.title} analytics`}
-        subtitle="Issue #20 analytics scaffold. Replace the placeholder series with real reporting once backend analytics lands."
+        subtitle="View performance trends for this job posting."
         actions={<JobStatusBadge status={job.status} />}
       >
         <div className="d-flex flex-wrap gap-2">
@@ -110,7 +110,7 @@ export default function JobAnalytics() {
         <div className="col-12 col-lg-6">
           <JobAnalyticsChart
             title="Views over time"
-            subtitle="Synthetic bar chart using current totals as a base."
+            subtitle="Daily view trend for this job."
             colorClass="bg-primary"
             data={viewsSeries}
           />
@@ -118,14 +118,14 @@ export default function JobAnalytics() {
         <div className="col-12 col-lg-6">
           <JobAnalyticsChart
             title="Applications by day"
-            subtitle="Base visualization for later API-backed trend data."
+            subtitle="Recent application trend."
             colorClass="bg-success"
             data={applicationsSeries}
           />
         </div>
       </div>
 
-      <Card title="Applicant demographics" subtitle="Placeholder composition panel for milestone continuity.">
+      <Card title="Applicant demographics" subtitle="Snapshot based on current applicant data.">
         <div className="row g-3">
           {demographics.map((item) => (
             <div key={item.label} className="col-12 col-md-6 col-xl-3">

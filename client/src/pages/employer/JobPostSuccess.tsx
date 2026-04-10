@@ -11,13 +11,13 @@ export default function JobPostSuccess() {
     <div className="vstack gap-3">
       <Breadcrumbs items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Post Job", to: "/dashboard/post-job" }, { label: "Success" }]} />
 
-      <Card title="Job published" subtitle="Base success page for Issue #17. Contributors can extend this with analytics and share flows later.">
+      <Card title="Job published" subtitle="Your job post is now live.">
         <div className="py-3">
           <div className="display-6 mb-2">
             <i className="bi bi-check-circle text-success me-2" />
             {title}
           </div>
-          <p className="text-muted mb-4">The posting flow is wired. Review, management tools, and richer success actions can build on this route.</p>
+          <p className="text-muted mb-4">Your job has been published successfully. You can manage it from your dashboard.</p>
           <div className="d-flex flex-wrap gap-2">
             <Link to="/dashboard/post-job">
               <Button variant="primary">Post another job</Button>

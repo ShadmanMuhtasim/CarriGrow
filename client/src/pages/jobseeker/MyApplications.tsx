@@ -218,7 +218,7 @@ export default function MyApplications() {
   }, [visibleApplications]);
 
   function withdrawApplication(target: JobApplication) {
-    const shouldWithdraw = window.confirm("Withdraw this application? This base flow removes it from your local dashboard view.");
+    const shouldWithdraw = window.confirm("Withdraw this application from your dashboard view?");
     if (!shouldWithdraw) {
       return;
     }
@@ -245,7 +245,7 @@ export default function MyApplications() {
 
       <Card
         title="My Applications"
-        subtitle="Issue #24 base implementation with status timeline, tracking, notifications, and withdraw action."
+        subtitle="Track your applications, status updates, and response trends."
         actions={
           <Button
             type="button"

@@ -219,7 +219,7 @@ export default function PostJob({
         state: { title: response.job.title },
       });
     } catch {
-      toastUI.error("Publishing failed. The base UI is ready, but backend alignment may still need contributor follow-up.");
+      toastUI.error("Publishing failed. Please review your details and try again.");
     } finally {
       setPublishing(false);
     }
@@ -235,7 +235,7 @@ export default function PostJob({
 
       <Card
         title={mode === "edit" ? "Edit employer job" : "Create a new job post"}
-        subtitle="Issue #17 base implementation: multi-step flow, validation, preview, draft save, and publish route."
+        subtitle="Create a complete job post with all the details candidates need."
         actions={<Badge variant="primary">{progress}% complete</Badge>}
       >
         <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
