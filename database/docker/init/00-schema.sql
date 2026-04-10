@@ -346,6 +346,46 @@ CREATE TABLE `admin_actions` (
   CONSTRAINT `admin_actions_admin_id_foreign` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `content_reports`;
+CREATE TABLE `content_reports` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `content_type` enum('forum_post','forum_reply') NOT NULL,
+  `content_id` bigint(20) unsigned NOT NULL,
+  `reported_by` bigint(20) unsigned DEFAULT NULL,
+  `reason` varchar(255) NOT NULL,
+  `status` enum('pending','approved','removed') NOT NULL DEFAULT 'pending',
+  `reviewed_by` bigint(20) unsigned DEFAULT NULL,
+  `reviewed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `content_reports_content_type_content_id_index` (`content_type`,`content_id`),
+  KEY `content_reports_status_index` (`status`),
+  KEY `content_reports_reported_by_index` (`reported_by`),
+  KEY `content_reports_reviewed_by_index` (`reviewed_by`),
+  CONSTRAINT `content_reports_reported_by_foreign` FOREIGN KEY (`reported_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `content_reports_reviewed_by_foreign` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `admin_reports`;
+CREATE TABLE `admin_reports` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `type` enum('weekly','monthly','custom') NOT NULL,
+  `status` enum('ready','processing') NOT NULL DEFAULT 'ready',
+  `generated_by` bigint(20) unsigned DEFAULT NULL,
+  `generated_at` timestamp NULL DEFAULT NULL,
+  `payload` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `admin_reports_type_index` (`type`),
+  KEY `admin_reports_status_index` (`status`),
+  KEY `admin_reports_generated_by_index` (`generated_by`),
+  KEY `admin_reports_generated_at_index` (`generated_at`),
+  CONSTRAINT `admin_reports_generated_by_foreign` FOREIGN KEY (`generated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

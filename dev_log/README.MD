@@ -2049,3 +2049,59 @@ perf/39-performance-optimization
   - `client/src/layouts/AdminLayout.tsx`
   - `client/src/utils/authRedirect.ts`
   - `dev_log/README.MD`
+
+## Issue 35 Refinement Note (2026-04-10)
+
+- Follow-up refinement completed for Issue `#35` Admin Dashboard Frontend.
+- Reports management now includes:
+  - report type selection (`weekly`, `monthly`, `custom`)
+  - generate report action with API-first/local fallback behavior
+  - selected report detail panel
+  - export action for ready reports
+- Existing files updated during Issue 35 refinement:
+  - `client/src/services/admin.ts`
+  - `client/src/pages/admin/Dashboard.tsx`
+  - `dev_log/README.MD`
+
+## Issue 34 Execution Note (2026-04-10)
+
+- Assignee working: Musa
+- Scope completed: Issue `#34` Admin Dashboard Backend
+- Implementation summary:
+  - Added JWT-protected admin middleware and real `/api/admin/*` backend routes.
+  - Added analytics summary/stats and platform growth endpoints for the admin dashboard.
+  - Added admin user management endpoints for list, detail, role change, suspend/activate, and status update.
+  - Added moderation queue backend with moderation item resolution flow.
+  - Added system logs endpoint backed by admin audit actions and failed job data.
+  - Added admin report generation/list endpoints with audit trail entries.
+  - Added persistent database tables for moderation items and generated admin reports.
+- New files created for Issue 34:
+  - `server/app/Models/AdminReport.php`
+  - `server/app/Models/ContentReport.php`
+  - `server/app/Http/Middleware/EnsureAdmin.php`
+  - `server/app/Services/AdminAuditService.php`
+  - `server/app/Services/AdminMetricsService.php`
+  - `server/app/Http/Controllers/AdminDashboardController.php`
+  - `server/app/Http/Controllers/AdminUserController.php`
+  - `server/app/Http/Controllers/AdminModerationController.php`
+  - `server/app/Http/Controllers/AdminReportController.php`
+- Existing files updated for Issue 34:
+  - `database/docker/init/00-schema.sql`
+  - `server/app/Http/Kernel.php`
+  - `server/app/Models/AdminAction.php`
+  - `server/routes/api.php`
+  - `dev_log/README.MD`
+- Live local runtime activation completed:
+  - created `content_reports` and `admin_reports` tables in the existing MySQL Docker volume
+  - rebuilt the `app` container after backend changes
+  - verified `GET /api/admin/analytics/summary`
+  - verified `GET /api/admin/stats`
+  - verified `GET /api/admin/analytics/growth`
+  - verified `GET /api/admin/users`
+  - verified `GET /api/admin/users/{id}`
+  - verified `PATCH /api/admin/users/{id}/role`
+  - verified `GET /api/admin/system-logs`
+  - verified `GET /api/admin/reports`
+  - verified `POST /api/admin/reports`
+  - verified `GET /api/admin/moderation`
+  - verified `POST /api/admin/moderation/{id}/resolve`

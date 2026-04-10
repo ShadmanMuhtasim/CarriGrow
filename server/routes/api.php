@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminModerationController;
+use App\Http\Controllers\AdminReportController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ForumPostController;
 use App\Http\Controllers\ForumReplyController;
 use App\Http\Controllers\JobBrowseController;
@@ -46,6 +50,24 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/{user}/skills', [SkillController::class, 'userSkills']);
     Route::post('/users/{user}/skills', [SkillController::class, 'attachUserSkill']);
     Route::delete('/users/{user}/skills/{skill}', [SkillController::class, 'detachUserSkill']);
+
+    Route::middleware('ensure.admin')->prefix('/admin')->group(function () {
+        Route::get('/stats', [AdminDashboardController::class, 'stats']);
+        Route::get('/analytics/summary', [AdminDashboardController::class, 'summary']);
+        Route::get('/analytics/growth', [AdminDashboardController::class, 'growth']);
+        Route::get('/users', [AdminUserController::class, 'index']);
+        Route::get('/users/{user}', [AdminUserController::class, 'show']);
+        Route::match(['put', 'patch'], '/users/{user}/role', [AdminUserController::class, 'updateRole']);
+        Route::patch('/users/{user}/status', [AdminUserController::class, 'updateStatus']);
+        Route::post('/users/{user}/suspend', [AdminUserController::class, 'suspend']);
+        Route::post('/users/{user}/activate', [AdminUserController::class, 'activate']);
+        Route::get('/moderation', [AdminModerationController::class, 'index']);
+        Route::get('/content-reports', [AdminModerationController::class, 'index']);
+        Route::post('/moderation/{report}/resolve', [AdminModerationController::class, 'resolve']);
+        Route::get('/system-logs', [AdminDashboardController::class, 'systemLogs']);
+        Route::get('/reports', [AdminReportController::class, 'index']);
+        Route::post('/reports', [AdminReportController::class, 'store']);
+    });
 
     Route::prefix('/employer/jobs')->group(function () {
         Route::get('/', [JobController::class, 'index']);
