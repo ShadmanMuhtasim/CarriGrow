@@ -2105,3 +2105,33 @@ perf/39-performance-optimization
   - verified `POST /api/admin/reports`
   - verified `GET /api/admin/moderation`
   - verified `POST /api/admin/moderation/{id}/resolve`
+
+## Issue 32 Execution Note (2026-04-10)
+
+- Assignee working: Ishtiak
+- Scope completed: Issue `#32` Mentor Dashboard - Forum Management
+- Implementation summary:
+  - Added mentor forum management overview with:
+    - recent questions in mentor expertise
+    - unanswered question count
+    - mentor recent answers
+    - engagement metrics (answers, solutions, votes, views)
+  - Added dedicated mentor pages:
+    - `My Answers`
+    - `Questions For Me` (skill-filtered + unanswered toggle)
+  - Added mentor-specific expertise notifications UI for `new question in your expertise` alerts, including read-state handling.
+  - Added public mentor profile view route and page for forum credibility/discovery.
+  - Updated mentor dashboard navigation to include the new forum management sections.
+- New files created for Issue 32:
+  - `client/src/components/mentor/ExpertiseBadge.tsx`
+  - `client/src/pages/mentor/ForumOverview.tsx`
+  - `client/src/pages/mentor/MyAnswers.tsx`
+  - `client/src/pages/mentor/QuestionsForMe.tsx`
+  - `client/src/pages/mentor/PublicMentorProfile.tsx`
+- Existing files updated for Issue 32:
+  - `client/src/App.tsx`
+  - `client/src/layouts/MentorLayout.tsx`
+  - `dev_log/README.MD`
+- Local verification note:
+  - attempted frontend build command `npm --prefix client run build`
+  - local environment is missing client dev dependencies (`typescript`/`tsc` not installed), so compile verification could not be completed in this workspace session
