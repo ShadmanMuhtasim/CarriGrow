@@ -4,7 +4,7 @@ const roleRoutes: Record<UserRole, string> = {
   job_seeker: "/dashboard/profile",
   employer: "/dashboard/profile",
   mentor: "/dashboard/profile",
-  admin: "/dashboard/profile",
+  admin: "/dashboard/admin",
 };
 
 export function getPostAuthRedirectPath(user: User | null | undefined): string {

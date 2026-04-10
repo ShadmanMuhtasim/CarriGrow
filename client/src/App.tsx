@@ -30,6 +30,10 @@ import ApplicationSuccess from "./components/applications/ApplicationSuccess";
 import ForumList from "./pages/forum/ForumList";
 import PostDetail from "./pages/forum/PostDetail";
 import NewPost from "./pages/forum/NewPost";
+import AdminDashboard from "./pages/admin/Dashboard";
+import UserManagement from "./pages/admin/UserManagement";
+import ContentModeration from "./pages/admin/ContentModeration";
+import SystemLogs from "./pages/admin/SystemLogs";
 
 export default function App() {
   return (
@@ -76,6 +80,11 @@ export default function App() {
           <Route path="forum-posts" element={<ForumList />} />
           <Route path="forum-posts/new" element={<NewPost />} />
           <Route path="forum-posts/:postId" element={<PostDetail />} />
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="users/:userId" element={<UserManagement />} />
+          <Route path="moderation" element={<ContentModeration />} />
+          <Route path="system-logs" element={<SystemLogs />} />
           <Route path=":section" element={<DashboardSection />} />
         </Route>
 

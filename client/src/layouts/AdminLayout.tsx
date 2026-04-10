@@ -11,7 +11,7 @@ export default function AdminLayout({ onLogout }: Props) {
       heading="Admin Dashboard"
       onLogout={onLogout}
       links={[
-        { to: "/dashboard", label: "Overview", icon: "bi-speedometer2", end: true },
+        { to: "/dashboard/admin", label: "Overview", icon: "bi-speedometer2", end: true },
         { to: "/dashboard/users", label: "Users", icon: "bi-people" },
         { to: "/dashboard/moderation", label: "Moderation", icon: "bi-shield-check" },
         { to: "/dashboard/system-logs", label: "System Logs", icon: "bi-journal-text" },
