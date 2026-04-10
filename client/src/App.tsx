@@ -30,6 +30,10 @@ import ApplicationSuccess from "./components/applications/ApplicationSuccess";
 import ForumList from "./pages/forum/ForumList";
 import PostDetail from "./pages/forum/PostDetail";
 import NewPost from "./pages/forum/NewPost";
+import ForumOverview from "./pages/mentor/ForumOverview";
+import MyAnswers from "./pages/mentor/MyAnswers";
+import QuestionsForMe from "./pages/mentor/QuestionsForMe";
+import PublicMentorProfile from "./pages/mentor/PublicMentorProfile";
 import AdminDashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import ContentModeration from "./pages/admin/ContentModeration";
@@ -53,6 +57,7 @@ export default function App() {
           <Route path="/forum" element={<ForumList />} />
           <Route path="/forum/new" element={<NewPost />} />
           <Route path="/forum/:postId" element={<PostDetail />} />
+          <Route path="/mentors/:mentorId" element={<PublicMentorProfile />} />
         </Route>
 
         {/* Protected */}
@@ -80,6 +85,9 @@ export default function App() {
           <Route path="forum-posts" element={<ForumList />} />
           <Route path="forum-posts/new" element={<NewPost />} />
           <Route path="forum-posts/:postId" element={<PostDetail />} />
+          <Route path="forum-overview" element={<ForumOverview />} />
+          <Route path="my-answers" element={<MyAnswers />} />
+          <Route path="questions-for-me" element={<QuestionsForMe />} />
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="users/:userId" element={<UserManagement />} />
