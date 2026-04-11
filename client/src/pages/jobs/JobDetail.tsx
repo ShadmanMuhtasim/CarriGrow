@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { toastUI } from "../../components/ui/Toast";
 import { getPublicJob } from "../../services/jobs";
+import { useAuth } from "../../hooks/useAuth";
 import type { Job, Skill } from "../../types/models";
 
 const savedJobsStorageKey = "carrigrow.saved_jobs";
@@ -72,6 +73,8 @@ function formatDate(dateText?: string | null) {
 
 export default function JobDetail() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
   const { jobId } = useParams();
 
   const parsedJobId = useMemo(() => {
@@ -82,6 +85,13 @@ export default function JobDetail() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [savedJobs, setSavedJobs] = useState<number[]>(() => loadSavedJobs());
+  const locationState = location.state as { from?: string } | null;
+  const backTarget =
+    typeof locationState?.from === "string"
+      ? locationState.from
+      : user?.role === "job_seeker"
+        ? "/dashboard/jobs"
+        : "/jobs";
 
   useEffect(() => {
     if (!parsedJobId) {
@@ -183,7 +193,7 @@ export default function JobDetail() {
           subtitle={`${job.location ?? "Remote"} - ${formatEmploymentType(job.employment_type)}`}
           actions={
             <div className="d-flex gap-2">
-              <Link to="/jobs">
+              <Link to={backTarget}>
                 <Button type="button" variant="outline">
                   Back
                 </Button>

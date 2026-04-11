@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 type BreadcrumbItem = {
   label: string;
   to?: string;
@@ -10,6 +8,12 @@ type BreadcrumbsProps = {
 };
 
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
+  void items;
+
+  // Breadcrumb visibility is intentionally disabled in the current UX pass.
+  return null;
+
+  /*
   return (
     <nav aria-label="breadcrumb">
       <ol className="breadcrumb mb-3">
@@ -24,4 +28,5 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
       </ol>
     </nav>
   );
+  */
 }

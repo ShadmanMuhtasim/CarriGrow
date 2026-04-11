@@ -9,36 +9,56 @@ import Badge from "../../components/ui/Badge";
 import { toastUI } from "../../components/ui/Toast";
 import StatusBadge, { type ApplicationStatus } from "../../components/applications/StatusBadge";
 import StatusUpdater from "../../components/applications/StatusUpdater";
-import { getEmployerJob } from "../../services/jobs";
+import { getEmployerJob, listJobApplicationsForEmployer, updateJobApplicationForEmployer, type JobApplication } from "../../services/jobs";
 import type { Job } from "../../types/models";
-import { buildApplicantsForJob, type ApplicantRecord } from "./applicantData";
 
 const statusOptions = [
   { value: "all", label: "All statuses" },
-  { value: "new", label: "New" },
-  { value: "reviewing", label: "Reviewing" },
+  { value: "applied", label: "Applied" },
+  { value: "under_review", label: "Under Review" },
   { value: "shortlisted", label: "Shortlisted" },
-  { value: "interview", label: "Interview" },
   { value: "rejected", label: "Rejected" },
   { value: "hired", label: "Hired" },
 ] as const;
 
-function collectSkillOptions(applicants: ApplicantRecord[]): string[] {
-  return [...new Set(applicants.flatMap((applicant) => applicant.skills))].sort((a, b) => a.localeCompare(b));
+type StatusFilter = "all" | ApplicationStatus;
+
+function getApplicantName(application: JobApplication): string {
+  return application.user?.name?.trim() || `Applicant #${application.user_id}`;
 }
 
-function downloadCsv(job: Job, applicants: ApplicantRecord[]) {
+function getApplicantEmail(application: JobApplication): string {
+  return application.user?.email?.trim() || "N/A";
+}
+
+function getApplicantLocation(application: JobApplication): string {
+  return application.user?.job_seeker_profile?.location?.trim() || "Not provided";
+}
+
+function getResumeUrl(application: JobApplication): string {
+  return application.resume_url || application.user?.job_seeker_profile?.resume_url || "";
+}
+
+function getSkillTags(job: Job): string[] {
+  const source = job.skills_required ?? [];
+  if (!source || source.length === 0) {
+    return [];
+  }
+
+  return source.slice(0, 4);
+}
+
+function downloadCsv(job: Job, applications: JobApplication[]) {
   const rows = [
-    ["Name", "Email", "Applied Date", "Status", "Location", "Match", "Skills"].join(","),
-    ...applicants.map((applicant) =>
+    ["Name", "Email", "Applied Date", "Status", "Location", "Resume URL"].join(","),
+    ...applications.map((application) =>
       [
-        applicant.name,
-        applicant.email,
-        applicant.appliedDate,
-        applicant.status,
-        applicant.location,
-        String(applicant.match),
-        `"${applicant.skills.join(" | ")}"`,
+        getApplicantName(application),
+        getApplicantEmail(application),
+        application.applied_at ? new Date(application.applied_at).toLocaleDateString() : "N/A",
+        application.status,
+        getApplicantLocation(application),
+        `"${getResumeUrl(application)}"`,
       ].join(",")
     ),
   ];
@@ -56,27 +76,35 @@ export default function ApplicantsList() {
   const params = useParams();
   const jobId = Number(params.jobId);
   const [job, setJob] = useState<Job | null>(null);
-  const [applicants, setApplicants] = useState<ApplicantRecord[]>([]);
+  const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<"all" | ApplicationStatus>("all");
-  const [skillFilter, setSkillFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [bulkStatus, setBulkStatus] = useState<ApplicationStatus>("reviewing");
+  const [bulkStatus, setBulkStatus] = useState<ApplicationStatus>("under_review");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
-    async function loadJob() {
+    async function loadData() {
+      setLoading(true);
+
       try {
-        const response = await getEmployerJob(jobId);
+        const [jobResponse, applicationsResponse] = await Promise.all([
+          getEmployerJob(jobId),
+          listJobApplicationsForEmployer(jobId, { per_page: 50 }),
+        ]);
+
         if (cancelled) {
           return;
         }
 
-        setJob(response.job);
-        setApplicants(buildApplicantsForJob(response.job));
+        setJob(jobResponse.job);
+        setApplications(applicationsResponse.applications);
       } catch {
-        toastUI.error("Could not load applicants list.");
+        if (!cancelled) {
+          toastUI.error("Could not load applicants list.");
+        }
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -85,7 +113,7 @@ export default function ApplicantsList() {
     }
 
     if (Number.isFinite(jobId)) {
-      loadJob();
+      void loadData();
     } else {
       setLoading(false);
     }
@@ -95,37 +123,73 @@ export default function ApplicantsList() {
     };
   }, [jobId]);
 
-  const skillOptions = useMemo(() => collectSkillOptions(applicants), [applicants]);
+  const filteredApplications = useMemo(() => {
+    const term = search.trim().toLowerCase();
 
-  const filteredApplicants = useMemo(() => {
-    return applicants.filter((applicant) => {
-      const matchesStatus = statusFilter === "all" || applicant.status === statusFilter;
-      const matchesSkill = skillFilter === "all" || applicant.skills.includes(skillFilter);
-      return matchesStatus && matchesSkill;
+    return applications.filter((application) => {
+      const matchesStatus = statusFilter === "all" || application.status === statusFilter;
+
+      if (!matchesStatus) {
+        return false;
+      }
+
+      if (!term) {
+        return true;
+      }
+
+      const haystack = `${getApplicantName(application)} ${getApplicantEmail(application)}`.toLowerCase();
+      return haystack.includes(term);
     });
-  }, [applicants, statusFilter, skillFilter]);
+  }, [applications, search, statusFilter]);
 
-  function toggleApplicant(applicantId: number) {
+  function toggleApplicant(applicationId: number) {
     setSelectedIds((current) =>
-      current.includes(applicantId) ? current.filter((id) => id !== applicantId) : [...current, applicantId]
+      current.includes(applicationId) ? current.filter((id) => id !== applicationId) : [...current, applicationId]
     );
   }
 
-  function updateApplicantStatus(applicantId: number, status: ApplicationStatus) {
-    setApplicants((current) => current.map((applicant) => (applicant.id === applicantId ? { ...applicant, status } : applicant)));
+  async function updateApplicantStatus(applicationId: number, status: ApplicationStatus) {
+    if (!job) {
+      return;
+    }
+
+    try {
+      const response = await updateJobApplicationForEmployer(job.id, applicationId, { status });
+      setApplications((current) => current.map((item) => (item.id === applicationId ? response.application : item)));
+      toastUI.success("Application status updated.");
+    } catch {
+      toastUI.error("Could not update application status.");
+    }
   }
 
-  function bulkUpdateStatus() {
+  async function bulkUpdateStatus() {
+    if (!job) {
+      return;
+    }
+
     if (selectedIds.length === 0) {
       toastUI.info("Select applicants first.");
       return;
     }
 
-    setApplicants((current) =>
-      current.map((applicant) => (selectedIds.includes(applicant.id) ? { ...applicant, status: bulkStatus } : applicant))
-    );
-    setSelectedIds([]);
-    toastUI.success("Bulk status update applied.");
+    try {
+      const responses = await Promise.all(
+        selectedIds.map((applicationId) =>
+          updateJobApplicationForEmployer(job.id, applicationId, { status: bulkStatus })
+        )
+      );
+
+      const updatedById = new Map<number, JobApplication>();
+      responses.forEach((response) => {
+        updatedById.set(response.application.id, response.application);
+      });
+
+      setApplications((current) => current.map((item) => updatedById.get(item.id) ?? item));
+      setSelectedIds([]);
+      toastUI.success("Bulk status update applied.");
+    } catch {
+      toastUI.error("Could not apply bulk status update.");
+    }
   }
 
   if (loading) {
@@ -158,7 +222,7 @@ export default function ApplicantsList() {
             <Link to={`/dashboard/manage-jobs/${job.id}/analytics`}>
               <Button variant="outline">Analytics</Button>
             </Link>
-            <Button type="button" variant="secondary" onClick={() => downloadCsv(job, filteredApplicants)}>
+            <Button type="button" variant="secondary" onClick={() => downloadCsv(job, filteredApplications)}>
               Export CSV
             </Button>
           </div>
@@ -170,81 +234,91 @@ export default function ApplicantsList() {
               label="Filter by status"
               options={statusOptions.map((option) => ({ ...option }))}
               value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value as "all" | ApplicationStatus)}
+              onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
             />
           </div>
           <div className="col-12 col-lg-3">
-            <Select
-              label="Filter by skill"
-              options={[{ value: "all", label: "All skills" }, ...skillOptions.map((skill) => ({ value: skill, label: skill }))]}
-              value={skillFilter}
-              onChange={(event) => setSkillFilter(event.target.value)}
+            <label className="form-label">Search applicant</label>
+            <input
+              className="form-control"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Name or email"
             />
           </div>
           <div className="col-12 col-lg-6">
             <div className="border rounded-3 p-3 h-100">
-              <StatusUpdater value={bulkStatus} onChange={setBulkStatus} onSave={bulkUpdateStatus} />
+              <StatusUpdater value={bulkStatus} onChange={setBulkStatus} onSave={() => void bulkUpdateStatus()} />
             </div>
           </div>
         </div>
 
-        <div className="row g-3">
-          {filteredApplicants.map((applicant) => (
-            <div key={applicant.id} className="col-12 col-xl-6">
-              <Card className="h-100">
-                <div className="d-flex gap-3 align-items-start">
-                  <input
-                    className="form-check-input mt-2"
-                    type="checkbox"
-                    checked={selectedIds.includes(applicant.id)}
-                    onChange={() => toggleApplicant(applicant.id)}
-                  />
-                  <img
-                    src={applicant.photoUrl}
-                    alt={applicant.name}
-                    width={64}
-                    height={64}
-                    className="rounded-circle object-fit-cover flex-shrink-0"
-                  />
-                  <div className="flex-grow-1">
-                    <div className="d-flex flex-wrap justify-content-between gap-2">
-                      <div>
-                        <div className="fw-semibold">{applicant.name}</div>
-                        <div className="text-muted small">Applied on {applicant.appliedDate}</div>
+        {filteredApplications.length === 0 ? (
+          <div className="border rounded-3 p-4 text-center text-muted">
+            No applications found for the selected filters.
+          </div>
+        ) : (
+          <div className="row g-3">
+            {filteredApplications.map((application) => (
+              <div key={application.id} className="col-12 col-xl-6">
+                <Card className="h-100">
+                  <div className="d-flex gap-3 align-items-start">
+                    <input
+                      className="form-check-input mt-2"
+                      type="checkbox"
+                      checked={selectedIds.includes(application.id)}
+                      onChange={() => toggleApplicant(application.id)}
+                    />
+                    <div className="rounded-circle bg-light border d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: 64, height: 64 }}>
+                      <i className="bi bi-person text-muted" />
+                    </div>
+                    <div className="flex-grow-1">
+                      <div className="d-flex flex-wrap justify-content-between gap-2">
+                        <div>
+                          <div className="fw-semibold">{getApplicantName(application)}</div>
+                          <div className="text-muted small">
+                            Applied on {application.applied_at ? new Date(application.applied_at).toLocaleDateString() : "N/A"}
+                          </div>
+                        </div>
+                        <StatusBadge status={application.status} />
                       </div>
-                      <StatusBadge status={applicant.status} />
-                    </div>
 
-                    <div className="small text-muted mt-2">{applicant.location}</div>
-                    <div className="small mt-1">Match score: {applicant.match}%</div>
+                      <div className="small text-muted mt-2">{getApplicantLocation(application)}</div>
+                      <div className="small mt-1">{getApplicantEmail(application)}</div>
 
-                    <div className="d-flex flex-wrap gap-2 mt-3">
-                      {applicant.skills.map((skill) => (
-                        <Badge key={skill}>{skill}</Badge>
-                      ))}
-                    </div>
+                      <div className="d-flex flex-wrap gap-2 mt-3">
+                        {getSkillTags(job).map((skill) => (
+                          <Badge key={`${application.id}-${skill}`}>{skill}</Badge>
+                        ))}
+                      </div>
 
-                    <div className="d-flex flex-wrap gap-2 mt-3">
-                      <Link to={`/dashboard/manage-jobs/${job.id}/applicants/${applicant.id}`}>
-                        <Button type="button" variant="outline">View profile</Button>
-                      </Link>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => updateApplicantStatus(applicant.id, applicant.status === "shortlisted" ? "interview" : "shortlisted")}
-                      >
-                        {applicant.status === "shortlisted" ? "Move to interview" : "Shortlist"}
-                      </Button>
-                      <Button type="button" variant="outline" onClick={() => toastUI.info("Messaging is not available yet.")}>
-                        Message
-                      </Button>
+                      <div className="d-flex flex-wrap gap-2 mt-3">
+                        <Link to={`/dashboard/manage-jobs/${job.id}/applicants/${application.id}`}>
+                          <Button type="button" variant="outline">View profile</Button>
+                        </Link>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() =>
+                            void updateApplicantStatus(
+                              application.id,
+                              application.status === "shortlisted" ? "under_review" : "shortlisted"
+                            )
+                          }
+                        >
+                          {application.status === "shortlisted" ? "Move to review" : "Shortlist"}
+                        </Button>
+                        <Button type="button" variant="outline" onClick={() => toastUI.info("Messaging is not available yet.")}>
+                          Message
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            </div>
-          ))}
-        </div>
+                </Card>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
     </div>
   );

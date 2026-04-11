@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+ï»¿import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import Loading from "../../components/Loading";
@@ -26,14 +26,15 @@ export default function ContentModeration() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<ModerationStatus | "all">("pending");
   const [items, setItems] = useState<ModerationItem[]>([]);
+  const [allItems, setAllItems] = useState<ModerationItem[]>([]);
 
   const stats = useMemo(
     () => ({
-      pending: items.filter((item) => item.status === "pending").length,
-      approved: items.filter((item) => item.status === "approved").length,
-      removed: items.filter((item) => item.status === "removed").length,
+      pending: allItems.filter((item) => item.status === "pending").length,
+      approved: allItems.filter((item) => item.status === "approved").length,
+      removed: allItems.filter((item) => item.status === "removed").length,
     }),
-    [items]
+    [allItems]
   );
 
   useEffect(() => {
@@ -48,13 +49,19 @@ export default function ContentModeration() {
       setLoading(true);
 
       try {
-        const response = await listModerationItems(statusFilter);
+        const [filteredResponse, allResponse] = await Promise.all([
+          listModerationItems(statusFilter),
+          listModerationItems("all"),
+        ]);
+
         if (!cancelled) {
-          setItems(response.items);
+          setItems(filteredResponse.items);
+          setAllItems(allResponse.items);
         }
       } catch {
         if (!cancelled) {
           setItems([]);
+          setAllItems([]);
           toastUI.error("Could not load moderation queue.");
         }
       } finally {
@@ -75,6 +82,7 @@ export default function ContentModeration() {
     try {
       const response = await resolveModerationItem(item.id, action);
       setItems((current) => current.map((entry) => (entry.id === item.id ? response.item : entry)));
+      setAllItems((current) => current.map((entry) => (entry.id === item.id ? response.item : entry)));
       toastUI.success(`Item ${action === "approve" ? "approved" : "removed"}.`);
     } catch {
       toastUI.error("Could not update moderation status.");
@@ -122,7 +130,10 @@ export default function ContentModeration() {
         </div>
 
         {items.length === 0 ? (
-          <div className="border rounded-3 p-4 text-center text-muted">No moderation items for the selected filter.</div>
+          <div className="border rounded-3 p-4 text-center text-muted">
+            <div>No moderation items for the selected filter.</div>
+            <div className="small mt-2">Reports appear here when users report forum posts or replies.</div>
+          </div>
         ) : (
           <div className="vstack gap-3">
             {items.map((item) => (
@@ -130,7 +141,7 @@ export default function ContentModeration() {
                 <div className="d-flex flex-wrap justify-content-between gap-2 mb-2">
                   <div>
                     <div className="fw-semibold text-capitalize">{item.content_type.replace("_", " ")} #{item.content_id}</div>
-                    <div className="text-muted small">Reported by {item.reported_by} • {new Date(item.created_at).toLocaleString()}</div>
+                    <div className="text-muted small">Reported by {item.reported_by} | {new Date(item.created_at).toLocaleString()}</div>
                   </div>
                   <span className={`badge ${badgeClass(item.status)}`}>{item.status}</span>
                 </div>
