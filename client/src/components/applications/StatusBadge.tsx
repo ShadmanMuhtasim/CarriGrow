@@ -1,22 +1,29 @@
 import Badge from "../ui/Badge";
 
-export type ApplicationStatus = "new" | "reviewing" | "shortlisted" | "interview" | "rejected" | "hired";
+export type ApplicationStatus = "applied" | "under_review" | "shortlisted" | "rejected" | "hired";
 
 type StatusBadgeProps = {
   status: ApplicationStatus;
 };
 
 const statusVariantMap: Record<ApplicationStatus, "light" | "warning" | "success" | "primary" | "danger" | "secondary"> = {
-  new: "light",
-  reviewing: "warning",
+  applied: "light",
+  under_review: "warning",
   shortlisted: "success",
-  interview: "primary",
+  hired: "primary",
   rejected: "danger",
-  hired: "secondary",
+};
+
+const statusLabelMap: Record<ApplicationStatus, string> = {
+  applied: "Applied",
+  under_review: "Under Review",
+  shortlisted: "Shortlisted",
+  rejected: "Rejected",
+  hired: "Hired",
 };
 
 function labelFromStatus(status: ApplicationStatus): string {
-  return status.charAt(0).toUpperCase() + status.slice(1);
+  return statusLabelMap[status];
 }
 
 export default function StatusBadge({ status }: StatusBadgeProps) {

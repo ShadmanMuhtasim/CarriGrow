@@ -63,11 +63,30 @@ export type JobApplication = {
   reviewed_at?: string | null;
   reviewed_by?: number | null;
   job?: Job;
+  user?: {
+    id: number;
+    name?: string | null;
+    email?: string | null;
+    job_seeker_profile?: {
+      phone?: string | null;
+      location?: string | null;
+      bio?: string | null;
+      resume_url?: string | null;
+      portfolio_url?: string | null;
+      linkedin_url?: string | null;
+      github_url?: string | null;
+    } | null;
+  };
 };
 
 export type JobApplicationListParams = {
   status?: JobApplicationStatus;
   per_page?: 10 | 25 | 50;
+};
+
+export type EmployerApplicationUpdatePayload = {
+  status?: JobApplicationStatus;
+  employer_notes?: string | null;
 };
 
 export type JobApplicationsResponse = {
@@ -214,4 +233,18 @@ export async function applyToJob(jobId: number, payload: JobApplyPayload) {
 export async function listMyApplications(params: JobApplicationListParams = {}) {
   const { data } = await api.get("/applications", { params });
   return normalizeApplicationsListPayload(data);
+}
+
+export async function listJobApplicationsForEmployer(jobId: number, params: JobApplicationListParams = {}) {
+  const { data } = await api.get(`/jobs/${jobId}/applications`, { params });
+  return normalizeApplicationsListPayload(data);
+}
+
+export async function updateJobApplicationForEmployer(
+  jobId: number,
+  applicationId: number,
+  payload: EmployerApplicationUpdatePayload
+) {
+  const { data } = await api.patch(`/jobs/${jobId}/applications/${applicationId}`, payload);
+  return data as { message: string; application: JobApplication };
 }

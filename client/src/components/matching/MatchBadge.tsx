@@ -15,5 +15,12 @@ function variantForPercentage(percentage: number): "danger" | "warning" | "succe
 }
 
 export default function MatchBadge({ percentage }: MatchBadgeProps) {
-  return <Badge variant={variantForPercentage(percentage)}>{percentage}% match</Badge>;
+  return (
+    <Badge variant={variantForPercentage(percentage)}>
+      <span className="match-badge-content">
+        <span className="match-badge-value">{percentage}%</span>
+        <span className="match-badge-label">match</span>
+      </span>
+    </Badge>
+  );
 }

@@ -22,6 +22,11 @@ type CreateForumReplyPayload = {
 };
 
 type VoteDirection = "up" | "down";
+const allowLocalFallback = import.meta.env.VITE_ALLOW_FORUM_FALLBACK === "true";
+
+type ReportPayload = {
+  reason: string;
+};
 
 const fallbackSkillMap = new Map<number, Skill>([
   [1, { id: 1, name: "JavaScript", category: "Programming" }],
@@ -340,8 +345,13 @@ function findPostFromFallback(postId: number): ForumPost | null {
 }
 
 export async function listForumPosts(params: ForumListParams = {}) {
+  const requestParams: ForumListParams = {
+    ...params,
+    type: params.type === "all" ? undefined : params.type,
+  };
+
   try {
-    const { data } = await api.get("/forum/posts", { params });
+    const { data } = await api.get("/forum/posts", { params: requestParams });
 
     if (isObject(data) && Array.isArray(data.data)) {
       const posts = data.data.map(normalizePostPayload).filter(Boolean) as ForumPost[];
@@ -362,8 +372,14 @@ export async function listForumPosts(params: ForumListParams = {}) {
         total: posts.length,
       };
     }
-  } catch {
-    // Falls back below.
+  } catch (error) {
+    if (!allowLocalFallback) {
+      throw error;
+    }
+  }
+
+  if (!allowLocalFallback) {
+    throw new Error("Forum posts API did not return a supported payload.");
   }
 
   const merged = mergedFallbackPosts();
@@ -418,8 +434,14 @@ export async function getForumPost(postId: number) {
     if (post) {
       return { post };
     }
-  } catch {
-    // Falls back below.
+  } catch (error) {
+    if (!allowLocalFallback) {
+      throw error;
+    }
+  }
+
+  if (!allowLocalFallback) {
+    throw new Error("Forum post API did not return a supported payload.");
   }
 
   const fallbackPost = findPostFromFallback(postId);
@@ -450,8 +472,14 @@ export async function createForumPost(payload: CreateForumPostPayload) {
     if (post) {
       return { post };
     }
-  } catch {
-    // Falls back below.
+  } catch (error) {
+    if (!allowLocalFallback) {
+      throw error;
+    }
+  }
+
+  if (!allowLocalFallback) {
+    throw new Error("Forum post creation failed.");
   }
 
   const currentPosts = mergedFallbackPosts();
@@ -495,8 +523,14 @@ export async function createForumReply(postId: number, payload: CreateForumReply
     if (reply) {
       return { reply };
     }
-  } catch {
-    // Falls back below.
+  } catch (error) {
+    if (!allowLocalFallback) {
+      throw error;
+    }
+  }
+
+  if (!allowLocalFallback) {
+    throw new Error("Forum reply creation failed.");
   }
 
   const allPosts = mergedFallbackPosts();
@@ -545,8 +579,14 @@ export async function markReplyAsSolution(replyId: number) {
         return { reply };
       }
     }
-  } catch {
-    // Falls back below.
+  } catch (error) {
+    if (!allowLocalFallback) {
+      throw error;
+    }
+  }
+
+  if (!allowLocalFallback) {
+    throw new Error("Mark solution failed.");
   }
 
   const allPosts = mergedFallbackPosts();
@@ -594,8 +634,14 @@ export async function voteForumPost(postId: number, direction: VoteDirection) {
         return { post };
       }
     }
-  } catch {
-    // Falls back below.
+  } catch (error) {
+    if (!allowLocalFallback) {
+      throw error;
+    }
+  }
+
+  if (!allowLocalFallback) {
+    throw new Error("Forum voting failed.");
   }
 
   const votes = readLocalVotes();
@@ -630,4 +676,14 @@ export async function voteForumPost(postId: number, direction: VoteDirection) {
   }
 
   return { post: updated };
+}
+
+export async function reportForumPost(postId: number, payload: ReportPayload) {
+  const { data } = await api.post(`/forum/posts/${postId}/report`, payload);
+  return data as { message: string };
+}
+
+export async function reportForumReply(replyId: number, payload: ReportPayload) {
+  const { data } = await api.post(`/forum/replies/${replyId}/report`, payload);
+  return data as { message: string };
 }

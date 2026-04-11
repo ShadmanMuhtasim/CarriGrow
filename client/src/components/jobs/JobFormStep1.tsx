@@ -24,14 +24,6 @@ export default function JobFormStep1({ register, errors }: JobFormStep1Props) {
       <div className="col-12 col-md-6">
         <Select label="Experience Level" options={experienceLevelOptions.map((option) => ({ ...option }))} error={errors.experience_level?.message} {...register("experience_level")} />
       </div>
-      <div className="col-12 col-md-6">
-        <div className="border rounded-3 p-3 bg-light h-100">
-          <div className="fw-semibold mb-2">Step 1 overview</div>
-          <p className="text-muted mb-0">
-            Start with the core job details so candidates can quickly understand the role.
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
