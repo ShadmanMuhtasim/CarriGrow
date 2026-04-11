@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Button from "../ui/Button";
 import type { Job, Skill } from "../../types/models";
 
@@ -51,7 +51,9 @@ function formatPostedAt(job: Job) {
 }
 
 export default function JobCard({ job, view, isSaved, onToggleSave }: JobCardProps) {
+  const location = useLocation();
   const skills = collectSkillNames(job).slice(0, 5);
+  const fromPath = `${location.pathname}${location.search}`;
 
   return (
     <div className={`card border-0 shadow-sm h-100 ${view === "list" ? "flex-md-row" : ""}`}>
@@ -86,7 +88,7 @@ export default function JobCard({ job, view, isSaved, onToggleSave }: JobCardPro
         </div>
 
         <div className="mt-auto d-flex flex-wrap gap-2">
-          <Link to={`/jobs/${job.id}`}>
+          <Link to={`/jobs/${job.id}`} state={{ from: fromPath }}>
             <Button type="button" variant="outline">
               View details
             </Button>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
@@ -93,9 +94,16 @@ export default function RecommendedJobs() {
                     <Button type="button" variant="outline" onClick={() => setSelectedJob(job)}>
                       Match details
                     </Button>
-                    <Button type="button" variant="secondary" onClick={() => toastUI.info("Open the job details page to apply.")}>
-                      Save / Apply
-                    </Button>
+                    <Link to={`/jobs/${job.id}`} state={{ from: "/dashboard/jobs" }}>
+                      <Button type="button" variant="secondary">
+                        View details
+                      </Button>
+                    </Link>
+                    <Link to={`/jobs/${job.id}/apply`}>
+                      <Button type="button" variant="primary">
+                        Apply now
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
