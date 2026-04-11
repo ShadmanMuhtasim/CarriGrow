@@ -45,6 +45,7 @@ export type AdminReport = {
   type: "weekly" | "monthly" | "custom";
   status: "ready" | "processing";
   generated_at: string;
+  payload?: Record<string, unknown> | null;
 };
 
 type UserListParams = {
@@ -405,4 +406,40 @@ export async function listAdminReports() {
   }
 
   return { reports: [...fallbackReports] };
+}
+
+export async function createAdminReport(type: AdminReport["type"]) {
+  try {
+    const { data } = await api.post("/admin/reports", { type });
+    if (isObject(data) && isObject(data.report)) {
+      return { report: data.report as AdminReport };
+    }
+  } catch {
+    // Use fallback below.
+  }
+
+  const generatedAt = new Date().toISOString();
+  const nextId = Math.max(0, ...fallbackReports.map((report) => report.id)) + 1;
+  const report: AdminReport = {
+    id: nextId,
+    title:
+      type === "weekly"
+        ? "Weekly Platform Snapshot"
+        : type === "monthly"
+          ? "Monthly Platform Summary"
+          : "Custom Admin Report",
+    type,
+    status: "ready",
+    generated_at: generatedAt,
+    payload: {
+      summary: {
+        users: fallbackUsers.length,
+        jobs: 61,
+        applications: 356,
+        forumPosts: 127,
+      },
+    },
+  };
+
+  return { report };
 }

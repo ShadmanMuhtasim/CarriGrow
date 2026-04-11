@@ -6,9 +6,11 @@ type ReplyThreadProps = {
   replies: ForumReply[];
   canReply: boolean;
   canMarkSolution: boolean;
+  canReport: boolean;
   submitting: boolean;
   onSubmitReply: (content: string) => Promise<void>;
   onMarkSolution: (replyId: number) => Promise<void>;
+  onReportReply: (replyId: number) => Promise<void>;
 };
 
 function formatDate(value?: string | null): string {
@@ -28,9 +30,11 @@ export default function ReplyThread({
   replies,
   canReply,
   canMarkSolution,
+  canReport,
   submitting,
   onSubmitReply,
   onMarkSolution,
+  onReportReply,
 }: ReplyThreadProps) {
   const [replyContent, setReplyContent] = useState("");
 
@@ -71,6 +75,11 @@ export default function ReplyThread({
               {canMarkSolution && !reply.is_solution ? (
                 <Button type="button" variant="outline" className="btn-sm" onClick={() => void onMarkSolution(reply.id)}>
                   Mark solution
+                </Button>
+              ) : null}
+              {canReport ? (
+                <Button type="button" variant="outline" className="btn-sm" onClick={() => void onReportReply(reply.id)}>
+                  Report
                 </Button>
               ) : null}
             </div>
