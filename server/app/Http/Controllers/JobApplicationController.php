@@ -164,6 +164,56 @@ class JobApplicationController extends Controller
         ]);
     }
 
+    public function updateForEmployer(Request $request, Job $job, JobApplication $application): JsonResponse
+    {
+        $user = auth('api')->user();
+        $guardResponse = $this->ensureEmployerOwnsJob($user, $job);
+
+        if ($guardResponse !== null) {
+            return $guardResponse;
+        }
+
+        if ((int) $application->job_id !== (int) $job->id) {
+            return response()->json([
+                'message' => 'Application not found for this job',
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'status' => ['sometimes', Rule::in($this->statusValues())],
+            'employer_notes' => ['sometimes', 'nullable', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        if (array_key_exists('status', $validated)) {
+            $application->status = $validated['status'];
+        }
+
+        if (array_key_exists('employer_notes', $validated)) {
+            $application->employer_notes = $validated['employer_notes'];
+        }
+
+        if (array_key_exists('status', $validated) || array_key_exists('employer_notes', $validated)) {
+            $application->reviewed_by = $user->id;
+            $application->reviewed_at = now();
+        }
+
+        $application->save();
+
+        return response()->json([
+            'message' => 'Application updated successfully',
+            'application' => $application->load(['user.jobSeekerProfile', 'reviewedBy']),
+        ]);
+    }
+
     private function statusValues(): array
     {
         return [
