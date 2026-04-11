@@ -20,9 +20,10 @@ const schema = z
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password needs at least one uppercase letter")
-      .regex(/[a-z]/, "Password needs at least one lowercase letter")
-      .regex(/[0-9]/, "Password needs at least one number"),
+      .refine(
+        (value) => /[A-Z]/.test(value) && /[a-z]/.test(value) && /[0-9]/.test(value),
+        "Password needs uppercase, lowercase, and number"
+      ),
     password_confirmation: z.string(),
     terms_accepted: z.boolean().refine((value) => value === true, {
       message: "You must accept terms and conditions",
@@ -115,6 +116,9 @@ export default function Register() {
 
                   <div className="col-12 col-md-6">
                     <Input label="Password" type="password" error={errors.password?.message} {...register("password")} />
+                    <div className="form-text">
+                      Minimum requirements: at least 8 characters, one uppercase letter, one lowercase letter, and one number.
+                    </div>
                   </div>
 
                   <div className="col-12">
