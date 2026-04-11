@@ -102,6 +102,7 @@ export default function ManageJobs() {
       total: jobs.length,
       published: jobs.filter((job) => job.status === "published").length,
       draft: jobs.filter((job) => job.status === "draft").length,
+      closed: jobs.filter((job) => job.status === "closed").length,
       applications: jobs.reduce((sum, job) => sum + (job.applications_count ?? 0), 0),
     };
   }, [jobs]);
@@ -199,22 +200,27 @@ export default function ManageJobs() {
       <Breadcrumbs items={[{ label: "Dashboard", to: "/dashboard" }, { label: "Manage Jobs" }]} />
 
       <div className="row g-3">
-        <div className="col-12 col-md-3">
+        <div className="col-12 col-md-6 col-xl">
           <Card title="Total Jobs">
             <div className="display-6 mb-0">{stats.total}</div>
           </Card>
         </div>
-        <div className="col-12 col-md-3">
+        <div className="col-12 col-md-6 col-xl">
           <Card title="Published">
             <div className="display-6 mb-0">{stats.published}</div>
           </Card>
         </div>
-        <div className="col-12 col-md-3">
+        <div className="col-12 col-md-6 col-xl">
           <Card title="Drafts">
             <div className="display-6 mb-0">{stats.draft}</div>
           </Card>
         </div>
-        <div className="col-12 col-md-3">
+        <div className="col-12 col-md-6 col-xl">
+          <Card title="Closed">
+            <div className="display-6 mb-0">{stats.closed}</div>
+          </Card>
+        </div>
+        <div className="col-12 col-md-6 col-xl">
           <Card title="Applications">
             <div className="display-6 mb-0">{stats.applications}</div>
           </Card>
@@ -230,8 +236,8 @@ export default function ManageJobs() {
           </Link>
         }
       >
-        <div className="row g-3 mb-4">
-          <div className="col-12 col-lg-4">
+        <div className="row g-3 mb-3">
+          <div className="col-12 col-lg-5">
             <Select
               label="Filter by status"
               options={statusOptions.map((option) => ({ ...option }))}
@@ -239,33 +245,38 @@ export default function ManageJobs() {
               onChange={(event) => setStatusFilter(event.target.value as "all" | JobStatus)}
             />
           </div>
-          <div className="col-12 col-lg-8">
-            <div className="border rounded-3 p-3 h-100">
-              <div className="row g-2 align-items-end">
-                <div className="col-12 col-md-5">
-                  <Select
-                    label="Bulk action"
-                    options={[
-                      { value: "", label: "Choose action" },
-                      { value: "publish", label: "Publish selected" },
-                      { value: "close", label: "Close selected" },
-                      { value: "delete", label: "Delete selected" },
-                    ]}
-                    value={bulkAction}
-                    onChange={(event) => setBulkAction(event.target.value as typeof bulkAction)}
-                  />
-                </div>
-                <div className="col-12 col-md-7 d-flex flex-wrap gap-2">
-                  <Button type="button" variant="secondary" onClick={selectAllVisible}>
-                    Select visible
-                  </Button>
-                  <Button type="button" variant="outline" onClick={clearSelection}>
-                    Clear
-                  </Button>
-                  <Button type="button" variant="primary" loading={bulkApplying} onClick={applyBulkAction}>
-                    Apply
-                  </Button>
-                </div>
+        </div>
+
+        <div className="border rounded-3 p-3 mb-4">
+          <div className="small text-muted mb-2">
+            Bulk actions
+          </div>
+          <div className="row g-2 align-items-end">
+            <div className="col-12 col-lg-5">
+              <Select
+                label="Action for selected jobs"
+                options={[
+                  { value: "", label: "Choose action" },
+                  { value: "publish", label: "Publish selected" },
+                  { value: "close", label: "Close selected" },
+                  { value: "delete", label: "Delete selected" },
+                ]}
+                value={bulkAction}
+                onChange={(event) => setBulkAction(event.target.value as typeof bulkAction)}
+              />
+            </div>
+            <div className="col-12 col-lg-7 d-flex flex-wrap gap-2">
+              <Button type="button" variant="secondary" onClick={selectAllVisible}>
+                Select visible
+              </Button>
+              <Button type="button" variant="outline" onClick={clearSelection}>
+                Clear
+              </Button>
+              <Button type="button" variant="primary" loading={bulkApplying} onClick={applyBulkAction}>
+                Apply
+              </Button>
+              <div className="small text-muted align-self-center ms-2">
+                {selectedIds.length} selected
               </div>
             </div>
           </div>

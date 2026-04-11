@@ -7,21 +7,17 @@ import Loading from "../../components/Loading";
 import JobAnalyticsChart from "../../components/jobs/JobAnalyticsChart";
 import JobStatusBadge from "../../components/jobs/JobStatusBadge";
 import { toastUI } from "../../components/ui/Toast";
-import { getEmployerJob } from "../../services/jobs";
+import { getEmployerJob, listJobApplicationsForEmployer } from "../../services/jobs";
 import type { Job } from "../../types/models";
 
-function buildSeries(total: number, labels: string[]): Array<{ label: string; value: number }> {
-  const safeTotal = Math.max(total, labels.length);
-  return labels.map((label, index) => ({
-    label,
-    value: Math.max(Math.round((safeTotal / labels.length) * (0.6 + (index % 3) * 0.25)), 1),
-  }));
-}
+type AnalyticsStat = { label: string; value: string };
 
 export default function JobAnalytics() {
   const params = useParams();
   const jobId = Number(params.jobId);
   const [job, setJob] = useState<Job | null>(null);
+  const [applicationsCount, setApplicationsCount] = useState(0);
+  const [applicantStats, setApplicantStats] = useState<AnalyticsStat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,9 +25,28 @@ export default function JobAnalytics() {
 
     async function loadJob() {
       try {
-        const response = await getEmployerJob(jobId);
+        const [jobResponse, applicationsResponse] = await Promise.all([
+          getEmployerJob(jobId),
+          listJobApplicationsForEmployer(jobId, { per_page: 50 }),
+        ]);
+
+        const applications = applicationsResponse.applications ?? [];
+        const byStatus = new Map<string, number>();
+        applications.forEach((application) => {
+          byStatus.set(application.status, (byStatus.get(application.status) ?? 0) + 1);
+        });
+
+        const applicantSnapshot: AnalyticsStat[] = [
+          { label: "Total applicants", value: String(applications.length) },
+          { label: "Under review", value: String(byStatus.get("under_review") ?? 0) },
+          { label: "Shortlisted", value: String(byStatus.get("shortlisted") ?? 0) },
+          { label: "Hired", value: String(byStatus.get("hired") ?? 0) },
+        ];
+
         if (!cancelled) {
-          setJob(response.job);
+          setJob(jobResponse.job);
+          setApplicationsCount(applications.length);
+          setApplicantStats(applicantSnapshot);
         }
       } catch {
         toastUI.error("Could not load job analytics.");
@@ -53,20 +68,13 @@ export default function JobAnalytics() {
     };
   }, [jobId]);
 
-  const viewsSeries = useMemo(() => buildSeries(job?.views_count ?? 0, ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]), [job?.views_count]);
-  const applicationsSeries = useMemo(
-    () => buildSeries(job?.applications_count ?? 0, ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]),
-    [job?.applications_count]
+  const viewsSeries = useMemo(
+    () => [{ label: "Total views", value: Math.max(job?.views_count ?? 0, 0) }],
+    [job?.views_count]
   );
-
-  const demographics = useMemo(
-    () => [
-      { label: "Entry level", value: `${Math.max((job?.applications_count ?? 0) * 2, 18)}%` },
-      { label: "Mid level", value: `${Math.max(job?.applications_count ?? 0, 24)}%` },
-      { label: "Senior level", value: `${Math.max(Math.round((job?.applications_count ?? 0) / 2), 12)}%` },
-      { label: "Remote ready", value: `${Math.max(Math.round((job?.views_count ?? 0) / 3), 35)}%` },
-    ],
-    [job?.applications_count, job?.views_count]
+  const applicationsSeries = useMemo(
+    () => [{ label: "Total applications", value: Math.max(applicationsCount, 0) }],
+    [applicationsCount]
   );
 
   if (loading) {
@@ -109,25 +117,25 @@ export default function JobAnalytics() {
       <div className="row g-3">
         <div className="col-12 col-lg-6">
           <JobAnalyticsChart
-            title="Views over time"
-            subtitle="Daily view trend for this job."
+            title="Views"
+            subtitle="Live total views tracked for this job."
             colorClass="bg-primary"
             data={viewsSeries}
           />
         </div>
         <div className="col-12 col-lg-6">
           <JobAnalyticsChart
-            title="Applications by day"
-            subtitle="Recent application trend."
+            title="Applications"
+            subtitle="Live total applications for this job."
             colorClass="bg-success"
             data={applicationsSeries}
           />
         </div>
       </div>
 
-      <Card title="Applicant demographics" subtitle="Snapshot based on current applicant data.">
+      <Card title="Applicant snapshot" subtitle="Current applicant status counts from live records.">
         <div className="row g-3">
-          {demographics.map((item) => (
+          {applicantStats.map((item) => (
             <div key={item.label} className="col-12 col-md-6 col-xl-3">
               <div className="border rounded-3 p-3 h-100">
                 <div className="text-muted small">{item.label}</div>
