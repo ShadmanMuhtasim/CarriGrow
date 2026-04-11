@@ -1,52 +1,53 @@
-import { useMemo } from "react";
-import Breadcrumbs from "../components/Breadcrumbs";
+import { useEffect, useMemo, useState } from "react";
 import Badge from "../components/ui/Badge";
 import Card from "../components/ui/Card";
-import { useAuth } from "../hooks/useAuth";
 import Loading from "../components/Loading";
 import MatchBadge from "../components/matching/MatchBadge";
 import { calculateJobMatch } from "../components/matching/matchUtils";
 import { Link } from "react-router-dom";
-import type { Job } from "../types/models";
+import { useAuth } from "../hooks/useAuth";
+import { listForumPosts } from "../services/forum";
+import { listEmployerJobs, listJobApplicationsForEmployer, listMyApplications, listPublicJobs } from "../services/jobs";
+import { getAdminSummary } from "../services/admin";
+import { toastUI } from "../components/ui/Toast";
+import type { Job, User } from "../types/models";
 
-const recommendedJobsSeed: Job[] = [
-  {
-    id: 101,
-    employer_id: 1,
-    title: "Frontend Developer",
-    description: "Build responsive product flows with React and TypeScript.",
-    location: "Remote",
-    employment_type: "full_time",
-    experience_level: "mid",
-    skills_required: ["React", "TypeScript", "Bootstrap", "Communication"],
-    status: "published",
-  },
-  {
-    id: 102,
-    employer_id: 2,
-    title: "Laravel Engineer",
-    description: "Work on API delivery, auth flows, and MySQL-backed features.",
-    location: "Dhaka",
-    employment_type: "full_time",
-    experience_level: "mid",
-    skills_required: ["Laravel", "MySQL", "REST API", "Testing"],
-    status: "published",
-  },
-  {
-    id: 103,
-    employer_id: 3,
-    title: "Product Designer",
-    description: "Design flows, prototypes, and user-facing improvements across the platform.",
-    location: "Hybrid",
-    employment_type: "contract",
-    experience_level: "entry",
-    skills_required: ["Figma", "UI Design", "Research", "Communication"],
-    status: "published",
-  },
-];
+type StatItem = {
+  label: string;
+  value: string;
+  icon: string;
+};
+
+const savedJobsStorageKey = "carrigrow.saved_jobs";
+
+function loadSavedJobsCount(): number {
+  try {
+    const raw = window.localStorage.getItem(savedJobsStorageKey);
+    if (!raw) {
+      return 0;
+    }
+
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) {
+      return 0;
+    }
+
+    return parsed.filter((item): item is number => typeof item === "number" && Number.isFinite(item) && item > 0).length;
+  } catch {
+    return 0;
+  }
+}
+
+function formatJobStatus(status: string): string {
+  return status.replace(/_/g, " ");
+}
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
+  const [stats, setStats] = useState<StatItem[]>([]);
+  const [recentActivity, setRecentActivity] = useState<string[]>([]);
+  const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
+  const [metricsLoading, setMetricsLoading] = useState(true);
 
   const roleTitle = useMemo(() => {
     if (!user) {
@@ -58,66 +59,196 @@ export default function Dashboard() {
     return "Admin Overview";
   }, [user]);
 
-  if (isLoading || !user) {
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    const currentUser: User = user;
+
+    let cancelled = false;
+
+    async function loadRoleMetrics() {
+      setMetricsLoading(true);
+
+      try {
+        if (currentUser.role === "employer") {
+          const jobsResponse = await listEmployerJobs();
+          const jobs = jobsResponse.jobs ?? [];
+          const applicationResponses = await Promise.all(
+            jobs.map((job) => listJobApplicationsForEmployer(job.id, { per_page: 50 }))
+          );
+
+          const totalApplicants = applicationResponses.reduce(
+            (sum, response) => sum + response.applications.length,
+            0
+          );
+          const shortlistedCount = applicationResponses.reduce(
+            (sum, response) =>
+              sum + response.applications.filter((application) => application.status === "shortlisted").length,
+            0
+          );
+          const activeJobs = jobs.filter((job) => job.status === "published").length;
+          const latestJob = [...jobs].sort((a, b) => {
+            const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+            return bTime - aTime;
+          })[0];
+
+          if (!cancelled) {
+            setStats([
+              { label: "Active Jobs", value: String(activeJobs), icon: "bi-briefcase" },
+              { label: "Total Applicants", value: String(totalApplicants), icon: "bi-people" },
+              { label: "Shortlisted", value: String(shortlistedCount), icon: "bi-person-check" },
+            ]);
+
+            setRecentActivity([
+              latestJob ? `Posted ${latestJob.title}` : "No jobs posted yet",
+              totalApplicants > 0 ? `Reviewed ${totalApplicants} total applications` : "No applications yet",
+              shortlistedCount > 0 ? `Shortlisted ${shortlistedCount} candidates` : "No shortlist activity yet",
+            ]);
+          }
+
+          return;
+        }
+
+        if (currentUser.role === "mentor") {
+          const forumResponse = await listForumPosts({ page: 1, per_page: 50, sort: "recent" });
+          const posts = forumResponse.posts ?? [];
+
+          let answersCount = 0;
+          const askerIds = new Set<number>();
+
+          posts.forEach((post) => {
+            (post.replies ?? []).forEach((reply) => {
+              if (reply.user_id === currentUser.id) {
+                answersCount += 1;
+                if (typeof post.user_id === "number" && post.user_id > 0) {
+                  askerIds.add(post.user_id);
+                }
+              }
+            });
+          });
+
+          const openQuestions = posts.filter((post) => post.post_type === "question" && !post.is_solved).length;
+          const recentMentorActivity = posts
+            .flatMap((post) =>
+              (post.replies ?? [])
+                .filter((reply) => reply.user_id === currentUser.id)
+                .map(() => `Answered: ${post.title}`)
+            )
+            .slice(0, 3);
+
+          if (!cancelled) {
+            setStats([
+              { label: "Questions Answered", value: String(answersCount), icon: "bi-chat-quote" },
+              { label: "Distinct Askers", value: String(askerIds.size), icon: "bi-people" },
+              { label: "Open Questions", value: String(openQuestions), icon: "bi-patch-question" },
+            ]);
+
+            setRecentActivity(
+              recentMentorActivity.length > 0
+                ? recentMentorActivity
+                : ["No mentor answer activity found yet", "Answer forum questions to build activity", "Live data is shown from forum replies"]
+            );
+          }
+
+          return;
+        }
+
+        if (currentUser.role === "job_seeker") {
+          const [applicationsResponse, jobsResponse] = await Promise.all([
+            listMyApplications({ per_page: 50 }),
+            listPublicJobs(),
+          ]);
+
+          const applications = applicationsResponse.applications ?? [];
+          const savedJobsCount = loadSavedJobsCount();
+          const scoredJobs = (jobsResponse.jobs ?? [])
+            .map((job) => ({
+              job,
+              match: calculateJobMatch(job, currentUser.skills),
+            }))
+            .sort((left, right) => right.match.percentage - left.match.percentage);
+
+          if (!cancelled) {
+            setStats([
+              { label: "Applications", value: String(applications.length), icon: "bi-send-check" },
+              { label: "Saved Jobs", value: String(savedJobsCount), icon: "bi-bookmark-heart" },
+              { label: "Recommended Jobs", value: String(scoredJobs.length), icon: "bi-stars" },
+            ]);
+
+            const latestApplications = applications
+              .slice(0, 3)
+              .map((item) => `${item.job?.title ?? `Job #${item.job_id}`}: ${formatJobStatus(item.status)}`);
+
+            setRecentActivity(
+              latestApplications.length > 0
+                ? latestApplications
+                : ["No applications submitted yet", "Browse jobs and apply to start tracking progress", "Saved jobs sync from your browser"]
+            );
+            setRecommendedJobs(scoredJobs.slice(0, 3).map((item) => item.job));
+          }
+
+          return;
+        }
+
+        const adminSummary = await getAdminSummary();
+        if (!cancelled) {
+          setStats([
+            { label: "Users", value: String(adminSummary.summary.users), icon: "bi-people" },
+            { label: "Jobs", value: String(adminSummary.summary.jobs), icon: "bi-briefcase" },
+            { label: "Applications", value: String(adminSummary.summary.applications), icon: "bi-send-check" },
+          ]);
+          setRecentActivity([
+            `Forum posts tracked: ${adminSummary.summary.forumPosts}`,
+            "Open moderation and users panels for detailed admin actions",
+            "Admin metrics are loaded from backend analytics endpoints",
+          ]);
+        }
+      } catch {
+        if (!cancelled) {
+          setStats([]);
+          setRecentActivity(["Could not load dashboard metrics right now."]);
+          setRecommendedJobs([]);
+          toastUI.error("Could not load dashboard metrics.");
+        }
+      } finally {
+        if (!cancelled) {
+          setMetricsLoading(false);
+        }
+      }
+    }
+
+    void loadRoleMetrics();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  if (isLoading || !user || metricsLoading) {
     return <Loading label="Loading dashboard..." />;
   }
 
-  const baseStats =
+  const scoredRecommendedJobs =
     user.role === "job_seeker"
-      ? [
-          { label: "Applications", value: "3", icon: "bi-send-check" },
-          { label: "Saved Jobs", value: "7", icon: "bi-bookmark-heart" },
-          { label: "Upcoming Mentorship", value: "2", icon: "bi-calendar2-check" },
-        ]
-      : user.role === "employer"
-        ? [
-            { label: "Active Jobs", value: "4", icon: "bi-briefcase" },
-            { label: "Total Applicants", value: "62", icon: "bi-people" },
-            { label: "Interviews Scheduled", value: "9", icon: "bi-calendar-event" },
-          ]
-        : user.role === "mentor"
-          ? [
-              { label: "Questions Answered", value: "28", icon: "bi-chat-quote" },
-              { label: "Active Mentees", value: "11", icon: "bi-people" },
-              { label: "Upcoming Sessions", value: "3", icon: "bi-calendar2-check" },
-            ]
-          : [
-              { label: "Users", value: "152", icon: "bi-people" },
-              { label: "Flagged Content", value: "4", icon: "bi-flag" },
-              { label: "Pending Reviews", value: "6", icon: "bi-shield-check" },
-            ];
-
-  const recentActivity =
-    user.role === "job_seeker"
-      ? ["Applied to Frontend Developer at Sample Company", "Updated profile skills", "Booked mentorship slot with Sample Mentor"]
-      : user.role === "employer"
-        ? ["Posted Backend Developer role", "Reviewed 12 new applicants", "Shortlisted 3 candidates"]
-        : user.role === "mentor"
-          ? ["Answered forum question on interview prep", "Updated mentorship availability", "Accepted new mentee request"]
-        : ["Reviewed reported forum post", "Changed user role to mentor", "Exported platform summary report"];
-
-  const recommendedJobs =
-    user.role === "job_seeker"
-      ? recommendedJobsSeed
+      ? recommendedJobs
           .map((job) => ({
             ...job,
             match: calculateJobMatch(job, user.skills),
           }))
           .sort((left, right) => right.match.percentage - left.match.percentage)
-          .slice(0, 3)
       : [];
 
   return (
     <div className="vstack gap-3">
-      <Breadcrumbs items={[{ label: "Dashboard" }]} />
-
       <Card
         title={roleTitle}
         subtitle="Overview of your account activity and key metrics."
         actions={<Badge variant="primary">{user.role.replace("_", " ")}</Badge>}
       >
         <div className="row g-3">
-          {baseStats.map((stat) => (
+          {stats.map((stat) => (
             <div key={stat.label} className="col-12 col-md-4">
               <div className="p-3 border rounded-3 h-100">
                 <div className="text-muted small mb-1">
@@ -164,7 +295,7 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="row g-3">
-              {recommendedJobs.map((job) => (
+              {scoredRecommendedJobs.map((job) => (
                 <div key={job.id} className="col-12 col-lg-4">
                   <div className="p-3 border rounded-3 h-100">
                     <div className="d-flex justify-content-between gap-2 mb-2">
@@ -172,7 +303,7 @@ export default function Dashboard() {
                       <MatchBadge percentage={job.match.percentage} />
                     </div>
                     <div className="text-muted small mb-2">
-                      {job.location} • {job.employment_type.replace("_", " ")}
+                      {job.location} | {job.employment_type.replace("_", " ")}
                     </div>
                     <div className="small mb-3">
                       Missing skills: {job.match.missingSkills.length > 0 ? job.match.missingSkills.join(", ") : "None"}

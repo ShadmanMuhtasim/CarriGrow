@@ -16,6 +16,7 @@ export default function MentorLayout({ onLogout }: Props) {
         { to: "/dashboard/questions-for-me", label: "Questions For Me", icon: "bi-patch-question" },
         { to: "/dashboard/my-answers", label: "My Answers", icon: "bi-chat-square-quote" },
         { to: "/dashboard/forum-posts", label: "All Forum Posts", icon: "bi-chat-left-text" },
+        { to: "/dashboard/forum-posts/new", label: "New Post", icon: "bi-plus-square" },
         { to: "/mentors/me", label: "Public Profile", icon: "bi-box-arrow-up-right" },
         { to: "/dashboard/profile", label: "Edit Profile", icon: "bi-person-workspace" },
       ]}
