@@ -10,10 +10,9 @@ type StatusUpdaterProps = {
 };
 
 const statusOptions = [
-  { value: "new", label: "New" },
-  { value: "reviewing", label: "Reviewing" },
+  { value: "applied", label: "Applied" },
+  { value: "under_review", label: "Under Review" },
   { value: "shortlisted", label: "Shortlisted" },
-  { value: "interview", label: "Interview" },
   { value: "rejected", label: "Rejected" },
   { value: "hired", label: "Hired" },
 ];
