@@ -220,21 +220,27 @@ class SkillMatchService
         };
     }
 
-    private function matchCacheKey(User $user, Job $job): string
-    {
-        $userSkillVersion = $this->relationVersion($user->skills()->max('skill_user.updated_at'));
-        $jobSkillVersion = $this->relationVersion($job->skills()->max('job_skill.updated_at'));
-        $jobVersion = $this->relationVersion($job->updated_at);
+private function matchCacheKey(User $user, Job $job): string
+{
+    $userSkillVersion = $user->relationLoaded('skills')
+        ? 'loaded-' . count($user->skills)
+        : $this->relationVersion($user->skills()->max('skill_user.updated_at'));
 
-        return sprintf(
-            'skill-match:user:%d:job:%d:user-skills:%s:job-skills:%s:job:%s',
-            $user->id,
-            $job->id,
-            $userSkillVersion,
-            $jobSkillVersion,
-            $jobVersion
-        );
-    }
+    $jobSkillVersion = $job->relationLoaded('skills')
+        ? 'loaded-' . count($job->skills)
+        : $this->relationVersion($job->skills()->max('job_skill.updated_at'));
+
+    $jobVersion = $this->relationVersion($job->updated_at);
+
+    return sprintf(
+        'skill-match:user:%d:job:%d:user-skills:%s:job-skills:%s:job:%s',
+        $user->id,
+        $job->id,
+        $userSkillVersion,
+        $jobSkillVersion,
+        $jobVersion
+    );
+}
 
     private function recommendationCacheKey(User $user, int $perPage): string
     {

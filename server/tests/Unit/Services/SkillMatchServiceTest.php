@@ -7,7 +7,7 @@ use App\Models\Skill;
 use App\Models\User;
 use App\Services\SkillMatchService;
 use Illuminate\Support\Collection;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class SkillMatchServiceTest extends TestCase
 {
