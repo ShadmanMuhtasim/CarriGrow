@@ -84,13 +84,17 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/{user}/recommended-jobs', [SkillMatchController::class, 'recommendedJobs']);
     Route::get('/applications', [JobApplicationController::class, 'indexForJobSeeker']);
     Route::get('/jobs/{job}/applications', [JobApplicationController::class, 'indexForEmployer']);
+    Route::match(['put', 'patch'], '/jobs/{job}/applications/{application}', [JobApplicationController::class, 'updateForEmployer']);
     Route::post('/forum/posts', [ForumPostController::class, 'store']);
     Route::match(['put', 'patch'], '/forum/posts/{post}', [ForumPostController::class, 'update']);
     Route::delete('/forum/posts/{post}', [ForumPostController::class, 'destroy']);
+    Route::post('/forum/posts/{post}/vote', [ForumPostController::class, 'vote']);
+    Route::post('/forum/posts/{post}/report', [ForumPostController::class, 'report']);
     Route::post('/forum/posts/{post}/replies', [ForumReplyController::class, 'store']);
     Route::match(['put', 'patch'], '/forum/replies/{reply}', [ForumReplyController::class, 'update']);
     Route::delete('/forum/replies/{reply}', [ForumReplyController::class, 'destroy']);
     Route::post('/forum/replies/{reply}/mark-solution', [ForumReplyController::class, 'markSolution']);
+    Route::post('/forum/replies/{reply}/report', [ForumReplyController::class, 'report']);
 });
 
 // ---- (Optional) old template routes ----
