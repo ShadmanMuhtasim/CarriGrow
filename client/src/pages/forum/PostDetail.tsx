@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import Loading from "../../components/Loading";
 import ReplyThread from "../../components/forum/ReplyThread";
@@ -7,7 +7,7 @@ import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
 import { toastUI } from "../../components/ui/Toast";
 import { useAuth } from "../../hooks/useAuth";
-import { createForumReply, getForumPost, markReplyAsSolution, voteForumPost } from "../../services/forum";
+import { createForumReply, getForumPost, markReplyAsSolution, reportForumPost, reportForumReply, voteForumPost } from "../../services/forum";
 import type { ForumPost } from "../../types/models";
 
 type VoteValue = "up" | "down" | null;
@@ -27,7 +27,9 @@ function formatDate(value?: string | null): string {
 
 export default function PostDetail() {
   const params = useParams();
+  const location = useLocation();
   const { user } = useAuth();
+  const forumBasePath = location.pathname.startsWith("/dashboard") ? "/dashboard/forum-posts" : "/forum";
 
   const [post, setPost] = useState<ForumPost | null>(null);
   const [loading, setLoading] = useState(true);
@@ -171,6 +173,44 @@ export default function PostDetail() {
     }
   }
 
+  async function handleReportPost() {
+    if (!post || !user) {
+      toastUI.info("Sign in to report content.");
+      return;
+    }
+
+    const reason = window.prompt("Why are you reporting this post?", "Spam or abusive content");
+    if (!reason || !reason.trim()) {
+      return;
+    }
+
+    try {
+      await reportForumPost(post.id, { reason: reason.trim() });
+      toastUI.success("Report submitted. Admin will review it.");
+    } catch {
+      toastUI.error("Could not submit post report.");
+    }
+  }
+
+  async function handleReportReply(replyId: number) {
+    if (!user) {
+      toastUI.info("Sign in to report content.");
+      return;
+    }
+
+    const reason = window.prompt("Why are you reporting this reply?", "Spam or abusive content");
+    if (!reason || !reason.trim()) {
+      return;
+    }
+
+    try {
+      await reportForumReply(replyId, { reason: reason.trim() });
+      toastUI.success("Report submitted. Admin will review it.");
+    } catch {
+      toastUI.error("Could not submit reply report.");
+    }
+  }
+
   if (loading) {
     return (
       <div className="container py-4">
@@ -183,7 +223,7 @@ export default function PostDetail() {
     return (
       <div className="container py-4">
         <Card title="Post not found" subtitle="The selected forum post is unavailable.">
-          <Link to="/forum" className="btn btn-outline-primary">
+          <Link to={forumBasePath} className="btn btn-outline-primary">
             Back to forum
           </Link>
         </Card>
@@ -202,7 +242,14 @@ export default function PostDetail() {
           actions={
             <div className="d-flex align-items-center gap-2">
               {post.is_solved ? <span className="badge text-bg-success">Solved</span> : null}
-              <Link to="/forum/new">
+              {user?.role === "mentor" ? (
+                <Link to="/dashboard/forum-overview">
+                  <Button type="button" variant="outline">
+                    Back to Mentor Dashboard
+                  </Button>
+                </Link>
+              ) : null}
+              <Link to={`${forumBasePath}/new`}>
                 <Button type="button" variant="outline" icon={<i className="bi bi-plus-lg" />}>
                   New post
                 </Button>
@@ -244,6 +291,11 @@ export default function PostDetail() {
               >
                 <i className="bi bi-hand-thumbs-down me-1" />Downvote
               </Button>
+              {user ? (
+                <Button type="button" variant="outline" className="btn-sm" onClick={() => void handleReportPost()}>
+                  <i className="bi bi-flag me-1" />Report
+                </Button>
+              ) : null}
             </div>
           </div>
 
@@ -251,9 +303,11 @@ export default function PostDetail() {
             replies={post.replies ?? []}
             canReply={Boolean(user)}
             canMarkSolution={canMarkSolution}
+            canReport={Boolean(user)}
             submitting={replySubmitting}
             onSubmitReply={handleSubmitReply}
             onMarkSolution={handleMarkSolution}
+            onReportReply={handleReportReply}
           />
         </Card>
       </div>

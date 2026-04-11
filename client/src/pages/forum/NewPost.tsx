@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import RichTextEditor from "../../components/forum/RichTextEditor";
 import Button from "../../components/ui/Button";
@@ -19,7 +19,9 @@ function formatType(value: ForumPostType): string {
 
 export default function NewPost() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+  const forumBasePath = location.pathname.startsWith("/dashboard") ? "/dashboard/forum-posts" : "/forum";
 
   const [skills, setSkills] = useState<Skill[]>([]);
   const [title, setTitle] = useState("");
@@ -96,7 +98,7 @@ export default function NewPost() {
       });
 
       toastUI.success("Post published.");
-      navigate(`/forum/${response.post.id}`);
+      navigate(`${forumBasePath}/${response.post.id}`);
     } catch {
       toastUI.error("Could not publish this post.");
     } finally {
@@ -168,7 +170,12 @@ export default function NewPost() {
               </div>
 
               <div className="d-flex justify-content-end gap-2">
-                <Link to="/forum">
+                {user?.role === "mentor" ? (
+                  <Link to="/dashboard/forum-overview">
+                    <Button type="button" variant="outline">Back to Mentor Dashboard</Button>
+                  </Link>
+                ) : null}
+                <Link to={forumBasePath}>
                   <Button type="button" variant="outline">Cancel</Button>
                 </Link>
                 <Button type="submit" variant="primary" loading={submitting} disabled={!canSubmit}>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import Loading from "../../components/Loading";
 import PostCard from "../../components/forum/PostCard";
@@ -29,7 +29,9 @@ function formatType(value: ForumPostType): string {
 }
 
 export default function ForumList() {
+  const location = useLocation();
   const { user } = useAuth();
+  const forumBasePath = location.pathname.startsWith("/dashboard") ? "/dashboard/forum-posts" : "/forum";
 
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -137,7 +139,7 @@ export default function ForumList() {
           actions={
             <div className="d-flex gap-2">
               {user ? (
-                <Link to="/forum/new">
+                <Link to={`${forumBasePath}/new`}>
                   <Button icon={<i className="bi bi-plus-lg" />}>New post</Button>
                 </Link>
               ) : (
@@ -246,7 +248,7 @@ export default function ForumList() {
                 <div className="row g-3">
                   {posts.map((post) => (
                     <div key={post.id} className="col-12">
-                      <PostCard post={post} detailPath={`/forum/${post.id}`} />
+                      <PostCard post={post} detailPath={`${forumBasePath}/${post.id}`} />
                     </div>
                   ))}
                 </div>
