@@ -24,7 +24,7 @@ const apiClient = new ApiClient();
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr);
-  const options: any = {
+  const options: Intl.DateTimeFormatOptions = {
     hour: 'numeric',
     minute: 'numeric',
     hour12: true,

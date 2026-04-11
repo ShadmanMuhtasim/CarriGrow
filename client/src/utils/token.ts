@@ -4,7 +4,7 @@ export function getToken(): string | null {
   return null;
 }
 
-export function setToken(_token: string) {
+export function setToken() {
   // Deprecated: JWT is now transported via HttpOnly cookie.
 }
 
