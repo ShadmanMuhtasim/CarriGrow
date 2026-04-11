@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContentReport;
 use App\Models\ForumPost;
 use App\Models\ForumReply;
 use App\Models\User;
@@ -141,6 +142,62 @@ class ForumReplyController extends Controller
         ]);
     }
 
+    public function report(Request $request, ForumReply $reply): JsonResponse
+    {
+        $user = auth('api')->user();
+        $guardResponse = $this->ensureAuthenticatedActiveUser($user);
+
+        if ($guardResponse !== null) {
+            return $guardResponse;
+        }
+
+        $reply->loadMissing('post');
+        $post = $reply->post;
+
+        if (!$post || $post->status !== ForumPost::STATUS_PUBLISHED) {
+            return response()->json([
+                'message' => 'Only replies on published posts can be reported',
+            ], 422);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $existingPending = ContentReport::query()
+            ->where('content_type', ContentReport::TYPE_FORUM_REPLY)
+            ->where('content_id', $reply->id)
+            ->where('reported_by', $user->id)
+            ->where('status', ContentReport::STATUS_PENDING)
+            ->exists();
+
+        if ($existingPending) {
+            return response()->json([
+                'message' => 'You already submitted a pending report for this reply',
+            ], 409);
+        }
+
+        $report = ContentReport::query()->create([
+            'content_type' => ContentReport::TYPE_FORUM_REPLY,
+            'content_id' => $reply->id,
+            'reported_by' => $user->id,
+            'reason' => $validator->validated()['reason'],
+            'status' => ContentReport::STATUS_PENDING,
+        ]);
+
+        return response()->json([
+            'message' => 'Report submitted successfully',
+            'report' => $report,
+        ], 201);
+    }
+
     private function ensureCanReply(?User $user, ForumPost $post): ?JsonResponse
     {
         if (!$user) {
@@ -217,6 +274,23 @@ class ForumReplyController extends Controller
         if ($post->user_id !== $user->id && !ForumPostController::canModerateForum($user)) {
             return response()->json([
                 'message' => 'You are not allowed to mark a solution for this forum post',
+            ], 403);
+        }
+
+        return null;
+    }
+
+    private function ensureAuthenticatedActiveUser(?User $user): ?JsonResponse
+    {
+        if (!$user) {
+            return response()->json([
+                'message' => 'Authentication required',
+            ], 401);
+        }
+
+        if ($user->status !== User::STATUS_ACTIVE) {
+            return response()->json([
+                'message' => 'Only active users can participate in the forum',
             ], 403);
         }
 
