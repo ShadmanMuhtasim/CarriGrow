@@ -17,7 +17,17 @@ INSERT INTO `skills` (`id`, `name`, `category`, `created_at`, `updated_at`) VALU
   (11, 'Problem Solving', 'soft_skill', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
   (12, 'Communication', 'soft_skill', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
   (13, 'Mentorship', 'soft_skill', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
-  (14, 'Interview Preparation', 'career', '2026-03-11 00:00:00', '2026-03-11 00:00:00');
+  (14, 'Interview Preparation', 'career', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (15, 'CSS', 'frontend', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (16, 'HTML', 'frontend', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (17, 'Node.js', 'backend', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (18, 'Express.js', 'backend', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (19, 'Next.js', 'framework', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (20, 'Tailwind CSS', 'frontend', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (21, 'Redux', 'frontend', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (22, 'MongoDB', 'database', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (23, 'PostgreSQL', 'database', '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
+  (24, 'Docker', 'tooling', '2026-03-11 00:00:00', '2026-03-11 00:00:00');
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `role`, `status`, `remember_token`, `created_at`, `updated_at`) VALUES
   (1, 'Admin 1', 'admin1@carrigrow.com', NULL, '$2y$10$HZlOKht2jTV4nUJWppM8H.nDMHqYuEmX7.70CaNTMdb7VyApGmnjO', 'admin', 'active', NULL, '2026-03-11 00:00:00', '2026-03-11 00:00:00'),
