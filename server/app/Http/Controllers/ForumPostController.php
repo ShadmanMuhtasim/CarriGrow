@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ContentReport;
 use App\Models\ForumPost;
+use App\Models\ForumPostVote;
 use App\Models\User;
 use App\Services\ForumNotificationService;
 use Illuminate\Http\JsonResponse;
@@ -79,6 +81,7 @@ class ForumPostController extends Controller
 
         if ($sort === 'popular') {
             $query->orderByDesc('is_pinned')
+                ->orderByDesc('likes_count')
                 ->orderByDesc('views_count')
                 ->orderByDesc('replies_count')
                 ->orderByDesc('created_at');
@@ -131,6 +134,7 @@ class ForumPostController extends Controller
             'type' => $validated['type'],
             'views_count' => 0,
             'replies_count' => 0,
+            'likes_count' => 0,
             'is_solved' => false,
             'is_pinned' => $this->canModerateForum($user) ? (bool) ($validated['is_pinned'] ?? false) : false,
             'status' => $this->canModerateForum($user)
@@ -244,6 +248,131 @@ class ForumPostController extends Controller
         return response()->json([
             'message' => 'Forum post deleted successfully',
         ]);
+    }
+
+    public function vote(Request $request, ForumPost $post): JsonResponse
+    {
+        $user = auth('api')->user();
+        $guardResponse = $this->ensureAuthenticatedActiveUser($user);
+
+        if ($guardResponse !== null) {
+            return $guardResponse;
+        }
+
+        if ($post->status !== ForumPost::STATUS_PUBLISHED) {
+            return response()->json([
+                'message' => 'You can only vote on published forum posts',
+            ], 422);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'direction' => ['required', Rule::in([
+                ForumPostVote::DIRECTION_UP,
+                ForumPostVote::DIRECTION_DOWN,
+            ])],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $nextDirection = $validator->validated()['direction'];
+
+        $vote = ForumPostVote::query()
+            ->where('post_id', $post->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        $previousDirection = $vote?->direction;
+        $resolvedDirection = $previousDirection === $nextDirection ? null : $nextDirection;
+
+        if ($resolvedDirection === null) {
+            $vote?->delete();
+        } elseif ($vote) {
+            $vote->direction = $resolvedDirection;
+            $vote->save();
+        } else {
+            ForumPostVote::query()->create([
+                'post_id' => $post->id,
+                'user_id' => $user->id,
+                'direction' => $resolvedDirection,
+            ]);
+        }
+
+        $scoreFrom = static fn (?string $direction): int => match ($direction) {
+            ForumPostVote::DIRECTION_UP => 1,
+            ForumPostVote::DIRECTION_DOWN => -1,
+            default => 0,
+        };
+
+        $delta = $scoreFrom($resolvedDirection) - $scoreFrom($previousDirection);
+        if ($delta !== 0) {
+            $post->likes_count = max(0, (int) $post->likes_count + $delta);
+            $post->save();
+        }
+
+        $post->load($this->postRelations());
+
+        return response()->json([
+            'message' => 'Forum vote updated successfully',
+            'post' => $post,
+        ]);
+    }
+
+    public function report(Request $request, ForumPost $post): JsonResponse
+    {
+        $user = auth('api')->user();
+        $guardResponse = $this->ensureAuthenticatedActiveUser($user);
+
+        if ($guardResponse !== null) {
+            return $guardResponse;
+        }
+
+        if ($post->status !== ForumPost::STATUS_PUBLISHED) {
+            return response()->json([
+                'message' => 'Only published posts can be reported',
+            ], 422);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $existingPending = ContentReport::query()
+            ->where('content_type', ContentReport::TYPE_FORUM_POST)
+            ->where('content_id', $post->id)
+            ->where('reported_by', $user->id)
+            ->where('status', ContentReport::STATUS_PENDING)
+            ->exists();
+
+        if ($existingPending) {
+            return response()->json([
+                'message' => 'You already submitted a pending report for this post',
+            ], 409);
+        }
+
+        $report = ContentReport::query()->create([
+            'content_type' => ContentReport::TYPE_FORUM_POST,
+            'content_id' => $post->id,
+            'reported_by' => $user->id,
+            'reason' => $validator->validated()['reason'],
+            'status' => ContentReport::STATUS_PENDING,
+        ]);
+
+        return response()->json([
+            'message' => 'Report submitted successfully',
+            'report' => $report,
+        ], 201);
     }
 
     public static function syncPostMeta(ForumPost $post): ForumPost

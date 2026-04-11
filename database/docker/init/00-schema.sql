@@ -256,6 +256,7 @@ CREATE TABLE `forum_posts` (
   `type` enum('question','discussion','resource') NOT NULL DEFAULT 'discussion',
   `views_count` int(10) unsigned NOT NULL DEFAULT 0,
   `replies_count` int(10) unsigned NOT NULL DEFAULT 0,
+  `likes_count` int(10) NOT NULL DEFAULT 0,
   `is_pinned` tinyint(1) NOT NULL DEFAULT 0,
   `is_solved` tinyint(1) NOT NULL DEFAULT 0,
   `status` enum('published','hidden','deleted') NOT NULL DEFAULT 'published',
@@ -268,6 +269,7 @@ CREATE TABLE `forum_posts` (
   KEY `forum_posts_status_index` (`status`),
   KEY `forum_posts_is_pinned_index` (`is_pinned`),
   KEY `forum_posts_is_solved_index` (`is_solved`),
+  KEY `forum_posts_likes_count_index` (`likes_count`),
   KEY `forum_posts_deleted_at_index` (`deleted_at`),
   CONSTRAINT `forum_posts_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -299,6 +301,22 @@ CREATE TABLE `forum_post_skill` (
   KEY `forum_post_skill_skill_id_foreign` (`skill_id`),
   CONSTRAINT `forum_post_skill_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `forum_posts` (`id`) ON DELETE CASCADE,
   CONSTRAINT `forum_post_skill_skill_id_foreign` FOREIGN KEY (`skill_id`) REFERENCES `skills` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `forum_post_votes`;
+CREATE TABLE `forum_post_votes` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `post_id` bigint(20) unsigned NOT NULL,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `direction` enum('up','down') NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `forum_post_votes_post_id_user_id_unique` (`post_id`,`user_id`),
+  KEY `forum_post_votes_user_id_index` (`user_id`),
+  KEY `forum_post_votes_direction_index` (`direction`),
+  CONSTRAINT `forum_post_votes_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `forum_posts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `forum_post_votes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `notifications`;

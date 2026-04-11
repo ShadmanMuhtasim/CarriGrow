@@ -23,6 +23,14 @@ services:
       DB_USERNAME: ${DB_USERNAME:-carrigrow}
       DB_PASSWORD: ${DB_PASSWORD:-carrigrow}
       JWT_SECRET: ${JWT_SECRET}
+      MAIL_MAILER: ${MAIL_MAILER:-smtp}
+      MAIL_HOST: ${MAIL_HOST:-mailpit}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@carrigrow.local}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-CarriGrow}
     ports:
       - "${HOST_APP_PORT:-8000}:80"
     restart: unless-stopped
@@ -55,6 +63,13 @@ services:
         condition: service_healthy
     ports:
       - "${HOST_ADMINER_PORT:-8080}:8080"
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${HOST_MAILPIT_WEB_PORT:-8025}:8025"
+      - "${HOST_MAILPIT_SMTP_PORT:-1025}:1025"
     restart: unless-stopped
 
 volumes:
