@@ -26,6 +26,7 @@ class ForumPost extends Model
         'type',
         'views_count',
         'replies_count',
+        'likes_count',
         'is_pinned',
         'is_solved',
         'status',
@@ -34,6 +35,7 @@ class ForumPost extends Model
     protected $casts = [
         'views_count' => 'integer',
         'replies_count' => 'integer',
+        'likes_count' => 'integer',
         'is_pinned' => 'boolean',
         'is_solved' => 'boolean',
         'deleted_at' => 'datetime',
@@ -86,5 +88,10 @@ class ForumPost extends Model
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'forum_post_skill', 'post_id', 'skill_id')->withTimestamps();
+    }
+
+    public function votes()
+    {
+        return $this->hasMany(ForumPostVote::class, 'post_id');
     }
 }
