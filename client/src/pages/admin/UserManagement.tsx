@@ -44,8 +44,6 @@ export default function UserManagement() {
     let cancelled = false;
 
     async function loadUsers() {
-      setLoading(true);
-
       try {
         const response = await listAdminUsers({
           search: search.trim() || undefined,
