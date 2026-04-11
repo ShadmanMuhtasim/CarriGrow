@@ -14,18 +14,20 @@ export default function Modal({ open, title, children, onClose, footer }: ModalP
   }
 
   return (
-    <div className="modal d-block" tabIndex={-1} role="dialog" aria-modal="true">
-      <div className="modal-dialog modal-dialog-centered" role="document">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title">{title}</h5>
-            <button type="button" className="btn-close" aria-label="Close" onClick={onClose} />
+    <div className="cg-modal" role="dialog" aria-modal="true" aria-label={title}>
+      <div className="cg-modal-backdrop" onClick={onClose} />
+      <div className="cg-modal-dialog">
+        <div className="cg-modal-panel">
+          <div className="cg-modal-header">
+            <h5 className="cg-modal-title">{title}</h5>
+            <button type="button" className="cg-modal-close" aria-label="Close" onClick={onClose}>
+              <i className="bi bi-x-lg" />
+            </button>
           </div>
-          <div className="modal-body">{children}</div>
-          {footer ? <div className="modal-footer">{footer}</div> : null}
+          <div className="cg-modal-body">{children}</div>
+          {footer ? <div className="cg-modal-footer">{footer}</div> : null}
         </div>
       </div>
-      <div className="modal-backdrop fade show" onClick={onClose} />
     </div>
   );
 }
