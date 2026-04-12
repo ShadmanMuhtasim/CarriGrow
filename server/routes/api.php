@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AiRoadmapController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminModerationController;
 use App\Http\Controllers\AdminReportController;
@@ -83,6 +84,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/recommendations/jobs', [JobRecommendationController::class, 'index']);
     Route::get('/users/{user}/recommended-jobs', [SkillMatchController::class, 'recommendedJobs']);
     Route::get('/applications', [JobApplicationController::class, 'indexForJobSeeker']);
+    Route::post('/ai/roadmap', [AiRoadmapController::class, 'generate']);
     Route::get('/jobs/{job}/applications', [JobApplicationController::class, 'indexForEmployer']);
     Route::match(['put', 'patch'], '/jobs/{job}/applications/{application}', [JobApplicationController::class, 'updateForEmployer']);
     Route::post('/forum/posts', [ForumPostController::class, 'store']);

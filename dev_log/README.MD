@@ -769,3 +769,66 @@
   - `docker compose up -d --build` succeeds after patch
   - containers healthy (`app`, `db`, `adminer`, `mailpit`)
 
+## AI Career Roadmap (Gemini) Integration Note (2026-04-12)
+
+- Scope completed:
+  - integrated Gemini-powered career roadmap generation for job seeker dashboard flow
+  - wired backend API endpoint, frontend page, and sidebar navigation for `/dashboard/ai-roadmap`
+  - added runtime diagnostics so Gemini failures now return actionable debug-friendly messages in local mode
+- New files created:
+  - `server/app/Services/GeminiService.php`
+  - `server/app/Http/Controllers/AiRoadmapController.php`
+  - `client/src/services/ai.ts`
+  - `client/src/pages/jobseeker/AiRoadmap.tsx`
+- Existing files updated:
+  - `server/config/services.php`
+  - `server/routes/api.php`
+  - `client/src/App.tsx`
+  - `client/src/layouts/JobSeekerLayout.tsx`
+  - `docker-compose.yml`
+  - `server/.env.example`
+  - `dev_log/README.MD`
+- Runtime troubleshooting hardening:
+  - logs AI generation exceptions in backend with request context (role fields + user id)
+  - includes root error message in API response when `APP_DEBUG=true` for faster local debugging
+  - surfaces backend message in frontend toast instead of generic-only error
+
+## AI Career Roadmap Quota Handling Note (2026-04-12)
+
+- Scope completed:
+  - handled Gemini free-tier quota exhaustion response for roadmap generation
+  - mapped quota/rate-limit provider errors to a cleaner API response with HTTP `429`
+- Existing files updated:
+  - `server/app/Http/Controllers/AiRoadmapController.php`
+  - `dev_log/README.MD`
+- Runtime issue captured:
+  - job seeker roadmap generation returned provider error:
+    - `Quota exceeded ... generate_content_free_tier_requests limit: 0` for `gemini-2.0-flash`
+- Behavior update:
+  - when provider response indicates quota/rate-limit exhaustion (`quota`, `rate limit`, `resource_exhausted`), API now returns:
+    - `success: false`
+    - user-facing message to retry later or verify Gemini billing/quota
+    - status code `429` (instead of generic `500`)
+
+## AI Roadmap Runtime Config + IDE Clarification Note (2026-04-12)
+
+- Scope completed:
+  - documented where job seekers see AI-generated roadmap output in UI
+  - ensured Docker runtime can switch Gemini model via root `.env` without code changes
+  - verified `AiRoadmap.tsx` compiles in Docker build path
+- Existing files updated:
+  - `docker-compose.yml`
+  - `dev_log/README.MD`
+- Runtime/config updates:
+  - added `GEMINI_MODEL` pass-through in app container env:
+    - `GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}`
+  - normalized `GEMINI_API_KEY` pass-through to include safe empty fallback:
+    - `GEMINI_API_KEY: ${GEMINI_API_KEY:-}`
+- Where AI response appears:
+  - page route: `/dashboard/ai-roadmap`
+  - visible to `job_seeker` role from sidebar item `AI Roadmap`
+  - generated text is rendered in the `Your Personalized Roadmap` card on `client/src/pages/jobseeker/AiRoadmap.tsx`
+- IDE red-file clarification:
+  - `AiRoadmap.tsx` is build-valid in Docker
+  - if file appears all red in editor, likely local TypeScript deps are missing in `client/node_modules` on host machine
+

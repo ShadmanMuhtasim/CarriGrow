@@ -31,6 +31,9 @@ services:
       MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-}
       MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@carrigrow.local}
       MAIL_FROM_NAME: ${MAIL_FROM_NAME:-CarriGrow}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+
     ports:
       - "${HOST_APP_PORT:-8000}:80"
     restart: unless-stopped
