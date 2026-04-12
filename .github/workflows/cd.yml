@@ -10,10 +10,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: render-deploy-developer
-  cancel-in-progress: true
-
 jobs:
   deploy:
     name: Deploy to Render
