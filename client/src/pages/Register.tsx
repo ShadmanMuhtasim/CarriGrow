@@ -11,10 +11,15 @@ import { useAuth } from "../hooks/useAuth";
 import { toastUI } from "../components/ui/Toast";
 import { getPostAuthRedirectPath } from "../utils/authRedirect";
 import { getApiErrorMessage } from "../utils/apiError";
+import { alphabeticTextPattern, sanitizeAlphabeticText } from "../utils/inputSanitizers";
 
 const schema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Name must be at least 2 characters")
+      .regex(alphabeticTextPattern, "Name should contain letters only"),
     email: z.string().email("Enter a valid email"),
     role: z.enum(["job_seeker", "employer", "mentor"]),
     password: z
@@ -94,7 +99,15 @@ export default function Register() {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="row g-3">
                   <div className="col-12">
-                    <Input label="Name" error={errors.name?.message} {...register("name")} />
+                    <Input
+                      label="Name"
+                      error={errors.name?.message}
+                      {...register("name", {
+                        onChange: (event) => {
+                          event.target.value = sanitizeAlphabeticText(event.target.value);
+                        },
+                      })}
+                    />
                   </div>
 
                   <div className="col-12">

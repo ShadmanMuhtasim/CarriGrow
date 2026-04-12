@@ -1,0 +1,45 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [developer]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-deploy-developer
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Trigger Render deploy hook
+        env:
+          DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          if [ -z "$DEPLOY_URL" ]; then
+            echo "Missing RENDER_DEPLOY_HOOK_URL secret"
+            exit 1
+          fi
+
+          if [[ "$DEPLOY_URL" == *\?* ]]; then
+            FINAL_URL="${DEPLOY_URL}&ref=${SHA}"
+          else
+            FINAL_URL="${DEPLOY_URL}?ref=${SHA}"
+          fi
+
+          echo "Triggering Render deploy for commit: $SHA"
+          curl -fsSL -X POST "$FINAL_URL"
+          echo "Render deploy triggered successfully"

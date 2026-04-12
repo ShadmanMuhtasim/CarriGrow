@@ -20,10 +20,19 @@ import { toastUI } from "../../components/ui/Toast";
 import { useAuth } from "../../hooks/useAuth";
 import { arrayToLines, completionPercent, linesToArray } from "./profileUtils";
 import type { Skill, User } from "../../types/models";
+import { alphabeticTextPattern, sanitizeAlphabeticText, sanitizeDigits } from "../../utils/inputSanitizers";
 
 const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().max(50).optional(),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .regex(alphabeticTextPattern, "Name should contain letters only"),
+  phone: z
+    .string()
+    .max(50)
+    .optional()
+    .refine((value) => !value || /^\d+$/.test(value), "Phone should contain numbers only"),
   location: z.string().max(255).optional(),
   bio: z.string().max(2000).optional(),
   education_text: z.string().optional(),
@@ -251,10 +260,27 @@ export default function JobSeekerProfile() {
             <>
               <form className="row g-3" onSubmit={handleSubmit(onSubmit)}>
                 <div className="col-12 col-md-6">
-                  <Input label="Name" error={errors.name?.message} {...register("name")} />
+                  <Input
+                    label="Name"
+                    error={errors.name?.message}
+                    {...register("name", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeAlphabeticText(event.target.value);
+                      },
+                    })}
+                  />
                 </div>
                 <div className="col-12 col-md-6">
-                  <Input label="Phone" error={errors.phone?.message} {...register("phone")} />
+                  <Input
+                    label="Phone"
+                    inputMode="numeric"
+                    error={errors.phone?.message}
+                    {...register("phone", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeDigits(event.target.value).slice(0, 15);
+                      },
+                    })}
+                  />
                 </div>
                 <div className="col-12 col-md-6">
                   <Input label="Location" error={errors.location?.message} {...register("location")} />

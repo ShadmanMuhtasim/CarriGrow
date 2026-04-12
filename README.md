@@ -198,6 +198,7 @@ project-root/
 Notes:
 - This repo is database-first only. `database/docker/init/00-schema.sql` and `database/docker/init/10-reference-data.sql` are the committed source of truth for schema and reference data.
 - Only `00-schema.sql` and `10-reference-data.sql` are mounted into MySQL init and run when the `mysql-data` volume is empty.
+- For existing `mysql-data` volumes, app startup now auto-runs `database/docker/patches/2026-04-11_schema_sync.sql` (idempotent) to sync legacy forum schema drift. Set `AUTO_SCHEMA_SYNC=false` to skip it.
 - If you already started the stack once and want to re-run the init SQL, use `docker compose down -v` first.
 - Keep personal XAMPP exports outside the Docker init path; do not mount or run them in this stack.
 - Demo accounts from `10-reference-data.sql` all use the password `password`.

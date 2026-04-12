@@ -17,9 +17,14 @@ import { toastUI } from "../../components/ui/Toast";
 import { useAuth } from "../../hooks/useAuth";
 import { arrayToLines, completionPercent, linesToArray } from "./profileUtils";
 import type { Skill, User } from "../../types/models";
+import { alphabeticTextPattern, sanitizeAlphabeticText, sanitizeDigits } from "../../utils/inputSanitizers";
 
 const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .regex(alphabeticTextPattern, "Name should contain letters only"),
   current_position: z.string().max(255).optional(),
   company: z.string().max(255).optional(),
   years_of_experience: z
@@ -259,7 +264,15 @@ export default function MentorProfile() {
             <>
               <form className="row g-3" onSubmit={handleSubmit(onSubmit)}>
                 <div className="col-12 col-md-6">
-                  <Input label="Name" error={errors.name?.message} {...register("name")} />
+                  <Input
+                    label="Name"
+                    error={errors.name?.message}
+                    {...register("name", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeAlphabeticText(event.target.value);
+                      },
+                    })}
+                  />
                 </div>
                 <div className="col-12 col-md-6">
                   <Input label="Current Position" error={errors.current_position?.message} {...register("current_position")} />
@@ -269,10 +282,15 @@ export default function MentorProfile() {
                 </div>
                 <div className="col-12 col-md-6">
                   <Input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     label="Years of Experience"
                     error={errors.years_of_experience?.message}
-                    {...register("years_of_experience")}
+                    {...register("years_of_experience", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeDigits(event.target.value).slice(0, 2);
+                      },
+                    })}
                   />
                 </div>
                 <div className="col-12 col-md-6">
@@ -282,7 +300,17 @@ export default function MentorProfile() {
                   <Input label="Calendly Link" error={errors.calendly_link?.message} {...register("calendly_link")} />
                 </div>
                 <div className="col-12 col-md-6">
-                  <Input type="number" label="Hourly Rate" error={errors.hourly_rate?.message} {...register("hourly_rate")} />
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    label="Hourly Rate"
+                    error={errors.hourly_rate?.message}
+                    {...register("hourly_rate", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeDigits(event.target.value);
+                      },
+                    })}
+                  />
                 </div>
                 <div className="col-12">
                   <Textarea label="Bio" rows={3} error={errors.bio?.message} {...register("bio")} />

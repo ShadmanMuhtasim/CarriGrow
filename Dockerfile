@@ -38,6 +38,7 @@ COPY server/ /var/www/html
 RUN composer install --prefer-dist --no-interaction --optimize-autoloader
 
 COPY --from=client-builder /app/client/dist/ /var/www/html/public/
+COPY database/docker/patches/2026-04-11_schema_sync.sql /opt/carrigrow-patches/2026-04-11_schema_sync.sql
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh \

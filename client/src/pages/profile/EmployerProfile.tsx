@@ -19,9 +19,14 @@ import { toastUI } from "../../components/ui/Toast";
 import { useAuth } from "../../hooks/useAuth";
 import { completionPercent } from "./profileUtils";
 import type { Skill, User } from "../../types/models";
+import { alphabeticTextPattern, sanitizeAlphabeticText, sanitizeDigits } from "../../utils/inputSanitizers";
 
 const schema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .regex(alphabeticTextPattern, "Account name should contain letters only"),
   company_name: z.string().min(2, "Company name is required"),
   company_website: z.union([z.literal(""), z.string().url("Company website must be valid")]),
   company_logo_url: z.union([z.literal(""), z.string().url("Logo URL must be valid")]),
@@ -43,7 +48,11 @@ const schema = z.object({
     }, "Founded year must be a valid year"),
   headquarters_location: z.string().max(255).optional(),
   contact_email: z.union([z.literal(""), z.string().email("Contact email must be valid")]),
-  contact_phone: z.string().max(50).optional(),
+  contact_phone: z
+    .string()
+    .max(50)
+    .optional()
+    .refine((value) => !value || /^\d+$/.test(value), "Contact phone should contain numbers only"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -252,7 +261,15 @@ export default function EmployerProfile() {
             <>
               <form className="row g-3" onSubmit={handleSubmit(onSubmit)}>
                 <div className="col-12 col-md-6">
-                  <Input label="Account Name" error={errors.name?.message} {...register("name")} />
+                  <Input
+                    label="Account Name"
+                    error={errors.name?.message}
+                    {...register("name", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeAlphabeticText(event.target.value);
+                      },
+                    })}
+                  />
                 </div>
                 <div className="col-12 col-md-6">
                   <Input label="Company Name" error={errors.company_name?.message} {...register("company_name")} />
@@ -279,7 +296,17 @@ export default function EmployerProfile() {
                   <Input label="Industry" error={errors.industry?.message} {...register("industry")} />
                 </div>
                 <div className="col-12 col-md-6">
-                  <Input type="number" label="Founded Year" error={errors.founded_year?.message} {...register("founded_year")} />
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    label="Founded Year"
+                    error={errors.founded_year?.message}
+                    {...register("founded_year", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeDigits(event.target.value).slice(0, 4);
+                      },
+                    })}
+                  />
                 </div>
                 <div className="col-12 col-md-6">
                   <Input
@@ -292,7 +319,16 @@ export default function EmployerProfile() {
                   <Input label="Contact Email" error={errors.contact_email?.message} {...register("contact_email")} />
                 </div>
                 <div className="col-12 col-md-6">
-                  <Input label="Contact Phone" error={errors.contact_phone?.message} {...register("contact_phone")} />
+                  <Input
+                    label="Contact Phone"
+                    inputMode="numeric"
+                    error={errors.contact_phone?.message}
+                    {...register("contact_phone", {
+                      onChange: (event) => {
+                        event.target.value = sanitizeDigits(event.target.value).slice(0, 15);
+                      },
+                    })}
+                  />
                 </div>
                 <div className="col-12 col-md-6">
                   <FileUpload
