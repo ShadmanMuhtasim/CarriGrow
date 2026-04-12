@@ -226,3 +226,4 @@ Database-first note:
 - `npm install`
 - `npm run dev`
 testing CD
+final line of the project (testing cd)
