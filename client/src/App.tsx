@@ -22,6 +22,7 @@ import JobApplicants from "./pages/employer/JobApplicants";
 import ApplicantsList from "./pages/employer/ApplicantsList";
 import ApplicantDetail from "./pages/employer/ApplicantDetail";
 import RecommendedJobs from "./pages/jobseeker/RecommendedJobs";
+import AiRoadmap from "./pages/jobseeker/AiRoadmap";
 import MyApplications from "./pages/jobseeker/MyApplications";
 import SavedJobs from "./pages/jobseeker/SavedJobs";
 import JobsList from "./pages/jobs/JobsList";
@@ -73,6 +74,7 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="jobs" element={<RecommendedJobs />} />
+          <Route path="ai-roadmap" element={<AiRoadmap />} />
           <Route path="my-applications" element={<MyApplications />} />
           <Route path="saved-jobs" element={<SavedJobs />} />
           <Route path="post-job" element={<PostJob />} />
