@@ -1,0 +1,106 @@
+# CarriGrow Run Guide (Windows + Docker)
+
+This guide covers:
+1. Running on a newly cloned project.
+2. Running on an already cloned project after `git pull`/`git fetch`.
+
+## A) Newly Cloned Project (First Time Setup)
+
+1. Open PowerShell in project root:
+```powershell
+cd "..\CarriGrow"
+```
+
+2. Create `.env` from Docker example:
+```powershell
+Copy-Item .env.docker.example .env
+```
+
+3. Generate required secrets:
+```powershell
+docker compose run --rm app php artisan key:generate --show
+docker compose run --rm app php artisan jwt:secret --show
+```
+
+4. Copy the two outputs into `.env`:
+- `APP_KEY=...`
+- `JWT_SECRET=...`
+
+5. Build and run:
+```powershell
+docker compose up -d --build
+```
+
+6. Open services:
+- App: `http://localhost:8000`
+- Adminer: `http://localhost:8080`
+- Mailpit: `http://localhost:8025`
+
+7. Check container status:
+```powershell
+docker compose ps
+```
+
+## B) Existing Clone (After Pull/Fetch Latest Changes)
+
+1. Get latest code:
+```powershell
+git pull
+```
+or if you already fetched:
+```powershell
+git fetch
+git pull
+```
+
+2. Make sure `.env` still has valid values:
+- `APP_KEY=...`
+- `JWT_SECRET=...`
+
+If missing, generate again:
+```powershell
+docker compose run --rm app php artisan key:generate --show
+docker compose run --rm app php artisan jwt:secret --show
+```
+
+3. Rebuild and start with latest code:
+```powershell
+docker compose up -d --build
+```
+
+4. If schema-related errors appear on old local DB volume, run schema sync patch:
+```powershell
+Get-Content .\database\docker\patches\2026-04-11_schema_sync.sql | docker compose exec -T db mysql -ucarrigrow -pcarrigrow carrigrow
+```
+
+5. Verify:
+```powershell
+docker compose ps
+```
+
+## C) Optional Clean Reset (When Local State Is Broken)
+
+This removes old DB volume and containers:
+```powershell
+docker compose down -v
+docker compose up -d --build
+```
+
+Then re-apply step A3/A4 if needed.
+
+## D) Common Troubleshooting
+
+### 1) TLS handshake timeout while pulling images
+This is network/registry related, not project code. Retry:
+```powershell
+docker pull node:20-bookworm-slim
+docker pull php:8.2-apache
+docker pull composer:2
+docker compose up -d --build
+```
+
+### 2) Docker permission/access denied
+Run PowerShell as Administrator and ensure Docker Desktop is running.
+
+### 3) Warning: APP_KEY/JWT_SECRET not set
+Set both keys in root `.env` (same directory as `docker-compose.yml`).

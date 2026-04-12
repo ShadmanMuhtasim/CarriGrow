@@ -1,5 +1,10 @@
 **/vendor
 **/node_modules
 **/dist
+.git
+.gitignore
 .env
 .env.local
+database/docker/init/*.sql
+server/public/assets
+server/storage/logs

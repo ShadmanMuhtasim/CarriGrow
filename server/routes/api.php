@@ -1,26 +1,112 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AiRoadmapController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminModerationController;
+use App\Http\Controllers\AdminReportController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\ForumPostController;
+use App\Http\Controllers\ForumReplyController;
+use App\Http\Controllers\JobBrowseController;
+use App\Http\Controllers\JobApplicationController;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\JobRecommendationController;
+use App\Http\Controllers\JobSkillController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SkillMatchController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\SkillController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+Route::get('/skills', [SkillController::class, 'index']);
+Route::get('/jobs', [JobBrowseController::class, 'index']);
+Route::get('/jobs/featured', [JobBrowseController::class, 'featured']);
+Route::get('/jobs/{job}', [JobBrowseController::class, 'show']);
+Route::get('/jobs/{job}/skills', [JobSkillController::class, 'index']);
+Route::get('/forum/posts', [ForumPostController::class, 'index']);
+Route::get('/forum/posts/{post}', [ForumPostController::class, 'show']);
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
+// ---- JWT Auth routes ----
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:login');
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/stream', [NotificationController::class, 'stream']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'readAll']);
+    Route::put('/notifications/{notification}/read', [NotificationController::class, 'read']);
+
+    Route::get('/users/me', [UserController::class, 'me']);
+    Route::put('/users/me', [UserController::class, 'updateMe']);
+    Route::delete('/users/me/profile', [UserController::class, 'deleteMyProfile']);
+    Route::post('/users/me/skills', [UserController::class, 'setMySkills']);
+
+    Route::get('/users/{user}/skills', [SkillController::class, 'userSkills']);
+    Route::post('/users/{user}/skills', [SkillController::class, 'attachUserSkill']);
+    Route::delete('/users/{user}/skills/{skill}', [SkillController::class, 'detachUserSkill']);
+
+    Route::middleware('ensure.admin')->prefix('/admin')->group(function () {
+        Route::get('/stats', [AdminDashboardController::class, 'stats']);
+        Route::get('/analytics/summary', [AdminDashboardController::class, 'summary']);
+        Route::get('/analytics/growth', [AdminDashboardController::class, 'growth']);
+        Route::get('/users', [AdminUserController::class, 'index']);
+        Route::get('/users/{user}', [AdminUserController::class, 'show']);
+        Route::match(['put', 'patch'], '/users/{user}/role', [AdminUserController::class, 'updateRole']);
+        Route::patch('/users/{user}/status', [AdminUserController::class, 'updateStatus']);
+        Route::post('/users/{user}/suspend', [AdminUserController::class, 'suspend']);
+        Route::post('/users/{user}/activate', [AdminUserController::class, 'activate']);
+        Route::get('/moderation', [AdminModerationController::class, 'index']);
+        Route::get('/content-reports', [AdminModerationController::class, 'index']);
+        Route::post('/moderation/{report}/resolve', [AdminModerationController::class, 'resolve']);
+        Route::get('/system-logs', [AdminDashboardController::class, 'systemLogs']);
+        Route::get('/reports', [AdminReportController::class, 'index']);
+        Route::post('/reports', [AdminReportController::class, 'store']);
+    });
+
+    Route::prefix('/employer/jobs')->group(function () {
+        Route::get('/', [JobController::class, 'index']);
+        Route::post('/', [JobController::class, 'store']);
+        Route::get('/{job}', [JobController::class, 'show']);
+        Route::match(['put', 'patch'], '/{job}', [JobController::class, 'update']);
+        Route::delete('/{job}', [JobController::class, 'destroy']);
+    });
+
+    Route::post('/jobs/{job}/apply', [JobApplicationController::class, 'apply']);
+    Route::post('/jobs/{job}/skills', [JobSkillController::class, 'store']);
+    Route::get('/jobs/{job}/match-score', [SkillMatchController::class, 'matchScore']);
+    Route::get('/recommendations/jobs', [JobRecommendationController::class, 'index']);
+    Route::get('/users/{user}/recommended-jobs', [SkillMatchController::class, 'recommendedJobs']);
+    Route::get('/applications', [JobApplicationController::class, 'indexForJobSeeker']);
+    Route::post('/ai/roadmap', [AiRoadmapController::class, 'generate']);
+    Route::get('/jobs/{job}/applications', [JobApplicationController::class, 'indexForEmployer']);
+    Route::match(['put', 'patch'], '/jobs/{job}/applications/{application}', [JobApplicationController::class, 'updateForEmployer']);
+    Route::post('/forum/posts', [ForumPostController::class, 'store']);
+    Route::match(['put', 'patch'], '/forum/posts/{post}', [ForumPostController::class, 'update']);
+    Route::delete('/forum/posts/{post}', [ForumPostController::class, 'destroy']);
+    Route::post('/forum/posts/{post}/vote', [ForumPostController::class, 'vote']);
+    Route::post('/forum/posts/{post}/report', [ForumPostController::class, 'report']);
+    Route::post('/forum/posts/{post}/replies', [ForumReplyController::class, 'store']);
+    Route::match(['put', 'patch'], '/forum/replies/{reply}', [ForumReplyController::class, 'update']);
+    Route::delete('/forum/replies/{reply}', [ForumReplyController::class, 'destroy']);
+    Route::post('/forum/replies/{reply}/mark-solution', [ForumReplyController::class, 'markSolution']);
+    Route::post('/forum/replies/{reply}/report', [ForumReplyController::class, 'report']);
 });
 
-Route::get('/session', [SessionController::class, 'getSession']);
-Route::post('/session', [SessionController::class, 'createSession'])->middleware('check.admin');
-Route::put('/session', [SessionController::class, 'updateSession'])->middleware('check.admin');
-Route::post('/sessions', [SessionController::class, 'viewSessions'])->middleware('check.admin');
-Route::post('/attendance', [SessionController::class, 'submitAttendance']);
+// ---- (Optional) old template routes ----
+// If you keep these, protect them properly later.
+Route::prefix('/legacy')->group(function () {
+    Route::get('/session', [SessionController::class, 'getSession']);
+    Route::post('/session', [SessionController::class, 'createSession'])->middleware('check.admin');
+    Route::put('/session', [SessionController::class, 'updateSession'])->middleware('check.admin');
+    Route::post('/sessions', [SessionController::class, 'viewSessions'])->middleware('check.admin');
+    Route::post('/attendance', [SessionController::class, 'submitAttendance']);
+});
+
+
